@@ -1,5 +1,8 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_from_directory
+import csv
+import io
+from datetime import datetime, date
+from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_from_directory, make_response
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import get_db, init_db, seed_db
@@ -107,11 +110,13 @@ def dashboard():
     user = db.execute("SELECT monthly_budget FROM users WHERE id = ?", (session['user_id'],)).fetchone()
     monthly_budget = user['monthly_budget'] if user else 10000.0
 
-    # 2. Fetch all expenses for the list with optional search/filter
-    search_query = request.args.get('q', '')
+    # 2. Fetch expenses with optional search / category / date-range filters
+    search_query   = request.args.get('q', '')
     category_filter = request.args.get('category', '')
+    date_from      = request.args.get('date_from', '')
+    date_to        = request.args.get('date_to', '')
     
-    query = "SELECT * FROM expenses WHERE user_id = ?"
+    query  = "SELECT * FROM expenses WHERE user_id = ?"
     params = [session['user_id']]
     
     if search_query:
@@ -121,32 +126,75 @@ def dashboard():
     if category_filter:
         query += " AND category = ?"
         params.append(category_filter)
+
+    if date_from:
+        query += " AND date >= ?"
+        params.append(date_from)
+
+    if date_to:
+        query += " AND date <= ?"
+        params.append(date_to)
         
     query += " ORDER BY date DESC"
     
     all_expenses = db.execute(query, params).fetchall()
-    
-    total_spent = sum(e['amount'] for e in all_expenses)
+    total_spent  = sum(e['amount'] for e in all_expenses)
 
-    # 3. Calculate current month's spending for the budget progress bar
-    from datetime import datetime
+    # 3. Current-month spending for budget doughnut
     current_month_str = datetime.now().strftime("%Y-%m")
-    
     current_month_spent = db.execute(
         "SELECT SUM(amount) as total FROM expenses WHERE user_id = ? AND date LIKE ?",
         (session['user_id'], f"{current_month_str}%")
     ).fetchone()['total'] or 0.0
 
-    # 4. Calculate category-wise totals for the chart
+    # 4. Category totals — overall (unfiltered) for pie chart
     categories_data = db.execute(
-        "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category",
+        "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category ORDER BY total DESC",
         (session['user_id'],)
     ).fetchall()
-    
-    # Format categories for Chart.js
     chart_labels = [c['category'] for c in categories_data]
     chart_values = [c['total'] for c in categories_data]
-    
+
+    # 5. Monthly trends — last 6 months for bar chart
+    monthly_trends = db.execute(
+        """
+        SELECT strftime('%Y-%m', date) as month, SUM(amount) as total
+        FROM expenses WHERE user_id = ?
+        GROUP BY month ORDER BY month DESC LIMIT 6
+        """,
+        (session['user_id'],)
+    ).fetchall()
+    monthly_trends = list(reversed(monthly_trends))
+    trend_labels = [r['month'] for r in monthly_trends]
+    trend_values = [r['total'] for r in monthly_trends]
+
+    # 6. Spending insights (computed from ALL user expenses)
+    all_user_expenses = db.execute(
+        "SELECT * FROM expenses WHERE user_id = ? ORDER BY amount DESC",
+        (session['user_id'],)
+    ).fetchall()
+
+    insights = {}
+    if all_user_expenses:
+        top_cat_row = db.execute(
+            "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category ORDER BY total DESC LIMIT 1",
+            (session['user_id'],)
+        ).fetchone()
+        insights['top_category']    = top_cat_row['category'] if top_cat_row else '—'
+        insights['top_category_amt'] = top_cat_row['total'] if top_cat_row else 0
+        insights['biggest_expense'] = all_user_expenses[0]['amount']
+        insights['biggest_desc']    = all_user_expenses[0]['description'] or all_user_expenses[0]['category']
+        # Daily average over the date range present in data
+        dates = [e['date'] for e in all_user_expenses]
+        try:
+            d_min = datetime.strptime(min(dates), '%Y-%m-%d')
+            d_max = datetime.strptime(max(dates), '%Y-%m-%d')
+            num_days = max(1, (d_max - d_min).days + 1)
+        except Exception:
+            num_days = 1
+        total_all = sum(e['amount'] for e in all_user_expenses)
+        insights['daily_avg'] = total_all / num_days
+
     return render_template(
         "dashboard.html", 
         expenses=all_expenses, 
@@ -154,7 +202,12 @@ def dashboard():
         current_month_spent=current_month_spent,
         monthly_budget=monthly_budget,
         chart_labels=chart_labels,
-        chart_values=chart_values
+        chart_values=chart_values,
+        trend_labels=trend_labels,
+        trend_values=trend_values,
+        insights=insights,
+        date_from=date_from,
+        date_to=date_to,
     )
 
 @app.route("/budget/update", methods=["POST"])
@@ -229,6 +282,34 @@ def delete_expense(id):
     db.commit()
     flash("Expense deleted.", "info")
     return redirect(url_for("dashboard"))
+
+
+# ------------------------------------------------------------------ #
+# CSV Export                                                          #
+# ------------------------------------------------------------------ #
+
+@app.route("/expenses/export")
+def export_expenses():
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+
+    db = get_db()
+    rows = db.execute(
+        "SELECT date, category, description, amount FROM expenses WHERE user_id = ? ORDER BY date DESC",
+        (session['user_id'],)
+    ).fetchall()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Date', 'Category', 'Description', 'Amount (INR)'])
+    for r in rows:
+        writer.writerow([r['date'], r['category'], r['description'] or '', f"{r['amount']:.2f}"])
+
+    response = make_response(output.getvalue())
+    response.headers['Content-Disposition'] = 'attachment; filename=spendly_expenses.csv'
+    response.headers['Content-Type'] = 'text/csv; charset=utf-8'
+    return response
+
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():

@@ -18,21 +18,60 @@
     </div>
 </section>
 
-<section class="dashboard-grid" style="grid-template-columns: 1fr; gap: 3rem;">
-    <!-- Overall Spending Pie Chart (Full Width) -->
-    <div class="grid-card chart-card" style="min-height: 500px; padding: 2.5rem;">
-        <div class="card-header" style="justify-content: center; margin-bottom: 2rem;">
-            <h3 style="font-size: 1.5rem; color: var(--ink); font-family: var(--font-display);">Overall Spending by Category</h3>
+<!-- ── Insights Bar ─────────────────────────────────────── -->
+{% if insights %}
+<section class="insights-bar">
+    <div class="insight-pill">
+        <span class="insight-icon">🏆</span>
+        <div>
+            <span class="insight-label">Top Category</span>
+            <span class="insight-value">{{ insights.top_category }} &mdash; ₹{{ "%.0f"|format(insights.top_category_amt) }}</span>
         </div>
-        <div class="chart-container" style="height: 400px;">
-            <canvas id="categoryChart"></canvas>
+    </div>
+    <div class="insight-pill">
+        <span class="insight-icon">🔺</span>
+        <div>
+            <span class="insight-label">Biggest Expense</span>
+            <span class="insight-value">₹{{ "%.2f"|format(insights.biggest_expense) }} &mdash; {{ insights.biggest_desc[:30] }}</span>
+        </div>
+    </div>
+    <div class="insight-pill">
+        <span class="insight-icon">📅</span>
+        <div>
+            <span class="insight-label">Daily Average</span>
+            <span class="insight-value">₹{{ "%.2f"|format(insights.daily_avg) }} / day</span>
         </div>
     </div>
 </section>
+{% endif %}
 
-<section class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem;">
+<!-- ── Charts Row ────────────────────────────────────────── -->
+<section class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
 
-    <!-- Monthly Budget Status -->
+    <!-- Monthly Trends Bar Chart -->
+    <div class="grid-card chart-card" style="min-height: 320px; padding: 2rem;">
+        <div class="card-header">
+            <h3>Monthly Spending Trend</h3>
+        </div>
+        <div class="chart-container" style="height: 240px;">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Overall Spending Pie Chart -->
+    <div class="grid-card chart-card" style="min-height: 320px; padding: 2rem;">
+        <div class="card-header">
+            <h3>Spending by Category</h3>
+        </div>
+        <div class="chart-container" style="height: 240px;">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Budget Doughnut ───────────────────────────────────── -->
+<section class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
     <div class="grid-card budget-card">
         <div class="card-header">
             <h3>Budget Allocation</h3>
@@ -53,35 +92,70 @@
                 {% elif percent > 80 %}
                     <span class="warning-text">⚠️ Near limit ({{ percent|round|int }}%)</span>
                 {% else %}
-                    You've used <strong>{{ percent|round|int }}%</strong> of your budget.
+                    You've used <strong>{{ percent|round|int }}%</strong> of your budget this month.
                 {% endif %}
             </p>
         </div>
     </div>
-</section>
 
-<section class="expense-controls">
-    <div class="search-filter-row">
-        <form method="GET" class="search-form">
-            <input type="text" name="q" placeholder="Search expenses..." value="{{ request.args.get('q', '') }}" class="search-input">
-            <select name="category" class="filter-select">
-                <option value="">All Categories</option>
-                <option value="Food" {% if request.args.get('category') == "Food" %}selected{% endif %}>Food</option>
-                <option value="Transport" {% if request.args.get('category') == "Transport" %}selected{% endif %}>Transport</option>
-                <option value="Shopping" {% if request.args.get('category') == "Shopping" %}selected{% endif %}>Shopping</option>
-                <option value="Rent" {% if request.args.get('category') == "Rent" %}selected{% endif %}>Rent</option>
-                <option value="Entertainment" {% if request.args.get('category') == "Entertainment" %}selected{% endif %}>Entertainment</option>
-                <option value="Other" {% if request.args.get('category') == "Other" %}selected{% endif %}>Other</option>
-            </select>
-            <button type="submit" class="btn-search">Filter</button>
-            {% if request.args.get('q') or request.args.get('category') %}
-                <a href="{{ url_for('dashboard') }}" class="btn-clear">Clear</a>
+    <!-- Quick stats card -->
+    <div class="grid-card" style="padding: 2rem;">
+        <div class="card-header"><h3>This Month at a Glance</h3></div>
+        <div class="quick-stats">
+            <div class="qs-row">
+                <span class="qs-label">Spent this month</span>
+                <span class="qs-value">₹{{ "%.2f"|format(current_month_spent) }}</span>
+            </div>
+            <div class="qs-row">
+                <span class="qs-label">Monthly budget</span>
+                <span class="qs-value">₹{{ "%.2f"|format(monthly_budget) }}</span>
+            </div>
+            <div class="qs-row">
+                <span class="qs-label">Remaining budget</span>
+                <span class="qs-value {% if monthly_budget - current_month_spent < 0 %}danger-text{% endif %}">
+                    ₹{{ "%.2f"|format([monthly_budget - current_month_spent, 0]|max) }}
+                </span>
+            </div>
+            {% if insights %}
+            <div class="qs-row">
+                <span class="qs-label">Daily average spend</span>
+                <span class="qs-value">₹{{ "%.2f"|format(insights.daily_avg) }}</span>
+            </div>
             {% endif %}
-        </form>
-        <a href="{{ url_for('add_expense') }}" class="add-btn">+ Add Expense</a>
+        </div>
     </div>
 </section>
 
+<!-- ── Expense Controls ──────────────────────────────────── -->
+<section class="expense-controls" style="margin-top: 3rem;">
+    <div class="search-filter-row">
+        <form method="GET" class="search-form" id="filter-form">
+            <input type="text" name="q" placeholder="Search expenses…" value="{{ request.args.get('q', '') }}" class="search-input">
+            <select name="category" class="filter-select">
+                <option value="">All Categories</option>
+                <option value="Food"          {% if request.args.get('category') == "Food"          %}selected{% endif %}>Food</option>
+                <option value="Transport"     {% if request.args.get('category') == "Transport"     %}selected{% endif %}>Transport</option>
+                <option value="Bills"         {% if request.args.get('category') == "Bills"         %}selected{% endif %}>Bills</option>
+                <option value="Health"        {% if request.args.get('category') == "Health"        %}selected{% endif %}>Health</option>
+                <option value="Shopping"      {% if request.args.get('category') == "Shopping"      %}selected{% endif %}>Shopping</option>
+                <option value="Entertainment" {% if request.args.get('category') == "Entertainment" %}selected{% endif %}>Entertainment</option>
+                <option value="Other"         {% if request.args.get('category') == "Other"         %}selected{% endif %}>Other</option>
+            </select>
+            <input type="date" name="date_from" class="filter-select" value="{{ date_from }}" title="From date">
+            <input type="date" name="date_to"   class="filter-select" value="{{ date_to }}"   title="To date">
+            <button type="submit" class="btn-search">Filter</button>
+            {% if request.args.get('q') or request.args.get('category') or date_from or date_to %}
+                <a href="{{ url_for('dashboard') }}" class="btn-clear">Clear</a>
+            {% endif %}
+        </form>
+        <div style="display:flex; gap: 0.75rem; align-items:center;">
+            <a href="{{ url_for('export_expenses') }}" class="btn-export" title="Download CSV">⬇ Export CSV</a>
+            <a href="{{ url_for('add_expense') }}" class="add-btn">+ Add Expense</a>
+        </div>
+    </div>
+</section>
+
+<!-- ── Expense Table ─────────────────────────────────────── -->
 <section class="expenses-list">
     <div class="list-container">
         {% if expenses %}
@@ -112,13 +186,13 @@
             </table>
         {% else %}
             <div class="empty-state">
-                <p>No transactions yet. Start by adding one!</p>
+                <p>No transactions found. Try adjusting your filters or <a href="{{ url_for('add_expense') }}" style="color:var(--accent)">add a new expense</a>.</p>
             </div>
         {% endif %}
     </div>
 </section>
 
-<!-- Budget Adjustment Modal -->
+<!-- ── Budget Modal ───────────────────────────────────────── -->
 <div id="budgetModal" class="modal-overlay" style="display:none">
     <div class="modal-card">
         <div class="modal-header">
@@ -138,65 +212,88 @@
 
 {% block scripts %}
 <script>
-    const rawLabels = {{ chart_labels|safe }};
-    const rawValues = {{ chart_values|safe }};
+    // ── Data from Flask ───────────────────────────────────
+    const rawLabels      = {{ chart_labels|tojson }};
+    const rawValues      = {{ chart_values|tojson }};
     const totalSpentValue = {{ total_spent }};
-    
-    // Group small categories (< 5%) into "Others" for a "merged" feel
-    let processedLabels = [];
-    let processedValues = [];
-    let othersTotal = 0;
-    
-    for (let i = 0; i < rawLabels.length; i++) {
-        if (rawValues[i] / totalSpentValue < 0.05 && rawLabels.length > 5) {
-            othersTotal += rawValues[i];
-        } else {
-            processedLabels.push(rawLabels[i]);
-            processedValues.push(rawValues[i]);
-        }
-    }
-    
-    if (othersTotal > 0) {
-        processedLabels.push("Others");
-        processedValues.push(othersTotal);
-    }
+    const trendLabels    = {{ trend_labels|tojson }};
+    const trendValues    = {{ trend_values|tojson }};
+    const spent          = {{ current_month_spent }};
+    const budget         = {{ monthly_budget }};
 
-    const ctx = document.getElementById('categoryChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'pie',
+    // ── Palette ──────────────────────────────────────────
+    const palette = ['#06b6d4','#6366f1','#f43f5e','#f59e0b','#10b981','#a855f7','#f97316','#3b82f6'];
+
+    // ── 1. Monthly Trend Bar Chart ───────────────────────
+    new Chart(document.getElementById('trendChart').getContext('2d'), {
+        type: 'bar',
         data: {
-            labels: processedLabels,
+            labels: trendLabels,
             datasets: [{
-                data: processedValues,
-                backgroundColor: [
-                    '#06b6d4', '#6366f1', '#f43f5e', '#f59e0b', '#10b981', '#a855f7', '#f97316', '#3b82f6'
-                ],
-                borderWidth: 0,
-                hoverOffset: 30
+                label: 'Spending (₹)',
+                data: trendValues,
+                backgroundColor: 'rgba(26,71,42,0.15)',
+                borderColor: '#1a472a',
+                borderWidth: 2,
+                borderRadius: 6,
+                hoverBackgroundColor: 'rgba(26,71,42,0.3)',
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: 40 },
             plugins: {
-                legend: { 
-                    position: 'bottom',
-                    labels: { 
-                        font: { family: 'Inter', size: 14, weight: '500' }, 
-                        padding: 30,
-                        usePointStyle: true 
-                    }
-                },
+                legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(15, 15, 15, 0.95)',
-                    padding: 12,
-                    bodyFont: { family: 'Inter', size: 13 },
+                    backgroundColor: 'rgba(15,15,15,0.92)',
+                    padding: 10,
                     callbacks: {
-                        label: function(context) {
-                            const val = context.raw || 0;
-                            const pct = ((val / totalSpentValue) * 100).toFixed(1);
-                            return ` ₹${val.toLocaleString()} (${pct}%)`;
+                        label: ctx => ` ₹${ctx.raw.toLocaleString('en-IN')}`
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 12 } } },
+                y: {
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { callback: v => '₹' + v.toLocaleString('en-IN'), font: { family: 'DM Sans', size: 11 } }
+                }
+            }
+        }
+    });
+
+    // ── 2. category Pie Chart ────────────────────────────
+    // Group tiny slices (<5%) when there are many categories
+    let procLabels = [], procValues = [], othersTotal = 0;
+    for (let i = 0; i < rawLabels.length; i++) {
+        if (rawValues[i] / totalSpentValue < 0.05 && rawLabels.length > 5) {
+            othersTotal += rawValues[i];
+        } else {
+            procLabels.push(rawLabels[i]);
+            procValues.push(rawValues[i]);
+        }
+    }
+    if (othersTotal > 0) { procLabels.push('Others'); procValues.push(othersTotal); }
+
+    new Chart(document.getElementById('categoryChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: procLabels,
+            datasets: [{ data: procValues, backgroundColor: palette, borderWidth: 0, hoverOffset: 20 }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: 10 },
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 12 }, padding: 16, usePointStyle: true } },
+                tooltip: {
+                    backgroundColor: 'rgba(15,15,15,0.92)',
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => {
+                            const pct = ((ctx.raw / totalSpentValue) * 100).toFixed(1);
+                            return ` ₹${ctx.raw.toLocaleString('en-IN')} (${pct}%)`;
                         }
                     }
                 }
@@ -204,22 +301,13 @@
         }
     });
 
-    // Budget Overview Chart (Spent vs Remaining)
-    const budgetCtx = document.getElementById('budgetOverviewChart').getContext('2d');
-    const spent = {{ current_month_spent }};
-    const budget = {{ monthly_budget }};
+    // ── 3. Budget Doughnut ──────────────────────────────
     const remaining = Math.max(0, budget - spent);
-    
-    new Chart(budgetCtx, {
+    new Chart(document.getElementById('budgetOverviewChart').getContext('2d'), {
         type: 'doughnut',
         data: {
             labels: ['Spent', 'Remaining'],
-            datasets: [{
-                data: [spent, remaining],
-                backgroundColor: [spent > budget ? '#b31b25' : '#266658', '#e5e9eb'],
-                borderWidth: 0,
-                weight: 1
-            }]
+            datasets: [{ data: [spent, remaining], backgroundColor: [spent > budget ? '#b31b25' : '#1a472a', '#e5e9eb'], borderWidth: 0 }]
         },
         options: {
             responsive: true,
@@ -227,14 +315,7 @@
             cutout: '80%',
             plugins: {
                 legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const val = context.raw || 0;
-                            return ` ₹${val.toLocaleString()}`;
-                        }
-                    }
-                }
+                tooltip: { callbacks: { label: ctx => ` ₹${ctx.raw.toLocaleString('en-IN')}` } }
             }
         }
     });
