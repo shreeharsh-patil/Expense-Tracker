@@ -1,11 +1,14 @@
 import os
 import csv
 import io
-from datetime import datetime, date
-from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_from_directory, make_response
+import json
+from datetime import datetime, date, timedelta
+from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_from_directory, make_response, jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import get_db, init_db, seed_db
+from ocr_engine import process_receipt
+from email_alerts import send_budget_alert, send_weekly_summary
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -64,7 +67,8 @@ def register():
     return render_template("register.html")
 
 app.config['UPLOAD_FOLDER'] = os.path.join(app.static_folder, 'uploads', 'profile_pics')
-app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['RECEIPT_FOLDER'] = os.path.join(app.static_folder, 'uploads', 'receipts')
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'}
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -72,6 +76,8 @@ def allowed_file(filename):
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
+if not os.path.exists(app.config['RECEIPT_FOLDER']):
+    os.makedirs(app.config['RECEIPT_FOLDER'])
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -367,7 +373,7 @@ def add_goal():
     return redirect(url_for("dashboard"))
 
 @app.route("/goals/<int:id>/save", methods=["POST"])
-def save_for_goal():
+def save_for_goal(id):
     if 'user_id' not in session:
         return redirect(url_for("login"))
     amount = float(request.form.get("amount", 0))
@@ -463,6 +469,199 @@ def profile():
     return render_template("profile.html", user=user)
 
 
+# ------------------------------------------------------------------ #
+# Receipt OCR (Image Upload)                                         #
+# ------------------------------------------------------------------ #
+
+@app.route("/receipt/scan", methods=["GET", "POST"])
+def scan_receipt():
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    
+    ocr_result = None
+    
+    if request.method == "POST":
+        if 'receipt' not in request.files:
+            flash("No receipt image uploaded.", "danger")
+            return redirect(request.url)
+        
+        file = request.files['receipt']
+        if file.filename == '':
+            flash("No file selected.", "danger")
+            return redirect(request.url)
+        
+        if file and allowed_file(file.filename):
+            filename = secure_filename(f"receipt_{session['user_id']}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}")
+            filepath = os.path.join(app.config['RECEIPT_FOLDER'], filename)
+            file.save(filepath)
+            
+            # Run OCR
+            ocr_result = process_receipt(filepath)
+            ocr_result['image_url'] = url_for('static', filename=f'uploads/receipts/{filename}')
+        else:
+            flash("Invalid file type. Please upload an image.", "danger")
+    
+    return render_template("scan_receipt.html", ocr_result=ocr_result)
+
+
+# ------------------------------------------------------------------ #
+# Yearly Reports                                                      #
+# ------------------------------------------------------------------ #
+
+@app.route("/reports")
+def reports():
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    
+    db = get_db()
+    year = request.args.get('year', datetime.now().strftime('%Y'))
+    
+    # 1. Monthly breakdown for the selected year
+    monthly = db.execute("""
+        SELECT strftime('%m', date) as month, SUM(amount) as total
+        FROM expenses WHERE user_id = ? AND strftime('%Y', date) = ?
+        GROUP BY month ORDER BY month
+    """, (session['user_id'], year)).fetchall()
+    
+    month_names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    monthly_data = {r['month']: r['total'] for r in monthly}
+    report_labels = month_names
+    report_values = [monthly_data.get(f"{i+1:02d}", 0) for i in range(12)]
+    year_total = sum(report_values)
+    
+    # 2. Category breakdown for the year
+    categories = db.execute("""
+        SELECT category, SUM(amount) as total, COUNT(*) as count
+        FROM expenses WHERE user_id = ? AND strftime('%Y', date) = ?
+        GROUP BY category ORDER BY total DESC
+    """, (session['user_id'], year)).fetchall()
+    
+    cat_labels = [c['category'] for c in categories]
+    cat_values = [c['total'] for c in categories]
+    
+    # 3. Payment method breakdown for the year
+    methods = db.execute("""
+        SELECT payment_method, SUM(amount) as total
+        FROM expenses WHERE user_id = ? AND strftime('%Y', date) = ?
+        GROUP BY payment_method ORDER BY total DESC
+    """, (session['user_id'], year)).fetchall()
+    
+    method_labels = [m['payment_method'] for m in methods]
+    method_values = [m['total'] for m in methods]
+    
+    # 4. Available years for the year picker
+    years = db.execute("""
+        SELECT DISTINCT strftime('%Y', date) as yr
+        FROM expenses WHERE user_id = ?
+        ORDER BY yr DESC
+    """, (session['user_id'],)).fetchall()
+    available_years = [y['yr'] for y in years] or [datetime.now().strftime('%Y')]
+    
+    # 5. Month-over-month comparison
+    best_month_idx = report_values.index(max(report_values)) if any(report_values) else 0
+    worst_month_idx = report_values.index(min(v for v in report_values if v > 0)) if any(v > 0 for v in report_values) else 0
+    
+    # 6. Average monthly spend
+    active_months = sum(1 for v in report_values if v > 0) or 1
+    avg_monthly = year_total / active_months
+    
+    return render_template("reports.html",
+        year=year,
+        available_years=available_years,
+        report_labels=report_labels,
+        report_values=report_values,
+        year_total=year_total,
+        categories=categories,
+        cat_labels=cat_labels,
+        cat_values=cat_values,
+        method_labels=method_labels,
+        method_values=method_values,
+        best_month=month_names[best_month_idx],
+        worst_month=month_names[worst_month_idx],
+        avg_monthly=avg_monthly,
+    )
+
+
+# ------------------------------------------------------------------ #
+# Email Alerts                                                        #
+# ------------------------------------------------------------------ #
+
+@app.route("/alerts/send-budget", methods=["POST"])
+def send_budget_alert_route():
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    
+    db = get_db()
+    user = db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],)).fetchone()
+    
+    current_month_str = datetime.now().strftime("%Y-%m")
+    spent = db.execute(
+        "SELECT SUM(amount) as total FROM expenses WHERE user_id = ? AND date LIKE ?",
+        (session['user_id'], f"{current_month_str}%")
+    ).fetchone()['total'] or 0.0
+    
+    budget = user['monthly_budget']
+    
+    now = datetime.now()
+    days_in_month = (date(now.year + (now.month // 12), (now.month % 12) + 1, 1) - date(now.year, now.month, 1)).days
+    projected = (spent / now.day) * days_in_month if now.day > 0 else 0
+    
+    top_cat = db.execute(
+        "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? AND date LIKE ? GROUP BY category ORDER BY total DESC LIMIT 1",
+        (session['user_id'], f"{current_month_str}%")
+    ).fetchone()
+    
+    result = send_budget_alert(
+        user['email'], user['name'], spent, budget, projected,
+        top_cat['category'] if top_cat else 'Other',
+        top_cat['total'] if top_cat else 0
+    )
+    
+    if result['success']:
+        flash(f"Budget alert sent to {user['email']}!", "success")
+    else:
+        flash(f"Failed to send email: {result['error']}", "danger")
+    
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/alerts/send-weekly", methods=["POST"])
+def send_weekly_summary_route():
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    
+    db = get_db()
+    user = db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],)).fetchone()
+    
+    week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    expenses = db.execute(
+        "SELECT * FROM expenses WHERE user_id = ? AND date >= ? ORDER BY amount DESC",
+        (session['user_id'], week_ago)
+    ).fetchall()
+    
+    week_total = sum(e['amount'] for e in expenses)
+    daily_avg = week_total / 7
+    expense_count = len(expenses)
+    
+    top_expenses = [dict(e) for e in expenses[:5]]
+    
+    result = send_weekly_summary(
+        user['email'], user['name'], week_total, daily_avg, expense_count, top_expenses
+    )
+    
+    if result['success']:
+        flash(f"Weekly summary sent to {user['email']}!", "success")
+    else:
+        flash(f"Failed to send email: {result['error']}", "danger")
+    
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/alerts/settings")
+def alert_settings():
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    return render_template("alert_settings.html")
 
 
 if __name__ == "__main__":

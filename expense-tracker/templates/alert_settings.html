@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Email Alerts | Spendly{% endblock %}
+
+{% block content %}
+<section class="dashboard-header">
+    <div class="header-content">
+        <h1>🔔 Email <span class="highlight">Alerts</span></h1>
+        <p>Stay informed about your spending with smart notifications.</p>
+    </div>
+</section>
+
+<section class="dashboard-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 2rem; margin-bottom: 4rem;">
+
+    <!-- Budget Alert Card -->
+    <div class="grid-card" style="padding: 2rem; display: flex; flex-direction: column;">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <span style="font-size: 3rem; display: block; margin-bottom: 0.75rem;">⚠️</span>
+            <h3 style="margin: 0;">Budget Alert</h3>
+            <p style="color: var(--ink-muted); font-size: 0.85rem; margin: 0.5rem 0 0;">
+                Get a warning email when your spending exceeds your monthly budget.
+            </p>
+        </div>
+        <div style="flex: 1;"></div>
+        <ul style="font-size: 0.85rem; color: var(--ink-soft); margin: 0 0 1.5rem; padding-left: 1.2rem;">
+            <li>Current month's spend vs budget</li>
+            <li>Month-end projection</li>
+            <li>Top spending category</li>
+        </ul>
+        <form action="{{ url_for('send_budget_alert_route') }}" method="POST">
+            <button type="submit" class="btn-submit" style="width: 100%;">
+                📧 Send Budget Alert Now
+            </button>
+        </form>
+    </div>
+
+    <!-- Weekly Summary Card -->
+    <div class="grid-card" style="padding: 2rem; display: flex; flex-direction: column;">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <span style="font-size: 3rem; display: block; margin-bottom: 0.75rem;">📊</span>
+            <h3 style="margin: 0;">Weekly Summary</h3>
+            <p style="color: var(--ink-muted); font-size: 0.85rem; margin: 0.5rem 0 0;">
+                Receive a weekly digest of your top expenses and spending patterns.
+            </p>
+        </div>
+        <div style="flex: 1;"></div>
+        <ul style="font-size: 0.85rem; color: var(--ink-soft); margin: 0 0 1.5rem; padding-left: 1.2rem;">
+            <li>Total spent this week</li>
+            <li>Daily average breakdown</li>
+            <li>Top 5 largest expenses</li>
+        </ul>
+        <form action="{{ url_for('send_weekly_summary_route') }}" method="POST">
+            <button type="submit" class="btn-submit" style="width: 100%;">
+                📧 Send Weekly Summary Now
+            </button>
+        </form>
+    </div>
+
+    <!-- Setup Guide Card -->
+    <div class="grid-card" style="padding: 2rem; display: flex; flex-direction: column;">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <span style="font-size: 3rem; display: block; margin-bottom: 0.75rem;">⚙️</span>
+            <h3 style="margin: 0;">SMTP Setup</h3>
+            <p style="color: var(--ink-muted); font-size: 0.85rem; margin: 0.5rem 0 0;">
+                Configure your email credentials to enable alert sending.
+            </p>
+        </div>
+        <div style="flex: 1;"></div>
+        <div style="background: var(--paper-warm); border-radius: 8px; padding: 1rem; font-size: 0.8rem;">
+            <p style="margin: 0 0 0.5rem; font-weight: 600;">Set these environment variables:</p>
+            <code style="display: block; margin: 0.25rem 0; color: var(--accent); word-break: break-all;">SPENDLY_SMTP_EMAIL=your@gmail.com</code>
+            <code style="display: block; margin: 0.25rem 0; color: var(--accent); word-break: break-all;">SPENDLY_SMTP_PASSWORD=your_app_password</code>
+            <p style="margin: 0.75rem 0 0; color: var(--ink-muted); font-size: 0.75rem;">
+                For Gmail: Enable 2FA → Create an <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: var(--accent-2); font-weight: 600;">App Password</a>.
+            </p>
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Email Preview Section ──────────────────────────────── -->
+<section class="dashboard-grid" style="grid-template-columns: 1fr; gap: 2rem; margin-bottom: 4rem;">
+    <div class="grid-card" style="padding: 2rem;">
+        <div class="card-header">
+            <h3>📬 Email Preview</h3>
+        </div>
+        <p style="color: var(--ink-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+            This is a preview of the premium HTML email your recipients receive.
+        </p>
+        <div style="background: white; border-radius: 16px; max-width: 520px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #1a472a, #2e7d32); padding: 2rem; color: white; text-align: center;">
+                <h2 style="margin: 0; font-size: 1.3rem;">⚠️ Budget Alert</h2>
+                <p style="margin: 0.5rem 0 0; opacity: 0.85; font-size: 0.85rem;">Spendly noticed you're spending fast.</p>
+            </div>
+            <div style="padding: 1.5rem;">
+                <div style="background: #f7f6f3; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 0.5rem;">
+                        <span>₹7,000</span><span style="color: #6b6b6b;">/ ₹10,000</span>
+                    </div>
+                    <div style="height: 8px; background: #e5e9eb; border-radius: 4px; overflow: hidden;">
+                        <div style="width: 70%; height: 100%; background: #f39c12; border-radius: 4px;"></div>
+                    </div>
+                    <p style="text-align: right; font-size: 0.75rem; color: #f39c12; margin: 0.25rem 0 0; font-weight: 600;">70% used</p>
+                </div>
+                <p style="text-align: center; color: #a0a0a0; font-size: 0.7rem; margin: 1rem 0 0;">Sent by Spendly — your personal finance tracker.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

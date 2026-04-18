@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Receipt | Spendly{% endblock %}
+
+{% block content %}
+<section class="dashboard-header">
+    <div class="header-content">
+        <h1>📎 Receipt <span class="highlight">Scanner</span></h1>
+        <p>Upload a photo of your receipt and we'll extract the details automatically.</p>
+    </div>
+</section>
+
+<section class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 4rem;">
+    <!-- Upload Column -->
+    <div class="grid-card" style="padding: 2rem;">
+        <div class="card-header">
+            <h3>Upload Receipt</h3>
+        </div>
+
+        <form action="{{ url_for('scan_receipt') }}" method="POST" enctype="multipart/form-data" id="receiptForm">
+            <div class="receipt-upload-zone" id="dropZone">
+                <input type="file" name="receipt" id="receiptFile" accept="image/*" required style="display: none;">
+                <div class="upload-placeholder" id="uploadPlaceholder">
+                    <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">📸</span>
+                    <p style="font-weight: 600; margin: 0;">Drag & drop your receipt here</p>
+                    <p style="color: var(--ink-muted); font-size: 0.85rem; margin: 0.25rem 0 1rem;">or click to browse files</p>
+                    <span style="font-size: 0.75rem; color: var(--ink-faint);">Supports: JPG, PNG, WebP, BMP</span>
+                </div>
+                <img id="previewImage" style="display: none; max-width: 100%; max-height: 300px; border-radius: 8px; object-fit: contain;" alt="Receipt preview">
+            </div>
+
+            <button type="submit" class="btn-submit" style="width: 100%; margin-top: 1.5rem;" id="scanBtn" disabled>
+                🔍 Scan Receipt
+            </button>
+        </form>
+    </div>
+
+    <!-- Results Column -->
+    <div class="grid-card" style="padding: 2rem;">
+        <div class="card-header">
+            <h3>Extracted Details</h3>
+            {% if ocr_result %}
+                <span class="tag-{{ 'food' if ocr_result.confidence == 'high' else 'other' }}" style="font-size: 0.7rem;">
+                    {{ ocr_result.confidence|upper }} CONFIDENCE
+                </span>
+            {% endif %}
+        </div>
+
+        {% if ocr_result %}
+            <!-- Show extracted data with pre-filled form -->
+            <div style="margin-top: 1rem;">
+                {% if ocr_result.image_url %}
+                <div style="background: var(--paper-warm); border-radius: 8px; padding: 0.75rem; margin-bottom: 1.5rem; text-align: center;">
+                    <img src="{{ ocr_result.image_url }}" alt="Scanned receipt" style="max-width: 100%; max-height: 150px; border-radius: 6px; object-fit: contain;">
+                </div>
+                {% endif %}
+
+                {% if ocr_result.method == 'fallback' or ocr_result.method == 'error' %}
+                <div style="background: var(--danger-light); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--danger);">
+                        <strong>Note:</strong> {{ ocr_result.raw_text }}
+                    </p>
+                    <p style="margin: 0.5rem 0 0; font-size: 0.8rem; color: var(--ink-muted);">
+                        You can still fill in the details manually below.
+                    </p>
+                </div>
+                {% endif %}
+
+                <form action="{{ url_for('add_expense') }}" method="POST">
+                    <div class="form-group">
+                        <label>Amount (₹)</label>
+                        <input type="number" step="0.01" name="amount" class="form-input"
+                               value="{{ ocr_result.amount or '' }}"
+                               placeholder="Enter amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select name="category" class="form-input" required>
+                            {% for cat in ['Food', 'Transport', 'Shopping', 'Bills', 'Entertainment', 'Health', 'Other'] %}
+                            <option value="{{ cat }}" {% if ocr_result.category == cat %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select name="payment_method" class="form-input">
+                            <option value="Cash">Cash</option>
+                            <option value="Bank">Bank Transfer / UPI</option>
+                            <option value="Credit Card">Credit Card</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" name="description" class="form-input"
+                               value="{{ ocr_result.description }}"
+                               placeholder="Receipt memo">
+                    </div>
+                    <button type="submit" class="btn-submit" style="width: 100%; background: var(--accent);">
+                        ✓ Save as Expense
+                    </button>
+                </form>
+            </div>
+
+            {% if ocr_result.raw_text and ocr_result.method == 'tesseract' %}
+            <details style="margin-top: 1.5rem;">
+                <summary style="cursor: pointer; font-size: 0.8rem; color: var(--ink-muted); font-weight: 600;">
+                    View Raw OCR Text
+                </summary>
+                <pre style="background: var(--paper-warm); padding: 1rem; border-radius: 8px; font-size: 0.75rem; margin-top: 0.5rem; white-space: pre-wrap; max-height: 200px; overflow-y: auto;">{{ ocr_result.raw_text }}</pre>
+            </details>
+            {% endif %}
+
+        {% else %}
+            <div style="text-align: center; padding: 4rem 2rem; color: var(--ink-faint);">
+                <span style="font-size: 4rem; display: block; margin-bottom: 1rem;">🧾</span>
+                <p style="font-size: 0.95rem; margin: 0;">Upload a receipt image to extract details.</p>
+                <p style="font-size: 0.8rem; margin: 0.5rem 0 0;">The scanner will try to find the amount and category automatically.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+    .receipt-upload-zone {
+        border: 2px dashed var(--border);
+        border-radius: var(--radius-md);
+        padding: 3rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: var(--paper-warm);
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .receipt-upload-zone:hover, .receipt-upload-zone.dragover {
+        border-color: var(--accent);
+        background: var(--accent-light);
+    }
+</style>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('receiptFile');
+    const preview = document.getElementById('previewImage');
+    const placeholder = document.getElementById('uploadPlaceholder');
+    const scanBtn = document.getElementById('scanBtn');
+
+    // Set default date
+    document.querySelectorAll('input[type=date]').forEach(el => {
+        if (!el.value) el.valueAsDate = new Date();
+    });
+
+    // Click to browse
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    // Drag & drop
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            showPreview(e.dataTransfer.files[0]);
+        }
+    });
+
+    // File selected
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) showPreview(fileInput.files[0]);
+    });
+
+    function showPreview(file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+            scanBtn.disabled = false;
+            scanBtn.textContent = '🔍 Scan "' + file.name.substring(0, 20) + '"';
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+{% endblock %}

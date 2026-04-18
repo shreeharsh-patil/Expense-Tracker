@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}{{ year }} Report | Spendly{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-header">
+    <div class="header-content">
+        <h1>📊 Annual <span class="highlight">Report {{ year }}</span></h1>
+        <p>A complete picture of your yearly spending.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+        {% for yr in available_years %}
+        <a href="{{ url_for('reports', year=yr) }}"
+           class="btn-{% if yr == year %}submit{% else %}cancel{% endif %}"
+           style="padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 6px; text-decoration: none;">
+            {{ yr }}
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ── Hero Stats ────────────────────────────────────────── -->
+<section class="insights-bar" style="margin-bottom: 2rem;">
+    <div class="insight-pill">
+        <span class="insight-icon">💰</span>
+        <div>
+            <span class="insight-label">Total Spent in {{ year }}</span>
+            <span class="insight-value" style="font-size: 1.2rem;">₹{{ "%.0f"|format(year_total) }}</span>
+        </div>
+    </div>
+    <div class="insight-pill">
+        <span class="insight-icon">📅</span>
+        <div>
+            <span class="insight-label">Monthly Average</span>
+            <span class="insight-value">₹{{ "%.0f"|format(avg_monthly) }}</span>
+        </div>
+    </div>
+    <div class="insight-pill">
+        <span class="insight-icon">🔺</span>
+        <div>
+            <span class="insight-label">Highest Month</span>
+            <span class="insight-value">{{ best_month }}</span>
+        </div>
+    </div>
+    <div class="insight-pill">
+        <span class="insight-icon">🔽</span>
+        <div>
+            <span class="insight-label">Lowest Month</span>
+            <span class="insight-value">{{ worst_month }}</span>
+        </div>
+    </div>
+</section>
+
+<!-- ── Monthly Breakdown Chart ───────────────────────────── -->
+<section class="dashboard-grid" style="grid-template-columns: 1fr; gap: 2rem; margin-bottom: 2rem;">
+    <div class="grid-card chart-card" style="min-height: 340px; padding: 2rem;">
+        <div class="card-header">
+            <h3>Monthly Breakdown</h3>
+        </div>
+        <div class="chart-container" style="height: 280px;">
+            <canvas id="yearlyBarChart"></canvas>
+        </div>
+    </div>
+</section>
+
+<!-- ── Category & Payment Charts ─────────────────────────── -->
+<section class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+    <div class="grid-card chart-card" style="min-height: 340px; padding: 2rem;">
+        <div class="card-header">
+            <h3>Spending by Category</h3>
+        </div>
+        <div class="chart-container" style="height: 260px;">
+            <canvas id="yearCatChart"></canvas>
+        </div>
+    </div>
+    <div class="grid-card chart-card" style="min-height: 340px; padding: 2rem;">
+        <div class="card-header">
+            <h3>Spending by Payment Method</h3>
+        </div>
+        <div class="chart-container" style="height: 260px;">
+            <canvas id="yearMethodChart"></canvas>
+        </div>
+    </div>
+</section>
+
+<!-- ── Category Detail Table ─────────────────────────────── -->
+<section class="dashboard-grid" style="grid-template-columns: 1fr; gap: 2rem; margin-bottom: 4rem;">
+    <div class="grid-card" style="padding: 2rem;">
+        <div class="card-header">
+            <h3>Category Summary</h3>
+        </div>
+        <table class="expense-table" style="margin-top: 1rem;">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Transactions</th>
+                    <th>Total Spent</th>
+                    <th>% of Total</th>
+                    <th>Distribution</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                {% set pct = (cat.total / year_total * 100) if year_total > 0 else 0 %}
+                <tr>
+                    <td><span class="tag-{{ cat.category|lower }}">{{ cat.category }}</span></td>
+                    <td style="color: var(--ink-muted);">{{ cat.count }} txns</td>
+                    <td class="col-amount">₹{{ "%.2f"|format(cat.total) }}</td>
+                    <td style="font-weight: 600;">{{ "%.1f"|format(pct) }}%</td>
+                    <td style="width: 200px;">
+                        <div class="progress-bar-track" style="height: 8px;">
+                            <div class="progress-bar-fill" style="width: {{ pct }}%; background: var(--accent);"></div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const palette = ['#06b6d4','#6366f1','#f43f5e','#f59e0b','#10b981','#a855f7','#f97316','#3b82f6'];
+    const methodPalette = ['#1a472a', '#c17f24', '#6366f1', '#f43f5e'];
+
+    // Monthly bar chart
+    new Chart(document.getElementById('yearlyBarChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: {{ report_labels|tojson }},
+            datasets: [{
+                label: 'Spending (₹)',
+                data: {{ report_values|tojson }},
+                backgroundColor: {{ report_values|tojson }}.map((v, i) => {
+                    const max = Math.max(...{{ report_values|tojson }});
+                    return v === max ? '#c17f24' : '#1a472a';
+                }),
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Category doughnut
+    new Chart(document.getElementById('yearCatChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ cat_labels|tojson }},
+            datasets: [{ data: {{ cat_values|tojson }}, backgroundColor: palette, borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'right' } } }
+    });
+
+    // Payment method chart
+    new Chart(document.getElementById('yearMethodChart').getContext('2d'), {
+        type: 'polarArea',
+        data: {
+            labels: {{ method_labels|tojson }},
+            datasets: [{ data: {{ method_values|tojson }}, backgroundColor: methodPalette.map(c => c + '99'), borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+    });
+</script>
+{% endblock %}

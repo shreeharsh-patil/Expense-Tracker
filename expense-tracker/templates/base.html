@@ -28,6 +28,9 @@
                 </button>
                 {% if session.user_id %}
                 <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('reports') }}">Reports</a>
+                <a href="{{ url_for('scan_receipt') }}">Scan</a>
+                <a href="{{ url_for('alert_settings') }}">Alerts</a>
                 <a href="{{ url_for('profile') }}">Profile</a>
                 <a href="{{ url_for('logout') }}" class="nav-cta">Logout</a>
                 {% else %}
