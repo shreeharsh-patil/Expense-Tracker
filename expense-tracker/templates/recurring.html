@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Recurring Expenses | Spendly{% endblock %}
+
+{% block content %}
+<section class="dashboard-header">
+    <div class="header-content">
+        <h1>Recurring <span class="highlight">Subscriptions</span></h1>
+        <p>Manage your monthly commitments and automated bills.</p>
+    </div>
+    <div class="summary-card">
+        <span class="label">Monthly Commitment</span>
+        <span class="amount">₹{{ "%.2f"|format(recurring|sum(attribute='amount')) }}</span>
+    </div>
+</section>
+
+<section class="dashboard-grid" style="grid-template-columns: 1fr 340px; gap: 2rem; margin-bottom: 4rem;">
+    <!-- List of recurring expenses -->
+    <div class="list-container">
+        {% if recurring %}
+            <table class="expense-table">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rec in recurring %}
+                    <tr>
+                        <td class="col-date">Every {{ rec.day_of_month }}<sup>th</sup></td>
+                        <td class="col-category"><span class="tag-{{ rec.category|lower }}">{{ rec.category }}</span></td>
+                        <td class="col-description">{{ rec.description }}</td>
+                        <td class="col-amount">₹{{ "%.2f"|format(rec.amount) }}</td>
+                        <td class="col-actions">
+                            <a href="{{ url_for('delete_recurring', id=rec.id) }}" class="delete-btn" onclick="return confirm('Stop this subscription?')">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <p>No automated subscriptions yet.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Form to add new recurring expense -->
+    <div class="grid-card" style="padding: 2rem;">
+        <div class="card-header">
+            <h3>Schedule New</h3>
+        </div>
+        <form action="{{ url_for('add_recurring') }}" method="POST">
+            <div class="form-group">
+                <label for="amount">Amount (₹)</label>
+                <input type="number" step="0.01" name="amount" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select name="category" class="form-input" required>
+                    <option value="Bills">Bills</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Food">Food</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="day_of_month">Billing Day (1-28)</label>
+                <input type="number" min="1" max="28" name="day_of_month" class="form-input" placeholder="e.g. 5" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Memo</label>
+                <input type="text" name="description" class="form-input" placeholder="e.g. Netflix Subscription" required>
+            </div>
+            <button type="submit" class="btn-submit">Automate This</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

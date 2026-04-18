@@ -2,6 +2,7 @@ import sqlite3
 import os
 from flask import g
 from werkzeug.security import generate_password_hash
+from datetime import date
 
 DATABASE = os.path.join(os.path.dirname(__file__), 'spendly.db')
 
@@ -40,9 +41,39 @@ def init_db():
             user_id     INTEGER NOT NULL,
             amount      REAL    NOT NULL,
             category    TEXT    NOT NULL,
+            payment_method TEXT DEFAULT 'Cash',
             date        TEXT    NOT NULL,
             description TEXT,
             created_at  TEXT    DEFAULT (datetime('now')),
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    """)
+
+    # Recurring expenses table
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS recurring_expenses (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id     INTEGER NOT NULL,
+            amount      REAL    NOT NULL,
+            category    TEXT    NOT NULL,
+            payment_method TEXT DEFAULT 'Cash',
+            description TEXT,
+            day_of_month INTEGER NOT NULL,
+            last_processed_month TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    """)
+
+    # Savings Goals table
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS goals (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id        INTEGER NOT NULL,
+            name           TEXT    NOT NULL,
+            target_amount  REAL    NOT NULL,
+            current_saved   REAL    DEFAULT 0,
+            deadline       TEXT,
+            created_at     TEXT    DEFAULT (datetime('now')),
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
@@ -90,4 +121,35 @@ def seed_db():
         "INSERT INTO expenses (user_id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)",
         sample_expenses,
     )
+    db.commit()
+
+
+def process_recurring_expenses(user_id):
+    """Checks recurring expenses and creates entries in 'expenses' table if due."""
+    db = get_db()
+    today = date.today()
+    current_month_str = today.strftime("%Y-%m")
+    
+    recurring = db.execute(
+        "SELECT * FROM recurring_expenses WHERE user_id = ?",
+        (user_id,)
+    ).fetchall()
+
+    for rec in recurring:
+        last_month = rec['last_processed_month']
+        
+        # If not processed for current month AND we are on or past the due day
+        if last_month != current_month_str and today.day >= rec['day_of_month']:
+            # Create the actual expense
+            due_date = f"{current_month_str}-{rec['day_of_month']:02d}"
+            db.execute(
+                "INSERT INTO expenses (user_id, amount, category, payment_method, date, description) VALUES (?, ?, ?, ?, ?, ?)",
+                (user_id, rec['amount'], rec['category'], rec['payment_method'], due_date, f"[Recurring] {rec['description']}")
+            )
+            # Update last processed month
+            db.execute(
+                "UPDATE recurring_expenses SET last_processed_month = ? WHERE id = ?",
+                (current_month_str, rec['id'])
+            )
+            
     db.commit()

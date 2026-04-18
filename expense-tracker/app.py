@@ -106,6 +106,10 @@ def dashboard():
     
     db = get_db()
     
+    # Process any due recurring expenses
+    from database.db import process_recurring_expenses
+    process_recurring_expenses(session['user_id'])
+
     # 1. Fetch user budget
     user = db.execute("SELECT monthly_budget FROM users WHERE id = ?", (session['user_id'],)).fetchone()
     monthly_budget = user['monthly_budget'] if user else 10000.0
@@ -195,6 +199,21 @@ def dashboard():
         total_all = sum(e['amount'] for e in all_user_expenses)
         insights['daily_avg'] = total_all / num_days
 
+    # 7. Spending Forecast (Projected Total for Current Month)
+    now = datetime.now()
+    days_in_month = (date(now.year + (now.month // 12), (now.month % 12) + 1, 1) - date(now.year, now.month, 1)).days
+    current_day = now.day
+    projected_total = (current_month_spent / current_day) * days_in_month if current_day > 0 else 0
+
+    # 8. Savings Goals
+    goals = db.execute("SELECT * FROM goals WHERE user_id = ?", (session['user_id'],)).fetchall()
+
+    # 9. Payment Method Breakdown (for the new chart/list)
+    methods_data = db.execute(
+        "SELECT payment_method, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY payment_method",
+        (session['user_id'],)
+    ).fetchall()
+
     return render_template(
         "dashboard.html", 
         expenses=all_expenses, 
@@ -208,6 +227,9 @@ def dashboard():
         insights=insights,
         date_from=date_from,
         date_to=date_to,
+        projected_total=projected_total,
+        goals=goals,
+        methods_data=methods_data
     )
 
 @app.route("/budget/update", methods=["POST"])
@@ -230,13 +252,14 @@ def add_expense():
     if request.method == "POST":
         amount = request.form.get("amount")
         category = request.form.get("category")
+        payment_method = request.form.get("payment_method", "Cash")
         description = request.form.get("description")
         date = request.form.get("date")
         
         db = get_db()
         db.execute(
-            "INSERT INTO expenses (user_id, amount, category, description, date) VALUES (?, ?, ?, ?, ?)",
-            (session['user_id'], amount, category, description, date)
+            "INSERT INTO expenses (user_id, amount, category, payment_method, description, date) VALUES (?, ?, ?, ?, ?, ?)",
+            (session['user_id'], amount, category, payment_method, description, date)
         )
         db.commit()
         flash("Expense added!", "success")
@@ -281,6 +304,87 @@ def delete_expense(id):
     db.execute("DELETE FROM expenses WHERE id = ? AND user_id = ?", (id, session['user_id']))
     db.commit()
     flash("Expense deleted.", "info")
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/recurring")
+def recurring_list():
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    db = get_db()
+    recurring = db.execute("SELECT * FROM recurring_expenses WHERE user_id = ?", (session['user_id'],)).fetchall()
+    return render_template("recurring.html", recurring=recurring)
+
+@app.route("/recurring/add", methods=["POST"])
+def add_recurring():
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    amount = request.form.get("amount")
+    category = request.form.get("category")
+    payment_method = request.form.get("payment_method", "Cash")
+    description = request.form.get("description")
+    day = request.form.get("day_of_month")
+    
+    db = get_db()
+    db.execute(
+        "INSERT INTO recurring_expenses (user_id, amount, category, payment_method, description, day_of_month) VALUES (?, ?, ?, ?, ?, ?)",
+        (session['user_id'], amount, category, payment_method, description, day)
+    )
+    db.commit()
+    flash("Recurring expense scheduled!", "success")
+    return redirect(url_for("recurring_list"))
+
+@app.route("/recurring/<int:id>/delete")
+def delete_recurring(id):
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    db = get_db()
+    db.execute("DELETE FROM recurring_expenses WHERE id = ? AND user_id = ?", (id, session['user_id']))
+    db.commit()
+    flash("Recurring expense removed.", "info")
+    return redirect(url_for("recurring_list"))
+
+
+# ------------------------------------------------------------------ #
+# Savings Goals                                                      #
+# ------------------------------------------------------------------ #
+
+@app.route("/goals/add", methods=["POST"])
+def add_goal():
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    name = request.form.get("name")
+    target = request.form.get("target_amount")
+    deadline = request.form.get("deadline")
+    
+    db = get_db()
+    db.execute(
+        "INSERT INTO goals (user_id, name, target_amount, deadline) VALUES (?, ?, ?, ?)",
+        (session['user_id'], name, target, deadline)
+    )
+    db.commit()
+    flash("New goal set! Every rupee counts.", "success")
+    return redirect(url_for("dashboard"))
+
+@app.route("/goals/<int:id>/save", methods=["POST"])
+def save_for_goal():
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    amount = float(request.form.get("amount", 0))
+    db = get_db()
+    db.execute("UPDATE goals SET current_saved = current_saved + ? WHERE id = ? AND user_id = ?", (amount, id, session['user_id']))
+    db.commit()
+    flash(f"₹{amount} added to your goal! Keep going.", "success")
+    return redirect(url_for("dashboard"))
+
+@app.route("/goals/<int:id>/delete")
+def delete_goal(id):
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    db = get_db()
+    db.execute("DELETE FROM goals WHERE id = ? AND user_id = ?", (id, session['user_id']))
+    db.commit()
+    flash("Goal removed.", "info")
     return redirect(url_for("dashboard"))
 
 

@@ -28,6 +28,28 @@
     --radius-sm: 6px;
     --radius-md: 12px;
     --radius-lg: 20px;
+
+    /* Theme Transition */
+    --transition-speed: 0.3s;
+}
+
+/* Dark Mode Variables */
+body.dark-mode {
+    --ink: #f7f6f3;
+    --ink-soft: #e0e0e0;
+    --ink-muted: #a0a0a0;
+    --ink-faint: #6b6b6b;
+    --paper: #0f0f0f;
+    --paper-warm: #1a1a1a;
+    --paper-card: #1e1e1e;
+    --accent: #2e7d32;
+    --accent-light: #16261a;
+    --border: #333333;
+    --border-soft: #262626;
+}
+
+body {
+    transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
 /* ------------------------------------------------------------------ */
@@ -112,6 +134,24 @@ a { color: inherit; text-decoration: none; }
 }
 
 .nav-cta:hover { background: var(--accent) !important; }
+
+.theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.theme-toggle:hover {
+    background: var(--border-soft);
+}
 
 /* ------------------------------------------------------------------ */
 /* Main                                                                */

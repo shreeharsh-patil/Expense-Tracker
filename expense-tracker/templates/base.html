@@ -23,6 +23,9 @@
                 <span class="brand-name">Spendly</span>
             </a>
             <div class="nav-links">
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <span class="mode-icon">🌙</span>
+                </button>
                 {% if session.user_id %}
                 <a href="{{ url_for('dashboard') }}">Dashboard</a>
                 <a href="{{ url_for('profile') }}">Profile</a>
