@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_from_directory
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from database.db import get_db, init_db
+from database.db import get_db, init_db, seed_db
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -283,4 +283,5 @@ def profile():
 if __name__ == "__main__":
     with app.app_context():
         init_db()
+        seed_db()
     app.run(debug=True, port=5001)
