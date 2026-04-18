@@ -20,12 +20,22 @@
                 <div class="form-group">
                     <label for="category">Category</label>
                     <select id="category" name="category" class="form-input" required>
-                        <option value="Food" {% if expense.category == "Food" %}selected{% endif %}>Food & Dining</option>
-                        <option value="Transport" {% if expense.category == "Transport" %}selected{% endif %}>Transportation</option>
-                        <option value="Shopping" {% if expense.category == "Shopping" %}selected{% endif %}>Shopping</option>
-                        <option value="Rent" {% if expense.category == "Rent" %}selected{% endif %}>Rent/Bills</option>
-                        <option value="Entertainment" {% if expense.category == "Entertainment" %}selected{% endif %}>Entertainment</option>
-                        <option value="Other" {% if expense.category == "Other" %}selected{% endif %}>Other</option>
+                        <option value="Food"          {% if expense.category == 'Food'          %}selected{% endif %}>Food & Dining</option>
+                        <option value="Transport"     {% if expense.category == 'Transport'     %}selected{% endif %}>Transportation</option>
+                        <option value="Shopping"      {% if expense.category == 'Shopping'      %}selected{% endif %}>Shopping</option>
+                        <option value="Bills"         {% if expense.category == 'Bills'         %}selected{% endif %}>Bills & Rent</option>
+                        <option value="Entertainment" {% if expense.category == 'Entertainment' %}selected{% endif %}>Entertainment</option>
+                        <option value="Health"        {% if expense.category == 'Health'        %}selected{% endif %}>Health</option>
+                        <option value="Other"         {% if expense.category == 'Other'         %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="payment_method">Payment Method</label>
+                    <select id="payment_method" name="payment_method" class="form-input">
+                        <option value="Cash" {% if expense.payment_method == 'Cash' %}selected{% endif %}>Cash</option>
+                        <option value="Bank" {% if expense.payment_method == 'Bank' %}selected{% endif %}>Bank Transfer / UPI</option>
+                        <option value="Credit Card" {% if expense.payment_method == 'Credit Card' %}selected{% endif %}>Credit Card</option>
                     </select>
                 </div>
 

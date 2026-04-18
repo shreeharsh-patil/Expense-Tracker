@@ -288,12 +288,13 @@ def edit_expense(id):
     if request.method == "POST":
         amount = request.form.get("amount")
         category = request.form.get("category")
+        payment_method = request.form.get("payment_method", "Cash")
         description = request.form.get("description")
         date = request.form.get("date")
         
         db.execute(
-            "UPDATE expenses SET amount = ?, category = ?, description = ?, date = ? WHERE id = ?",
-            (amount, category, description, date, id)
+            "UPDATE expenses SET amount = ?, category = ?, payment_method = ?, description = ?, date = ? WHERE id = ?",
+            (amount, category, payment_method, description, date, id)
         )
         db.commit()
         flash("Expense updated!", "success")
@@ -557,9 +558,13 @@ def reports():
     """, (session['user_id'],)).fetchall()
     available_years = [y['yr'] for y in years] or [datetime.now().strftime('%Y')]
     
-    # 5. Month-over-month comparison
-    best_month_idx = report_values.index(max(report_values)) if any(report_values) else 0
-    worst_month_idx = report_values.index(min(v for v in report_values if v > 0)) if any(v > 0 for v in report_values) else 0
+    # 5. Best and worst spending months (robust)
+    non_zero = [(i, v) for i, v in enumerate(report_values) if v > 0]
+    if non_zero:
+        best_month_idx  = max(non_zero, key=lambda x: x[1])[0]
+        worst_month_idx = min(non_zero, key=lambda x: x[1])[0]
+    else:
+        best_month_idx = worst_month_idx = 0
     
     # 6. Average monthly spend
     active_months = sum(1 for v in report_values if v > 0) or 1
