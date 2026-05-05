@@ -40,9 +40,9 @@ class PostgresDBWrapper:
 def get_db():
     """Open a connection to the Postgres database, reusing it within the request context."""
     if 'db' not in g:
-        database_url = os.environ.get('POSTGRES_URL')
+        database_url = os.environ.get('POSTGRES_URL') or os.environ.get('DATABASE_URL')
         if not database_url:
-            raise RuntimeError("POSTGRES_URL environment variable is missing!")
+            raise RuntimeError("Database URL environment variable is missing! Please make sure your Vercel project is connected to a Postgres database in the Storage tab, and that you have redeployed the project after connecting it.")
             
         # Ensure sslmode is set for Vercel/Neon Postgres
         if '?' not in database_url and ('vercel-storage' in database_url or 'neon.tech' in database_url):
