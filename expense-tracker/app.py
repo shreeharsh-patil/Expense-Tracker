@@ -187,7 +187,7 @@ def dashboard():
     # 5. Monthly trends — last 6 months for bar chart
     monthly_trends = db.execute(
         """
-        SELECT strftime('%Y-%m', date) as month, SUM(amount) as total
+        SELECT TO_CHAR(date::date, 'YYYY-MM') as month, SUM(amount) as total
         FROM expenses WHERE user_id = ?
         GROUP BY month ORDER BY month DESC LIMIT 6
         """,
@@ -538,8 +538,8 @@ def reports():
     
     # 1. Monthly breakdown for the selected year
     monthly = db.execute("""
-        SELECT strftime('%m', date) as month, SUM(amount) as total
-        FROM expenses WHERE user_id = ? AND strftime('%Y', date) = ?
+        SELECT TO_CHAR(date::date, 'MM') as month, SUM(amount) as total
+        FROM expenses WHERE user_id = ? AND TO_CHAR(date::date, 'YYYY') = ?
         GROUP BY month ORDER BY month
     """, (session['user_id'], year)).fetchall()
     
@@ -552,7 +552,7 @@ def reports():
     # 2. Category breakdown for the year
     categories = db.execute("""
         SELECT category, SUM(amount) as total, COUNT(*) as count
-        FROM expenses WHERE user_id = ? AND strftime('%Y', date) = ?
+        FROM expenses WHERE user_id = ? AND TO_CHAR(date::date, 'YYYY') = ?
         GROUP BY category ORDER BY total DESC
     """, (session['user_id'], year)).fetchall()
     
@@ -562,7 +562,7 @@ def reports():
     # 3. Payment method breakdown for the year
     methods = db.execute("""
         SELECT payment_method, SUM(amount) as total
-        FROM expenses WHERE user_id = ? AND strftime('%Y', date) = ?
+        FROM expenses WHERE user_id = ? AND TO_CHAR(date::date, 'YYYY') = ?
         GROUP BY payment_method ORDER BY total DESC
     """, (session['user_id'], year)).fetchall()
     
@@ -571,7 +571,7 @@ def reports():
     
     # 4. Available years for the year picker
     years = db.execute("""
-        SELECT DISTINCT strftime('%Y', date) as yr
+        SELECT DISTINCT TO_CHAR(date::date, 'YYYY') as yr
         FROM expenses WHERE user_id = ?
         ORDER BY yr DESC
     """, (session['user_id'],)).fetchall()
