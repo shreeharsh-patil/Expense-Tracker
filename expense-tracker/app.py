@@ -13,6 +13,14 @@ from email_alerts import send_budget_alert, send_weekly_summary
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+import traceback
+from werkzeug.exceptions import HTTPException
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    if isinstance(e, HTTPException):
+        return e
+    return "<pre>" + traceback.format_exc() + "</pre>", 500
 # ------------------------------------------------------------------ #
 # Database Helpers                                                   #
 # ------------------------------------------------------------------ #
