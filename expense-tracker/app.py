@@ -20,7 +20,12 @@ from werkzeug.exceptions import HTTPException
 def handle_exception(e):
     if isinstance(e, HTTPException):
         return e
-    return "<pre>" + traceback.format_exc() + "</pre>", 500
+    
+    # Debugging information
+    env_keys = "\n\nAvailable Environment Variables:\n" + "\n".join(sorted(os.environ.keys()))
+    error_trace = traceback.format_exc()
+    
+    return "<pre>" + error_trace + env_keys + "</pre>", 500
 # ------------------------------------------------------------------ #
 # Database Helpers                                                   #
 # ------------------------------------------------------------------ #
