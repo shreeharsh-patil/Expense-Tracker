@@ -221,26 +221,30 @@ a { color: inherit; text-decoration: none; }
     }
 
     .nav-links a {
+        display: block;
         width: 100%;
-        padding: 0.75rem 0;
+        padding: 1rem 1.5rem;
         border-bottom: 1px solid var(--border-soft);
-        font-size: 1rem;
+        font-size: 1.1rem;
+        color: var(--ink) !important; /* Force dark text color */
+        background: var(--paper-card);
+        font-weight: 500;
     }
 
-    .nav-links a:last-child {
-        border-bottom: none;
+    .nav-links a:hover {
+        background: var(--paper-warm);
     }
 
     .nav-cta {
-        margin-top: 0.5rem;
-        padding: 0.6rem 0 !important;
-        background: none !important;
+        margin-top: 0;
+        background: var(--accent-light) !important;
         color: var(--accent) !important;
-        font-weight: 600;
+        border-bottom: 2px solid var(--accent) !important;
     }
 
     .theme-toggle {
-        margin: 0.5rem 0;
+        margin: 1rem 1.5rem;
+        align-self: flex-start;
     }
 }
 
