@@ -66,18 +66,24 @@ def register():
             
     return render_template("register.html")
 
-app.config['UPLOAD_FOLDER'] = os.path.join(app.static_folder, 'uploads', 'profile_pics')
-app.config['RECEIPT_FOLDER'] = os.path.join(app.static_folder, 'uploads', 'receipts')
+if os.environ.get('VERCEL'):
+    app.config['UPLOAD_FOLDER'] = '/tmp/uploads/profile_pics'
+    app.config['RECEIPT_FOLDER'] = '/tmp/uploads/receipts'
+else:
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.static_folder, 'uploads', 'profile_pics')
+    app.config['RECEIPT_FOLDER'] = os.path.join(app.static_folder, 'uploads', 'receipts')
+
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'}
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
-if not os.path.exists(app.config['RECEIPT_FOLDER']):
-    os.makedirs(app.config['RECEIPT_FOLDER'])
+try:
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['RECEIPT_FOLDER'], exist_ok=True)
+except Exception:
+    pass
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -668,6 +674,13 @@ def alert_settings():
         return redirect(url_for("login"))
     return render_template("alert_settings.html")
 
+
+# Ensure database tables are created on Vercel
+try:
+    with app.app_context():
+        init_db()
+except Exception:
+    pass
 
 if __name__ == "__main__":
     with app.app_context():
