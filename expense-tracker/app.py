@@ -11,7 +11,9 @@ from ocr_engine import process_receipt
 from email_alerts import send_budget_alert, send_weekly_summary
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+# Use a fixed secret key so sessions survive across Vercel serverless instances.
+# Falls back to a hardcoded key for local dev if SECRET_KEY env var is not set.
+app.secret_key = os.environ.get('SECRET_KEY', 'spendly-local-dev-secret-key-change-in-prod')
 
 import traceback
 from werkzeug.exceptions import HTTPException
