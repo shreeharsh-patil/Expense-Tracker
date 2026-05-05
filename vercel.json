@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "expense-tracker/app.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "expense-tracker/app.py"
+      "dest": "api/index.py"
     }
   ]
 }
