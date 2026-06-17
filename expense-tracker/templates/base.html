@@ -102,10 +102,10 @@
 
         <div class="hidden md:flex items-center space-x-1">
           {% if session.user_id %}
-          <a href="{{ url_for('dashboard') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Dashboard</a>
-          <a href="{{ url_for('reports') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Reports</a>
-          <a href="{{ url_for('scan_receipt') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Scan</a>
-          <a href="{{ url_for('recurring_list') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Recurring</a>
+          <a href="{{ url_for('dashboard') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('dashboard') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Dashboard</a>
+          <a href="{{ url_for('reports') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('reports') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Reports</a>
+          <a href="{{ url_for('scan_receipt') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('scan_receipt') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Scan</a>
+          <a href="{{ url_for('recurring_list') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('recurring_list') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Recurring</a>
 
           {% else %}
           <a href="{{ url_for('login') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Features</a>

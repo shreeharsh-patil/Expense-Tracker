@@ -176,6 +176,18 @@
           </table>
         </div>
       </div>
+
+      <!-- PAYMENT METHODS Card -->
+      <div class="card-apple p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="flex items-center gap-2 mb-6">
+            <span class="material-symbols-outlined text-primary text-[20px]">credit_card</span>
+            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest">PAYMENT METHODS</h3>
+        </div>
+        <div class="h-[180px] w-full relative">
+            <canvas id="methodChart"></canvas>
+        </div>
+      </div>
+
     </div>
 
     <!-- 3. Visual Analytics (Right Column) -->
@@ -237,21 +249,12 @@
             <span class="material-symbols-outlined text-primary text-[20px]">show_chart</span>
             <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest">MONTHLY SPENDING TREND</h3>
         </div>
-        <div class="h-[180px] w-full">
+        <div class="h-[180px] w-full relative">
             <canvas id="trendChart"></canvas>
         </div>
       </div>
 
-      <!-- PAYMENT METHODS Card -->
-      <div class="card-apple p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
-        <div class="flex items-center gap-2 mb-6">
-            <span class="material-symbols-outlined text-primary text-[20px]">credit_card</span>
-            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest">PAYMENT METHODS</h3>
-        </div>
-        <div class="h-[180px] w-full">
-            <canvas id="methodChart"></canvas>
-        </div>
-      </div>
+      <!-- Removed PAYMENT METHODS Card from right column -->
 
     </div>
 
@@ -304,7 +307,7 @@
         tooltip: {
           backgroundColor: '#1e293b',
           padding: 10,
-          callbacks: { label: ctx => ` ₹${ctx.raw}` }
+          callbacks: { label: ctx => ` Rs. ${ctx.raw}` }
         }
       },
       scales: {
@@ -321,6 +324,7 @@
     data: {
       labels: chartData.methodsLabels,
       datasets: [{
+        label: 'Amount',
         data: chartData.methodsValues,
         backgroundColor: ['#6366f1', '#f97316', '#10b981', '#f59e0b'],
         borderRadius: 4
@@ -335,11 +339,11 @@
         tooltip: {
           backgroundColor: '#1e293b',
           padding: 10,
-          callbacks: { label: ctx => ` ₹${ctx.raw}` }
+          callbacks: { label: ctx => ` Rs. ${ctx.raw}` }
         }
       },
       scales: {
-        x: { display: false, min: 0 },
+        x: { display: false, min: 0, beginAtZero: true },
         y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, family: 'Inter', weight: 'bold' } } }
       }
     }

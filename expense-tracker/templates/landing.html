@@ -280,13 +280,13 @@
     
     // Reset all tab button styles to inactive
     document.querySelectorAll('.tab-button').forEach(btn => {
-      btn.className = "tab-button w-full text-left p-4 rounded-lg border border-transparent text-muted dark:text-dark-mute hover:bg-white/40 dark:hover:bg-dark-elevated/40 transition-all text-sm font-medium flex items-center gap-4";
+      btn.className = "tab-button w-full text-left p-4 rounded-xl border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white/60 dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-4";
     });
     
     // Set active style for selected tab button
     const activeBtn = document.getElementById('btn-' + tabId);
     if (activeBtn) {
-      activeBtn.className = "tab-button w-full text-left p-4 rounded-lg border transition-all text-sm font-medium flex items-center gap-4 bg-white dark:bg-dark-card border-ink dark:border-white text-ink dark:text-white shadow-sm";
+      activeBtn.className = "tab-button w-full text-left p-4 rounded-xl border transition-all duration-300 text-sm font-medium flex items-center gap-4 bg-white dark:bg-dark-card border-primary dark:border-primary-light text-slate-900 dark:text-white shadow-md shadow-slate-100/50 dark:shadow-none";
     }
   }
 </script>

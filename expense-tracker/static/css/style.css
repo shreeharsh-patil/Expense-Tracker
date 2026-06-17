@@ -408,3 +408,26 @@ body {
 .chip-btn:active {
   transform: scale(0.96) translateY(0);
 }
+
+/* Modern background grid pattern */
+.bg-grid-pattern {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+}
+.dark .bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(99, 102, 241, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.015) 1px, transparent 1px);
+}
+
+/* Option styling for dark mode cross-browser support */
+select option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+.dark select option {
+  background-color: #0b0f19;
+  color: #f9fafb;
+}
