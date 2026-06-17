@@ -124,149 +124,213 @@
 
 
   <!-- 6. Interactive Platform Rail (Tabbed Feature Card) -->
-  <section class="relative bg-slate-50/50 dark:bg-dark-card/20 py-24 px-6 md:px-12 border-b border-slate-200/50 dark:border-white/5 overflow-hidden bg-grid-pattern">
-    <div class="glow-blob -bottom-20 right-1/4 w-96 h-96 bg-primary/10"></div>
+  <section class="relative bg-slate-50/50 dark:bg-dark-bg py-24 px-6 md:px-12 overflow-hidden bg-grid-pattern">
+    <div class="glow-blob -bottom-20 right-1/4 w-96 h-96 bg-primary/5"></div>
     <div class="max-w-7xl mx-auto relative z-10">
       <div class="max-w-2xl mb-16 space-y-4">
-        <span class="text-xs font-mono text-primary uppercase tracking-widest block font-medium">SPECIFICATIONS</span>
-        <h2 class="text-2xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+          Platform Specifications
+        </span>
+        <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
           Complete ledger visibility.
         </h2>
-        <p class="text-sm text-slate-500 dark:text-dark-mute">
+        <p class="text-base text-slate-500 dark:text-dark-mute max-w-lg">
           Choose a core platform capability below to inspect our automated data engines.
         </p>
       </div>
 
       <!-- Tabbed Container -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
         
         <!-- Left Topic filter rail -->
         <div class="lg:col-span-4 flex flex-col space-y-3">
           
-          <button onclick="switchTab('tab-ingest')" id="btn-tab-ingest" class="tab-button w-full text-left p-4 rounded-xl border transition-all duration-300 text-sm font-medium flex items-center gap-4 bg-white dark:bg-dark-card border-primary dark:border-primary-light text-slate-900 dark:text-white shadow-md shadow-slate-100/50 dark:shadow-none">
-            <span class="material-symbols-outlined text-[20px] text-primary dark:text-primary-light">center_focus_strong</span>
-            <div>
-              <p class="font-bold text-xs">Ingest (OCR Scan)</p>
-              <p class="text-[11px] text-slate-500 dark:text-dark-mute mt-0.5">Automated image-to-field extraction.</p>
+          <button onclick="switchTab('tab-ingest')" id="btn-tab-ingest" class="tab-button w-full text-left p-5 rounded-2xl border transition-all duration-300 text-sm font-medium flex items-center gap-5 bg-white dark:bg-dark-card border-primary/40 dark:border-primary/50 text-slate-900 dark:text-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none group relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-100"></div>
+            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform relative z-10">
+              <span class="material-symbols-outlined text-[20px]">center_focus_strong</span>
+            </div>
+            <div class="relative z-10">
+              <p class="font-bold text-sm">Ingest (OCR Scan)</p>
+              <p class="text-xs text-slate-500 dark:text-dark-mute mt-1">Automated image-to-field extraction.</p>
             </div>
           </button>
           
-          <button onclick="switchTab('tab-decide')" id="btn-tab-decide" class="tab-button w-full text-left p-4 rounded-xl border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white/60 dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-4">
-            <span class="material-symbols-outlined text-[20px]">fact_check</span>
+          <button onclick="switchTab('tab-decide')" id="btn-tab-decide" class="tab-button w-full text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-5 group hover:shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+              <span class="material-symbols-outlined text-[20px]">fact_check</span>
+            </div>
             <div>
-              <p class="font-semibold text-xs">Decide & Alerts</p>
-              <p class="text-[11px] text-slate-500 dark:text-dark-mute mt-0.5">Threshold triggers & SMTP setups.</p>
+              <p class="font-semibold text-sm group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Decide & Alerts</p>
+              <p class="text-xs text-slate-500 dark:text-dark-mute mt-1">Threshold triggers & SMTP setups.</p>
             </div>
           </button>
           
-          <button onclick="switchTab('tab-lifecycle')" id="btn-tab-lifecycle" class="tab-button w-full text-left p-4 rounded-xl border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white/60 dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-4">
-            <span class="material-symbols-outlined text-[20px]">sync_alt</span>
+          <button onclick="switchTab('tab-lifecycle')" id="btn-tab-lifecycle" class="tab-button w-full text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-5 group hover:shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+              <span class="material-symbols-outlined text-[20px]">sync_alt</span>
+            </div>
             <div>
-              <p class="font-semibold text-xs">Recurring Milestones</p>
-              <p class="text-[11px] text-slate-500 dark:text-dark-mute mt-0.5">Billing loops and schedule monitors.</p>
+              <p class="font-semibold text-sm group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Recurring Milestones</p>
+              <p class="text-xs text-slate-500 dark:text-dark-mute mt-1">Billing loops and schedule monitors.</p>
             </div>
           </button>
           
-          <button onclick="switchTab('tab-data')" id="btn-tab-data" class="tab-button w-full text-left p-4 rounded-xl border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white/60 dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-4">
-            <span class="material-symbols-outlined text-[20px]">database</span>
+          <button onclick="switchTab('tab-data')" id="btn-tab-data" class="tab-button w-full text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-5 group hover:shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+              <span class="material-symbols-outlined text-[20px]">database</span>
+            </div>
             <div>
-              <p class="font-semibold text-xs">Data Portability</p>
-              <p class="text-[11px] text-slate-500 dark:text-dark-mute mt-0.5">Low-latency CSV transaction exports.</p>
+              <p class="font-semibold text-sm group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Data Portability</p>
+              <p class="text-xs text-slate-500 dark:text-dark-mute mt-1">Low-latency CSV transaction exports.</p>
             </div>
           </button>
           
         </div>
 
         <!-- Right Pane Card (Surface soft inside container) -->
-        <div class="lg:col-span-8 bg-white/80 dark:bg-dark-card/80 border border-slate-200/60 dark:border-white/10 p-8 rounded-2xl shadow-xl backdrop-blur-md flex flex-col justify-between hover-lift">
+        <div class="lg:col-span-8 bg-white dark:bg-dark-card/80 border border-slate-200/80 dark:border-white/10 p-8 md:p-12 rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.05)] flex flex-col justify-center transition-all duration-500 relative overflow-hidden">
           
+          <!-- Abstract Background subtle pattern -->
+          <div class="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] opacity-50"></div>
+
           <!-- Ingest Tab Content -->
-          <div id="tab-ingest" class="tab-content space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div class="space-y-4">
-                <h4 class="text-xl font-bold text-slate-900 dark:text-white">Document processing, streamlined.</h4>
-                <p class="text-xs text-slate-500 dark:text-dark-mute leading-relaxed font-light">
+          <div id="tab-ingest" class="tab-content relative z-10 animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div class="space-y-6">
+                <h4 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Document processing, streamlined.</h4>
+                <p class="text-sm text-slate-500 dark:text-dark-mute leading-relaxed font-normal">
                   Provide your budget tracking with direct receipt upload. The AI engine automatically parses store names, tax tallies, and timestamps in real-time.
                 </p>
-                <div class="pt-2">
-                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-1">ACCURACY METRICS</span>
-                  <p class="text-[11px] text-slate-800 dark:text-slate-200 font-medium">Extraction accuracy scores exceeding 99.5% on standard retail vouchers.</p>
+                <div class="pt-4 border-t border-slate-100 dark:border-white/5">
+                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-2 font-bold">ACCURACY METRICS</span>
+                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">Extraction accuracy scores exceeding 99.5% on standard retail vouchers.</p>
                 </div>
               </div>
-              <div class="border border-slate-200/50 dark:border-white/5 rounded-xl overflow-hidden bg-slate-50 dark:bg-dark-bg p-2 shadow-inner">
-                <img src="{{ url_for('static', filename='images/receipt_scan_graphic.jpg') }}" alt="Voucher processing parsing display" class="w-full h-auto rounded-lg object-cover aspect-square shadow">
+              <div class="relative group perspective-1000">
+                <div class="absolute -inset-2 bg-gradient-to-r from-primary/20 to-teal-400/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                <div class="relative border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden bg-slate-50 dark:bg-dark-bg p-2 shadow-2xl transform group-hover:scale-[1.02] transition-transform duration-500">
+                  <img src="{{ url_for('static', filename='images/receipt_scan_graphic.jpg') }}" alt="Voucher processing parsing display" class="w-full h-auto rounded-xl object-cover shadow-sm">
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Decide Tab Content -->
-          <div id="tab-decide" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div class="space-y-4">
-                <h4 class="text-xl font-bold text-slate-900 dark:text-white">Outlier warnings before breach.</h4>
-                <p class="text-xs text-slate-500 dark:text-dark-mute leading-relaxed font-light">
+          <div id="tab-decide" class="tab-content hidden relative z-10 animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div class="space-y-6">
+                <h4 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Outlier warnings before breach.</h4>
+                <p class="text-sm text-slate-500 dark:text-dark-mute leading-relaxed font-normal">
                   Establish custom alert ceilings on utility, leisure, and shopping categories. The engine evaluates limits during entries and fires warnings instantly.
                 </p>
-                <div class="pt-2">
-                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-1">SMTP SYSTEM</span>
-                  <p class="text-[11px] text-slate-800 dark:text-slate-200 font-medium">Hooks directly to secure SMTP pipelines for delivery to family boxes.</p>
+                <div class="pt-4 border-t border-slate-100 dark:border-white/5">
+                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-2 font-bold">SMTP SYSTEM</span>
+                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">Hooks directly to secure SMTP pipelines for delivery to family boxes.</p>
                 </div>
               </div>
-              <!-- Code block representation -->
-              <div class="border border-slate-200/50 dark:border-white/5 rounded-xl bg-slate-50 dark:bg-dark-bg p-5 font-mono text-[10px] text-slate-500 dark:text-dark-mute leading-relaxed shadow-inner">
-                <p class="text-signature-forest dark:text-signature-mint font-semibold">// EVALUATOR ENGINE</p>
-                <p class="mt-1 text-slate-800 dark:text-white">def evaluate_limit(spent, budget):</p>
-                <p class="ml-4">if spent &gt; budget:</p>
-                <p class="ml-8 text-signature-coral">trigger_warning("LIMIT_BREACH")</p>
-                <p class="ml-8 text-signature-coral">return STATE_EXCEEDED</p>
-                <p class="ml-4">return STATE_OK</p>
+              
+              <!-- Code block representation (Premium Dark) -->
+              <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-br from-indigo-500/30 to-purple-600/30 rounded-2xl blur-lg group-hover:blur-xl transition-all duration-500"></div>
+                <div class="relative border border-slate-700 rounded-2xl bg-slate-950 shadow-2xl overflow-hidden">
+                  <!-- Mac-style Header -->
+                  <div class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                    <span class="ml-4 text-[10px] font-mono text-slate-500">engine.py</span>
+                  </div>
+                  <!-- Code Content -->
+                  <div class="p-6 font-mono text-xs leading-loose select-all">
+                    <p class="text-slate-500 mb-2">// EVALUATOR ENGINE</p>
+                    <p class="text-slate-300"><span class="text-purple-400">def</span> <span class="text-blue-400">evaluate_limit</span>(spent, budget):</p>
+                    <p class="ml-4 text-slate-300"><span class="text-purple-400">if</span> spent &gt; budget:</p>
+                    <p class="ml-8"><span class="text-blue-400">trigger_warning</span>(<span class="text-emerald-400">"LIMIT_BREACH"</span>)</p>
+                    <p class="ml-8 text-slate-300"><span class="text-purple-400">return</span> <span class="text-rose-400">STATE_EXCEEDED</span></p>
+                    <p class="ml-4 text-slate-300"><span class="text-purple-400">return</span> <span class="text-teal-400">STATE_OK</span></p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Lifecycle Tab Content -->
-          <div id="tab-lifecycle" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div class="space-y-4">
-                <h4 class="text-xl font-bold text-slate-900 dark:text-white">Track subscription intervals easily.</h4>
-                <p class="text-xs text-slate-500 dark:text-dark-mute leading-relaxed font-light">
+          <div id="tab-lifecycle" class="tab-content hidden relative z-10 animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div class="space-y-6">
+                <h4 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Track subscription intervals easily.</h4>
+                <p class="text-sm text-slate-500 dark:text-dark-mute leading-relaxed font-normal">
                   Prevent silent budget drains from gym or streaming renewals. Record billing intervals and track upcoming payments in an elegant timeline.
                 </p>
-                <div class="pt-2">
-                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-1">TIMELINE TASKS</span>
-                  <p class="text-[11px] text-slate-800 dark:text-slate-200 font-medium">Aggregates upcoming expenditures into monthly projected cost sums.</p>
+                <div class="pt-4 border-t border-slate-100 dark:border-white/5">
+                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-2 font-bold">TIMELINE TASKS</span>
+                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">Aggregates upcoming expenditures into monthly projected cost sums.</p>
                 </div>
               </div>
-              <!-- Checklist display -->
-              <div class="border border-slate-200/50 dark:border-white/5 rounded-xl bg-slate-50 dark:bg-dark-bg p-5 space-y-3 text-[11px] font-mono text-slate-500 dark:text-dark-mute shadow-inner">
-                <p class="font-semibold border-b border-slate-200/50 dark:border-white/5 pb-2">// BILLING MONITOR</p>
-                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-signature-coral text-base">check_circle</span> Daily transaction scan ok</div>
-                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-signature-coral text-base">check_circle</span> Subscriptions compiled</div>
-                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-signature-coral text-base">check_circle</span> Balance projections refreshed</div>
+              
+              <!-- Checklist display (Premium Dark Glow) -->
+              <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl blur-lg group-hover:blur-xl transition-all duration-500"></div>
+                <div class="relative border border-slate-700 rounded-2xl bg-slate-900 shadow-2xl p-6 space-y-4">
+                  <p class="font-mono text-[10px] text-slate-400 border-b border-slate-800 pb-3 mb-4 tracking-widest">// BILLING MONITOR</p>
+                  
+                  <div class="flex items-center gap-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                    <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                      <span class="material-symbols-outlined text-[14px] text-emerald-400">check</span>
+                    </div>
+                    <span class="font-mono text-xs text-slate-300">Daily transaction scan ok</span>
+                  </div>
+                  
+                  <div class="flex items-center gap-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                    <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                      <span class="material-symbols-outlined text-[14px] text-emerald-400">check</span>
+                    </div>
+                    <span class="font-mono text-xs text-slate-300">Subscriptions compiled</span>
+                  </div>
+                  
+                  <div class="flex items-center gap-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                    <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                      <span class="material-symbols-outlined text-[14px] text-emerald-400">check</span>
+                    </div>
+                    <span class="font-mono text-xs text-slate-300">Balance projections refreshed</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Data Tab Content -->
-          <div id="tab-data" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div class="space-y-4">
-                <h4 class="text-xl font-bold text-slate-900 dark:text-white">Low-latency CSV exporting.</h4>
-                <p class="text-xs text-slate-500 dark:text-dark-mute leading-relaxed font-light">
+          <div id="tab-data" class="tab-content hidden relative z-10 animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div class="space-y-6">
+                <h4 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Low-latency CSV exporting.</h4>
+                <p class="text-sm text-slate-500 dark:text-dark-mute leading-relaxed font-normal">
                   Export complete data ranges in structured CSV formats instantly. Perfect for processing in Excel, Google Sheets, or python analytics engines.
                 </p>
-                <div class="pt-2">
-                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-1">INTEGRITY CHECK</span>
-                  <p class="text-[11px] text-slate-800 dark:text-slate-200 font-medium">Preserves all descriptions, payment methods, and timestamps without loss.</p>
+                <div class="pt-4 border-t border-slate-100 dark:border-white/5">
+                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-2 font-bold">INTEGRITY CHECK</span>
+                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">Preserves all descriptions, payment methods, and timestamps without loss.</p>
                 </div>
               </div>
-              <!-- CSV code block -->
-              <div class="border border-slate-200/50 dark:border-white/5 rounded-xl bg-slate-50 dark:bg-dark-bg p-5 font-mono text-[9px] text-slate-500 dark:text-dark-mute leading-relaxed select-all shadow-inner">
-                <p class="text-signature-forest dark:text-signature-mint font-semibold">// EXPORT FORMAT</p>
-                <p class="mt-1 text-slate-800 dark:text-white">id,date,category,method,amount,memo</p>
-                <p>1,2026-06-01,Food,Cash,150.00,Lunch</p>
-                <p>2,2026-06-03,Transport,Card,250.00,Cab</p>
-                <p>3,2026-06-05,Bills,Bank,1200.00,Internet</p>
+              
+              <!-- CSV code block (Premium Dark Terminal) -->
+              <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-2xl blur-lg group-hover:blur-xl transition-all duration-500"></div>
+                <div class="relative border border-slate-700 rounded-2xl bg-[#0d1117] shadow-2xl overflow-hidden">
+                  <div class="bg-[#161b22] border-b border-slate-800 px-4 py-3 flex justify-between items-center">
+                    <span class="text-[10px] font-mono text-slate-400">export.csv</span>
+                    <span class="material-symbols-outlined text-[14px] text-slate-500">download</span>
+                  </div>
+                  <div class="p-6 font-mono text-xs leading-loose select-all overflow-x-auto whitespace-nowrap">
+                    <p class="text-slate-500 mb-2">// EXPORT FORMAT</p>
+                    <p class="text-rose-400 font-bold mb-1">id,date,category,method,amount,memo</p>
+                    <p class="text-slate-300"><span class="text-blue-400">1</span>,2026-06-01,<span class="text-emerald-400">Food</span>,Cash,150.00,Lunch</p>
+                    <p class="text-slate-300"><span class="text-blue-400">2</span>,2026-06-03,<span class="text-emerald-400">Transport</span>,Card,250.00,Cab</p>
+                    <p class="text-slate-300"><span class="text-blue-400">3</span>,2026-06-05,<span class="text-emerald-400">Bills</span>,Bank,1200.00,Internet</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
