@@ -87,30 +87,47 @@
     <div class="lg:col-span-4 space-y-6">
       <div class="card-apple p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
         <h3 class="text-xs font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-6 text-center">Categorical Distribution</h3>
-        <div class="h-[240px] mb-8">
+        <div class="h-[240px] mb-8 relative flex items-center justify-center">
           <canvas id="categoryChart"></canvas>
+          <div class="absolute flex flex-col items-center justify-center text-center pointer-events-none">
+            <span class="text-[9px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest leading-none">Total Spent</span>
+            <span class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tighter mt-1">&#8377;{{ "%.0f"|format(total_year) }}</span>
+          </div>
         </div>
         
         <div class="space-y-4 pt-6 border-t border-slate-100 dark:border-dark-border/40">
           {% for label, val in zip(labels, values) %}
-          <div class="flex items-center justify-between group">
-            <div class="flex items-center gap-2">
-                <div class="w-1.5 h-1.5 rounded-full" style="background-color: var(--color-{{ loop.index0 }})"></div>
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ label }}</span>
+          {% set pct = (val / total_year * 100) if total_year > 0 else 0 %}
+          <div class="space-y-1.5 group">
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full" style="background-color: var(--color-{{ loop.index0 }})"></div>
+                <span class="font-bold text-slate-700 dark:text-slate-300">{{ label }}</span>
+              </div>
+              <div class="flex items-center gap-1.5 font-mono">
+                <span class="font-bold text-slate-900 dark:text-white">&#8377;{{ "%.0f"|format(val) }}</span>
+                <span class="text-[10px] text-slate-400 dark:text-dark-mute">({{ "%.1f"|format(pct) }}%)</span>
+              </div>
             </div>
-            <span class="text-xs font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.0f"|format(val) }}</span>
+            <!-- Mini progress bar -->
+            <div class="w-full h-1 bg-slate-100 dark:bg-slate-800/60 rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-500" style="background-color: var(--color-{{ loop.index0 }}); width: {{ pct }}%"></div>
+            </div>
           </div>
           {% endfor %}
         </div>
       </div>
       
       <!-- Export Card -->
-      <div class="card-apple p-6 bg-slate-950 text-white border-none shadow-xl shadow-primary/10 flex items-center justify-between group cursor-pointer" onclick="window.location='{{ url_for('export_expenses') }}'">
+      <div class="card-apple p-6 bg-slate-900 dark:bg-[#0B0F19] hover:bg-slate-800 dark:hover:bg-[#111622] border border-slate-800 dark:border-slate-800/80 text-white flex items-center justify-between group cursor-pointer transition-all duration-300 shadow-lg" onclick="window.location='{{ url_for('export_expenses') }}'">
         <div>
-            <h4 class="text-sm font-bold tracking-tight mb-0.5">Full Data Export</h4>
-            <p class="text-[10px] text-slate-400 font-medium">Download complete CSV ledger</p>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <h4 class="text-sm font-bold tracking-tight text-slate-100">Full Data Export</h4>
+            </div>
+            <p class="text-[10px] text-slate-400 font-medium">Download complete CSV ledger for spreadsheets</p>
         </div>
-        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center transition-transform group-hover:scale-110 group-active:scale-95">
+        <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center transition-all group-hover:translate-y-[-2px] group-active:scale-95">
             <span class="material-symbols-outlined text-[20px]">download</span>
         </div>
       </div>
@@ -194,20 +211,25 @@
         datasets: [{
           data: reportData.values,
           backgroundColor: colors.accent,
-          borderWidth: 0,
-          hoverOffset: 15
+          borderWidth: 2,
+          borderColor: document.documentElement.classList.contains('dark') ? '#0b0f19' : '#ffffff',
+          borderRadius: 4,
+          hoverOffset: 6
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '75%',
+        cutout: '80%',
         plugins: {
           legend: { display: false },
           tooltip: {
             backgroundColor: '#1e293b',
+            titleFont: { size: 11, weight: 'bold' },
+            bodyFont: { size: 11 },
             padding: 12,
-            cornerRadius: 8
+            cornerRadius: 8,
+            displayColors: true
           }
         }
       }

@@ -8,7 +8,7 @@ from datetime import datetime, date, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_from_directory, make_response, jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from database.db import get_db, init_db
 from ocr_engine import process_receipt
 from email_alerts import send_budget_alert, send_weekly_summary
@@ -22,8 +22,11 @@ csrf = CSRFProtect(app)
 app.jinja_env.globals.update(zip=zip)
 
 @app.context_processor
-def inject_now():
-    return {'now_year': datetime.now().year}
+def inject_csrf_and_now():
+    return {
+        'now_year': datetime.now().year,
+        'csrf_token': generate_csrf
+    }
 # Use a fixed secret key so sessions survive across Vercel serverless instances.
 # Falls back to a random key if SECRET_KEY env var is not set.
 app.secret_key = os.environ.get('SECRET_KEY')

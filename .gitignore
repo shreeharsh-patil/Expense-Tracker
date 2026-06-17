@@ -13,3 +13,7 @@ expense-tracker/.env
 expense-tracker/.DS_Store
 expense_tracker.db
 expense-tracker/expense_tracker.db
+node_modules/
+.pytest_cache/
+*.db
+expense-tracker/database/*.db

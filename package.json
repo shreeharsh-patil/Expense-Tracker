@@ -1,0 +1,13 @@
+{
+  "name": "spendly",
+  "version": "1.0.0",
+  "description": "Spendly Personal Expense Tracker",
+  "scripts": {
+    "build:css": "tailwindcss -i ./expense-tracker/static/css/tailwind-input.css -o ./expense-tracker/static/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./expense-tracker/static/css/tailwind-input.css -o ./expense-tracker/static/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1",
+    "@tailwindcss/forms": "^0.5.7"
+  }
+}
