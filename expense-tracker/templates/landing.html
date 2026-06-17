@@ -1,292 +1,293 @@
 {% extends "base.html" %}
-
-{% block title %}Spendly — Track Every Rupee{% endblock %}
-
-{% block head %}
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-<style>
-    .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-    .text-highlight {
-        position: relative;
-        z-index: 1;
-    }
-    .text-highlight::after {
-        content: '';
-        position: absolute;
-        left: -4px;
-        right: -4px;
-        bottom: 4px;
-        height: 45%;
-        background-color: #D1E9F6;
-        z-index: -1;
-        opacity: 0.8;
-    }
-    /* Override base styles that might conflict */
-    .main-content { padding: 0 !important; }
-    .navbar { background: rgba(255, 255, 255, 0.8) !important; backdrop-filter: blur(12px); border-bottom: 1px solid #f1f5f9 !important; }
-</style>
-<script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                colors: {
-                    "primary": "#004D40",
-                    "on-surface": "#2c2f31",
-                    "on-surface-variant": "#595c5e",
-                },
-                fontFamily: {
-                    "headline": ["Manrope", "sans-serif"],
-                    "body": ["Manrope", "sans-serif"],
-                }
-            }
-        }
-    }
-</script>
-{% endblock %}
+{% block title %}Spendly — Editorial Personal Finance Ledger{% endblock %}
 
 {% block content %}
-<main class="font-body antialiased">
-    <!-- Updated Hero Section from Stitch -->
-    <section class="relative pt-20 pb-24 px-6 bg-white">
-        <div class="max-w-4xl mx-auto text-center">
-            <div class="inline-flex items-center gap-1.5 px-4 py-1.5 mb-12 rounded-full bg-[#E6F4F1] text-[#00695C] text-sm font-medium">
-                <span class="w-1.5 h-1.5 rounded-full bg-[#00695C]"></span>
-                Free to use · No credit card needed
-            </div>
-            <h1 class="text-5xl md:text-[64px] font-headline font-extrabold text-on-surface leading-[1.1] tracking-tight mb-8">
-                <span class="text-highlight">Track every rupee.</span><br/>
-                <span class="text-highlight text-[#00796B]">Know where it goes.</span>
-            </h1>
-            <p class="text-xl text-slate-500 font-medium max-w-2xl mx-auto mb-12 leading-relaxed">
-                Spendly helps you log expenses, spot patterns, and stay on budget — without the spreadsheet headache.
-            </p>
-            
-            <div class="flex flex-wrap justify-center gap-4 mb-20">
-                {% if session.user_id %}
-                    <a href="{{ url_for('dashboard') }}" class="bg-black text-white px-10 py-4 rounded-xl font-bold text-lg active:scale-95 transition-all shadow-lg">Go to Dashboard</a>
-                {% else %}
-                    <a href="{{ url_for('register') }}" class="bg-black text-white px-10 py-4 rounded-xl font-bold text-lg active:scale-95 transition-all shadow-lg">Create free account</a>
-                    <a href="#" id="how-it-works-btn" class="bg-black text-white px-10 py-4 rounded-xl font-bold text-lg active:scale-95 transition-all shadow-lg flex items-center gap-2">
-                        See how it works
-                        <span class="material-symbols-outlined text-xl text-white">play_circle</span>
-                    </a>
-                {% endif %}
-            </div>
+<main class="relative bg-white dark:bg-dark-bg text-body dark:text-dark-text transition-colors duration-300 overflow-hidden">
 
-            <!-- Dashboard Preview Mockup -->
-            <div class="relative max-w-5xl mx-auto">
-                <div class="bg-[#F8FAFC] p-4 md:p-8 rounded-[32px] shadow-2xl border border-slate-200/50">
-                    <div class="flex gap-1.5 mb-8 px-2">
-                        <div class="w-3 h-3 rounded-full bg-[#FF8A80]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#FFD180]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#B2DFDB]"></div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-left">
-                            <div class="text-slate-400 text-sm font-medium mb-3">This month</div>
-                            <div class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">₹18,240</div>
-                            <div class="text-sm font-bold text-rose-500">+12% vs last</div>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-left">
-                            <div class="text-slate-400 text-sm font-medium mb-3">Budget left</div>
-                            <div class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">₹6,760</div>
-                            <div class="text-sm font-bold text-teal-500">43% remaining</div>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 text-left">
-                            <div class="text-slate-400 text-sm font-medium mb-3">Transactions</div>
-                            <div class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">34</div>
-                            <div class="text-sm font-medium text-slate-400">this month</div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
-                        <div class="flex items-center gap-6">
-                            <div class="w-16 text-sm font-bold text-slate-500 text-left">Food</div>
-                            <div class="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-[#FB8C00] rounded-full" style="width: 70%;"></div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-6">
-                            <div class="w-16 text-sm font-bold text-slate-500 text-left">Travel</div>
-                            <div class="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-[#1E88E5] rounded-full" style="width: 50%;"></div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-6">
-                            <div class="w-16 text-sm font-bold text-slate-500 text-left">Bills</div>
-                            <div class="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-[#7E57C2] rounded-full" style="width: 40%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+  <!-- 1. Hero Band (White Canvas) -->
+  <section class="relative overflow-visible py-section px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center animate-fade-in-up">
+    <!-- Display Headline -->
+    <h1 class="relative z-10 heading-display text-slate-900 dark:text-white max-w-4xl mb-6 font-extrabold tracking-tight">
+      Quietly powerful expense tracking.<br class="hidden md:inline">
+      Built for individuals who value precision.
+    </h1>
 
-    <!-- Expense Breakdown Section -->
-    <section class="bg-slate-50 py-24 px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="mb-16 text-center max-w-2xl mx-auto">
-                <h2 class="text-4xl font-headline font-extrabold tracking-tight mb-4">Master Your Categories</h2>
-                <p class="text-slate-600">Detailed visual breakdowns of where your money flows. No complex charts, just clear editorial insights.</p>
-            </div>
-            <div class="grid lg:grid-cols-2 gap-16 items-center">
-                <div class="space-y-10">
-                    <div>
-                        <div class="flex justify-between items-end mb-3">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary">restaurant</span>
-                                <span class="font-headline font-bold text-xl">Food</span>
-                            </div>
-                            <span class="font-bold text-slate-900">₹8,400 <span class="text-sm font-normal text-slate-500">/ ₹10k</span></span>
-                        </div>
-                        <div class="h-4 w-full bg-slate-200 rounded-full overflow-hidden">
-                            <div class="h-full bg-primary rounded-full" style="width: 84%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between items-end mb-3">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary">flight</span>
-                                <span class="font-headline font-bold text-xl">Travel</span>
-                            </div>
-                            <span class="font-bold text-slate-900">₹4,200 <span class="text-sm font-normal text-slate-500">/ ₹5k</span></span>
-                        </div>
-                        <div class="h-4 w-full bg-slate-200 rounded-full overflow-hidden">
-                            <div class="h-full bg-primary rounded-full" style="width: 72%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between items-end mb-3">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-rose-600">receipt_long</span>
-                                <span class="font-headline font-bold text-xl">Bills</span>
-                            </div>
-                            <span class="font-bold text-rose-600">₹5,640 <span class="text-sm font-normal text-slate-500">/ ₹5k</span></span>
-                        </div>
-                        <div class="h-4 w-full bg-slate-200 rounded-full overflow-hidden">
-                            <div class="h-full bg-rose-600 rounded-full" style="width: 100%;"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="relative group">
-                    <div class="absolute inset-0 bg-primary/10 rounded-3xl -rotate-2 group-hover:rotate-0 transition-transform"></div>
-                    <img alt="Modern minimalist aesthetic finance tracking" class="relative rounded-3xl shadow-2xl object-cover h-[500px] w-full border border-white/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyrg9AbBHq06oggQ6Ldq1nawj4ipIE0ewNCdSBwjSZOoNcJQvRA6QUnN1i2nsbSHfaSgPQlsAD_BI9Cr56iCkKUGKUBxwHoUgUQg6l_y9Tqn1r35o12kFYzZVi6Vax1S8kdGgPrcdER61r8HfPVDGlJIGK9rxXP6HetxfnBMKjlmukGVmlL9gtfXRluG9UDhU_KmABFGtbEKo640pCMcO2f86ekerGVg45U_mpB-SeSsPiignrphs4Tibl3ooZFRp3gK6OVIrHjbNw"/>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Sub-headline -->
+    <p class="relative z-10 text-base md:text-lg text-slate-500 dark:text-dark-mute max-w-2xl mb-10 leading-relaxed font-normal">
+      A clean personal expense ledger. Track transactions, manage budgets, and watch your savings grow.
+    </p>
 
-    <!-- Bento Grid -->
-    <section class="py-24 px-6 max-w-7xl mx-auto">
-        <h2 class="text-center font-headline font-extrabold text-4xl mb-16">The Digital Ledger Advantage</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[250px]">
-            <div class="md:col-span-2 bg-primary text-white p-8 rounded-xl flex flex-col justify-end relative overflow-hidden">
-                <div class="absolute top-4 right-4 text-7xl opacity-20"><span class="material-symbols-outlined" style="font-size: 8rem;">security</span></div>
-                <h3 class="text-2xl font-headline font-bold mb-2">Military Grade Security</h3>
-                <p class="text-emerald-100 max-w-md">Your data is encrypted using AES-256 standards, ensuring your financial secrets stay yours.</p>
-            </div>
-            <div class="bg-slate-100 p-8 rounded-xl flex flex-col justify-between">
-                <span class="material-symbols-outlined text-primary text-4xl">auto_awesome</span>
-                <div>
-                    <h3 class="font-headline font-bold mb-1">Smart Sorting</h3>
-                    <p class="text-sm text-slate-500">AI-powered categorization for every single rupee spent.</p>
-                </div>
-            </div>
-            <div class="bg-indigo-100 text-indigo-900 p-8 rounded-xl flex flex-col justify-between">
-                <span class="material-symbols-outlined text-4xl">family_restroom</span>
-                <div>
-                    <h3 class="font-headline font-bold mb-1">Shared Ledgers</h3>
-                    <p class="text-sm opacity-80">Track expenses with family or roommates in real-time.</p>
-                </div>
-            </div>
-            <div class="md:col-span-2 bg-slate-200 p-8 rounded-xl flex items-center gap-8">
-                <div class="hidden sm:block">
-                    <img alt="Digital graph" class="w-32 h-32 rounded-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbRb5f1xFCQHJEUnAqXEL2nLb933ZnP8O47oFKyEUDCrBDXOmWP59zKksL3hT77LAe3FStoiH4UVj92CG5DvO1Mhu-vloTqWuDCV6OuXKGA1opqJn2B-cgZzK75zwWNQVJgllDL7zbvO6D_zOUuusAskLCQ8jFITMWU3MbwAz4uqC_dNaTRhyvHWMQXaBu2ID6zQhvG-Lwkf3OFxsRS7a0NqLvVrXiKr6wE7dHpyWftBZAgeS_MmBgS0HA8Cp1A3D8MhDEL1TT2u09"/>
-                </div>
-                <div>
-                    <h3 class="text-xl font-headline font-bold mb-2">Editorial Insights</h3>
-                    <p class="text-slate-600">Weekly newsletters summarizing your habits like a high-end financial magazine.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="py-24 px-6 text-center">
-        <div class="max-w-4xl mx-auto bg-primary p-12 md:p-20 rounded-[40px] shadow-2xl relative overflow-hidden">
-            <div class="absolute -top-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-            <div class="relative z-10">
-                <h2 class="text-4xl md:text-5xl font-headline font-extrabold text-white mb-6">Ready to balance the books?</h2>
-                <p class="text-emerald-100 mb-10 text-lg max-w-xl mx-auto">Join 50,000+ users who have regained control over their financial story with Spendly.</p>
-                <a href="{{ url_for('register') }}" class="inline-block bg-white text-primary px-10 py-4 rounded-xl font-headline font-bold text-xl active:scale-95 transition-all shadow-xl hover:bg-slate-50">
-                    Get Started for Free
-                </a>
-                <p class="text-white/60 mt-6 text-sm font-medium">No credit card required. Cancel anytime.</p>
-            </div>
-        </div>
-    </section>
-    <!-- Video Modal -->
-    <div id="videoModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300 opacity-0">
-        <div class="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300">
-            <button id="closeModal" class="absolute top-4 right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            <div class="aspect-video w-full">
-                <iframe id="youtube-video" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-        </div>
+    <!-- CTAs -->
+    <div class="relative z-10 flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center w-full sm:w-auto mb-20">
+      {% if session.user_id %}
+      <a href="{{ url_for('dashboard') }}" class="btn-primary inline-flex items-center justify-center text-center">Go to Ledger Console</a>
+      {% else %}
+      <a href="{{ url_for('register') }}" class="btn-primary inline-flex items-center justify-center text-center">Get started free</a>
+      <a href="{{ url_for('login') }}" class="btn-secondary inline-flex items-center justify-center text-center">Schedule demo</a>
+      {% endif %}
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('videoModal');
-            const closeBtn = document.getElementById('closeModal');
-            const videoFrame = document.getElementById('youtube-video');
-            const openBtn = document.getElementById('how-it-works-btn');
-            const videoSrc = "https://www.youtube.com/embed/dQw4w9WgXcQ"; // Rickroll placeholder
+  </section>
 
-            if (!openBtn) return;
+  <!-- 2. Coral Signature Card Section (Brand Voltage) -->
+  <section class="relative bg-white dark:bg-dark-bg py-16 px-6 overflow-hidden">
+    <div class="max-w-7xl mx-auto relative z-10">
+      <div class="bg-signature-coral text-white rounded-xl p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-12 hover-lift shadow-xl">
+        <div class="max-w-xl space-y-6">
+          <h2 class="text-3xl md:text-5xl font-normal tracking-tight leading-tight" style="font-family: 'Haas Groot Disp', 'Haas', sans-serif;">
+            Real-time ledger updates.<br>
+            Cryptographic status.
+          </h2>
+          <p class="text-sm opacity-90 leading-relaxed font-sans font-light">
+            Add single transactions or recurring billing items instantly. Spendly's robust backend logs every memo, category, and payment channel with perfect auditability, giving you a comprehensive view of your financial flow.
+          </p>
+          <div class="pt-4 flex flex-wrap gap-4">
+            {% if session.user_id %}
+            <a href="{{ url_for('dashboard') }}" class="px-6 py-4 bg-white text-ink font-medium rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-sm">View Dashboard</a>
+            {% else %}
+            <a href="{{ url_for('register') }}" class="px-6 py-4 bg-white text-ink font-medium rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-sm">Start Logging</a>
+            {% endif %}
+          </div>
+        </div>
+        
+        <!-- Graphical preview on coral -->
+        <div class="w-full lg:w-[400px] bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 font-mono text-xs text-white/90 space-y-4 shadow-2xl">
+          <div class="border-b border-white/20 pb-3 flex justify-between items-center text-[10px] uppercase tracking-widest text-white/70">
+            <span>LEDGER_VERIFIED</span>
+            <span class="flex h-2 w-2 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-signature-mint opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-signature-mint"></span>
+            </span>
+          </div>
+          <div class="space-y-2.5">
+            <div class="flex justify-between items-center bg-white/5 hover:bg-white/10 p-3 rounded-xl transition-colors">
+              <span>FOOD_SUPPLIES</span>
+              <span class="font-semibold text-white">&#8377;1,420.50</span>
+            </div>
+            <div class="flex justify-between items-center bg-white/5 hover:bg-white/10 p-3 rounded-xl transition-colors">
+              <span>ELECTRICITY_BILL</span>
+              <span class="font-semibold text-white">&#8377;3,240.00</span>
+            </div>
+            <div class="flex justify-between items-center bg-white/5 hover:bg-white/10 p-3 rounded-xl transition-colors text-signature-peach border border-signature-peach/20 bg-signature-peach/5">
+              <span>LIMIT_BREACH_WARN</span>
+              <span class="font-semibold">&#8377;4,660.50</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            openBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                videoFrame.src = videoSrc + "?autoplay=1";
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                setTimeout(() => {
-                    modal.classList.add('opacity-100');
-                    modal.querySelector('.relative').classList.remove('scale-95');
-                    modal.querySelector('.relative').classList.add('scale-100');
-                }, 10);
-            });
+  <!-- 3. Social Proof Logo Strip (Clean typography-based logos) -->
+  <section class="relative bg-white dark:bg-dark-bg py-12 text-center border-y border-slate-100 dark:border-dark-border/40">
+    <p class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-6">TRUSTED BY OPERATORS AT LEADING WORLD TEAMS</p>
+    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-12 md:gap-20 opacity-60 dark:opacity-40 grayscale select-none">
+      <span class="text-base font-semibold tracking-wider font-mono text-slate-800 dark:text-white hover:text-primary transition-colors cursor-pointer">PLAID</span>
+      <span class="text-base font-semibold tracking-widest font-mono text-slate-800 dark:text-white hover:text-primary transition-colors cursor-pointer">MOSS</span>
+      <span class="text-base font-semibold tracking-tight font-mono text-slate-800 dark:text-white hover:text-primary transition-colors cursor-pointer">ADYEN</span>
+      <span class="text-base font-semibold tracking-normal font-mono text-slate-800 dark:text-white hover:text-primary transition-colors cursor-pointer">STRIPE</span>
+    </div>
+  </section>
 
-            const closeModalFunc = () => {
-                modal.classList.remove('opacity-100');
-                modal.querySelector('.relative').classList.add('scale-95');
-                modal.querySelector('.relative').classList.remove('scale-100');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                    videoFrame.src = ""; // Stop video by clearing src
-                }, 300);
-            };
 
-            closeBtn.addEventListener('click', closeModalFunc);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModalFunc();
-            });
-            
-            // Close on Escape key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                    closeModalFunc();
-                }
-            });
-        });
-    </script>
+
+  <!-- 6. Interactive Platform Rail (Tabbed Feature Card) -->
+  <section class="relative bg-slate-50/50 dark:bg-dark-card/20 py-24 px-6 md:px-12 border-b border-slate-200/50 dark:border-white/5 overflow-hidden bg-grid-pattern">
+    <div class="glow-blob -bottom-20 right-1/4 w-96 h-96 bg-primary/10"></div>
+    <div class="max-w-7xl mx-auto relative z-10">
+      <div class="max-w-2xl mb-16 space-y-4">
+        <span class="text-xs font-mono text-primary uppercase tracking-widest block font-medium">SPECIFICATIONS</span>
+        <h2 class="text-2xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+          Complete ledger visibility.
+        </h2>
+        <p class="text-sm text-slate-500 dark:text-dark-mute">
+          Choose a core platform capability below to inspect our automated data engines.
+        </p>
+      </div>
+
+      <!-- Tabbed Container -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        
+        <!-- Left Topic filter rail -->
+        <div class="lg:col-span-4 flex flex-col space-y-3">
+          
+          <button onclick="switchTab('tab-ingest')" id="btn-tab-ingest" class="tab-button w-full text-left p-4 rounded-xl border transition-all duration-300 text-sm font-medium flex items-center gap-4 bg-white dark:bg-dark-card border-primary dark:border-primary-light text-slate-900 dark:text-white shadow-md shadow-slate-100/50 dark:shadow-none">
+            <span class="material-symbols-outlined text-[20px] text-primary dark:text-primary-light">center_focus_strong</span>
+            <div>
+              <p class="font-bold text-xs">Ingest (OCR Scan)</p>
+              <p class="text-[11px] text-slate-500 dark:text-dark-mute mt-0.5">Automated image-to-field extraction.</p>
+            </div>
+          </button>
+          
+          <button onclick="switchTab('tab-decide')" id="btn-tab-decide" class="tab-button w-full text-left p-4 rounded-xl border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white/60 dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-4">
+            <span class="material-symbols-outlined text-[20px]">fact_check</span>
+            <div>
+              <p class="font-semibold text-xs">Decide & Alerts</p>
+              <p class="text-[11px] text-slate-500 dark:text-dark-mute mt-0.5">Threshold triggers & SMTP setups.</p>
+            </div>
+          </button>
+          
+          <button onclick="switchTab('tab-lifecycle')" id="btn-tab-lifecycle" class="tab-button w-full text-left p-4 rounded-xl border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white/60 dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-4">
+            <span class="material-symbols-outlined text-[20px]">sync_alt</span>
+            <div>
+              <p class="font-semibold text-xs">Recurring Milestones</p>
+              <p class="text-[11px] text-slate-500 dark:text-dark-mute mt-0.5">Billing loops and schedule monitors.</p>
+            </div>
+          </button>
+          
+          <button onclick="switchTab('tab-data')" id="btn-tab-data" class="tab-button w-full text-left p-4 rounded-xl border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white/60 dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-4">
+            <span class="material-symbols-outlined text-[20px]">database</span>
+            <div>
+              <p class="font-semibold text-xs">Data Portability</p>
+              <p class="text-[11px] text-slate-500 dark:text-dark-mute mt-0.5">Low-latency CSV transaction exports.</p>
+            </div>
+          </button>
+          
+        </div>
+
+        <!-- Right Pane Card (Surface soft inside container) -->
+        <div class="lg:col-span-8 bg-white/80 dark:bg-dark-card/80 border border-slate-200/60 dark:border-white/10 p-8 rounded-2xl shadow-xl backdrop-blur-md flex flex-col justify-between hover-lift">
+          
+          <!-- Ingest Tab Content -->
+          <div id="tab-ingest" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div class="space-y-4">
+                <h4 class="text-xl font-bold text-slate-900 dark:text-white">Document processing, streamlined.</h4>
+                <p class="text-xs text-slate-500 dark:text-dark-mute leading-relaxed font-light">
+                  Provide your budget tracking with direct receipt upload. The AI engine automatically parses store names, tax tallies, and timestamps in real-time.
+                </p>
+                <div class="pt-2">
+                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-1">ACCURACY METRICS</span>
+                  <p class="text-[11px] text-slate-800 dark:text-slate-200 font-medium">Extraction accuracy scores exceeding 99.5% on standard retail vouchers.</p>
+                </div>
+              </div>
+              <div class="border border-slate-200/50 dark:border-white/5 rounded-xl overflow-hidden bg-slate-50 dark:bg-dark-bg p-2 shadow-inner">
+                <img src="{{ url_for('static', filename='images/receipt_scan_graphic.jpg') }}" alt="Voucher processing parsing display" class="w-full h-auto rounded-lg object-cover aspect-square shadow">
+              </div>
+            </div>
+          </div>
+
+          <!-- Decide Tab Content -->
+          <div id="tab-decide" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div class="space-y-4">
+                <h4 class="text-xl font-bold text-slate-900 dark:text-white">Outlier warnings before breach.</h4>
+                <p class="text-xs text-slate-500 dark:text-dark-mute leading-relaxed font-light">
+                  Establish custom alert ceilings on utility, leisure, and shopping categories. The engine evaluates limits during entries and fires warnings instantly.
+                </p>
+                <div class="pt-2">
+                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-1">SMTP SYSTEM</span>
+                  <p class="text-[11px] text-slate-800 dark:text-slate-200 font-medium">Hooks directly to secure SMTP pipelines for delivery to family boxes.</p>
+                </div>
+              </div>
+              <!-- Code block representation -->
+              <div class="border border-slate-200/50 dark:border-white/5 rounded-xl bg-slate-50 dark:bg-dark-bg p-5 font-mono text-[10px] text-slate-500 dark:text-dark-mute leading-relaxed shadow-inner">
+                <p class="text-signature-forest dark:text-signature-mint font-semibold">// EVALUATOR ENGINE</p>
+                <p class="mt-1 text-slate-800 dark:text-white">def evaluate_limit(spent, budget):</p>
+                <p class="ml-4">if spent &gt; budget:</p>
+                <p class="ml-8 text-signature-coral">trigger_warning("LIMIT_BREACH")</p>
+                <p class="ml-8 text-signature-coral">return STATE_EXCEEDED</p>
+                <p class="ml-4">return STATE_OK</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lifecycle Tab Content -->
+          <div id="tab-lifecycle" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div class="space-y-4">
+                <h4 class="text-xl font-bold text-slate-900 dark:text-white">Track subscription intervals easily.</h4>
+                <p class="text-xs text-slate-500 dark:text-dark-mute leading-relaxed font-light">
+                  Prevent silent budget drains from gym or streaming renewals. Record billing intervals and track upcoming payments in an elegant timeline.
+                </p>
+                <div class="pt-2">
+                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-1">TIMELINE TASKS</span>
+                  <p class="text-[11px] text-slate-800 dark:text-slate-200 font-medium">Aggregates upcoming expenditures into monthly projected cost sums.</p>
+                </div>
+              </div>
+              <!-- Checklist display -->
+              <div class="border border-slate-200/50 dark:border-white/5 rounded-xl bg-slate-50 dark:bg-dark-bg p-5 space-y-3 text-[11px] font-mono text-slate-500 dark:text-dark-mute shadow-inner">
+                <p class="font-semibold border-b border-slate-200/50 dark:border-white/5 pb-2">// BILLING MONITOR</p>
+                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-signature-coral text-base">check_circle</span> Daily transaction scan ok</div>
+                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-signature-coral text-base">check_circle</span> Subscriptions compiled</div>
+                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-signature-coral text-base">check_circle</span> Balance projections refreshed</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Tab Content -->
+          <div id="tab-data" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div class="space-y-4">
+                <h4 class="text-xl font-bold text-slate-900 dark:text-white">Low-latency CSV exporting.</h4>
+                <p class="text-xs text-slate-500 dark:text-dark-mute leading-relaxed font-light">
+                  Export complete data ranges in structured CSV formats instantly. Perfect for processing in Excel, Google Sheets, or python analytics engines.
+                </p>
+                <div class="pt-2">
+                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-1">INTEGRITY CHECK</span>
+                  <p class="text-[11px] text-slate-800 dark:text-slate-200 font-medium">Preserves all descriptions, payment methods, and timestamps without loss.</p>
+                </div>
+              </div>
+              <!-- CSV code block -->
+              <div class="border border-slate-200/50 dark:border-white/5 rounded-xl bg-slate-50 dark:bg-dark-bg p-5 font-mono text-[9px] text-slate-500 dark:text-dark-mute leading-relaxed select-all shadow-inner">
+                <p class="text-signature-forest dark:text-signature-mint font-semibold">// EXPORT FORMAT</p>
+                <p class="mt-1 text-slate-800 dark:text-white">id,date,category,method,amount,memo</p>
+                <p>1,2026-06-01,Food,Cash,150.00,Lunch</p>
+                <p>2,2026-06-03,Transport,Card,250.00,Cab</p>
+                <p>3,2026-06-05,Bills,Bank,1200.00,Internet</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Dark Obsidian CTA Band (Brand Voltage Reset) -->
+  <section class="relative bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 text-white py-28 px-6 md:px-12 text-center overflow-hidden border-t border-white/5">
+    <div class="glow-blob top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/20"></div>
+    <div class="max-w-4xl mx-auto space-y-8 relative z-10 animate-fade-in">
+      <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight max-w-2xl mx-auto leading-tight">
+        Build your capital foundation on quiet precision.
+      </h2>
+      <p class="text-sm opacity-80 max-w-xl mx-auto leading-relaxed font-light">
+        Start logging your expenses under an editorial UI. Join operators tracking budgets with Spendly.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center w-full sm:w-auto pt-4">
+        {% if session.user_id %}
+        <a href="{{ url_for('dashboard') }}" class="btn-primary bg-white text-slate-900 hover:bg-slate-100 px-8 py-3 rounded-lg text-sm font-semibold">Open Ledger Console</a>
+        {% else %}
+        <a href="{{ url_for('register') }}" class="btn-primary bg-white text-slate-900 hover:bg-slate-100 px-8 py-3 rounded-lg text-sm font-semibold">Get started free</a>
+        <a href="{{ url_for('login') }}" class="btn-secondary bg-transparent text-white border-white/20 hover:border-white/50 hover:bg-white/5 px-8 py-3 rounded-lg text-sm font-semibold">Sign in</a>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function switchTab(tabId) {
+    // Hide all tab content panes
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    
+    // Show active tab content pane
+    document.getElementById(tabId).classList.remove('hidden');
+    
+    // Reset all tab button styles to inactive
+    document.querySelectorAll('.tab-button').forEach(btn => {
+      btn.className = "tab-button w-full text-left p-4 rounded-lg border border-transparent text-muted dark:text-dark-mute hover:bg-white/40 dark:hover:bg-dark-elevated/40 transition-all text-sm font-medium flex items-center gap-4";
+    });
+    
+    // Set active style for selected tab button
+    const activeBtn = document.getElementById('btn-' + tabId);
+    if (activeBtn) {
+      activeBtn.className = "tab-button w-full text-left p-4 rounded-lg border transition-all text-sm font-medium flex items-center gap-4 bg-white dark:bg-dark-card border-ink dark:border-white text-ink dark:text-white shadow-sm";
+    }
+  }
+</script>
 {% endblock %}

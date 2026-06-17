@@ -1,72 +1,65 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
-    const modeIcon = themeToggle.querySelector('.mode-icon');
+  const hamburger = document.getElementById('nav-hamburger');
+  const navLinks = document.getElementById('nav-links');
 
-    // Check for saved theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
-        modeIcon.textContent = '☀️';
-    } else {
-        modeIcon.textContent = '🌙';
-    }
-
-    themeToggle.addEventListener('click', () => {
-        body.classList.toggle('dark-mode');
-        const isDark = body.classList.contains('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        modeIcon.textContent = isDark ? '☀️' : '🌙';
-        
-        // Update Chart colors if they exist
-        if (typeof Chart !== 'undefined') {
-            updateChartTheme(isDark);
-        }
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('hidden');
+      const spans = hamburger.querySelectorAll('span');
+      if (!navLinks.classList.contains('hidden')) {
+        spans[0].style.transform = 'rotate(45deg) translate(4px, 5px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(-45deg) translate(4px, -5px)';
+      } else {
+        spans[0].style.transform = 'none';
+        spans[1].style.opacity = '1';
+        spans[2].style.transform = 'none';
+      }
     });
+  }
 
-    // Mobile Hamburger Menu
-    const hamburger = document.getElementById('nav-hamburger');
-    const navLinks = document.getElementById('nav-links');
+  // Theme Toggler Button Logic
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeToggleIcon = document.getElementById('theme-toggle-icon');
 
-    if (hamburger && navLinks) {
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('open');
-            navLinks.classList.toggle('open');
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!hamburger.contains(e.target) && !navLinks.contains(e.target) && navLinks.classList.contains('open')) {
-                hamburger.classList.remove('open');
-                navLinks.classList.remove('open');
-            }
-        });
+  function updateThemeUI() {
+    const isDark = document.documentElement.classList.contains('dark');
+    if (themeToggleIcon) {
+      themeToggleIcon.textContent = isDark ? 'light_mode' : 'dark_mode';
     }
+  }
 
-    function updateChartTheme(isDark) {
-        const inkColor = isDark ? '#f7f6f3' : '#0f0f0f';
-        const mutedColor = isDark ? '#a0a0a0' : '#6b6b6b';
-
-        Chart.helpers.each(Chart.instances, (instance) => {
-            const options = instance.options;
-
-            // Update scale colors
-            if (options.scales) {
-                if (options.scales.x) {
-                    options.scales.x.ticks.color = mutedColor;
-                }
-                if (options.scales.y) {
-                    options.scales.y.ticks.color = mutedColor;
-                    options.scales.y.grid.color = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-                }
-            }
-
-            // Update legend colors
-            if (options.plugins && options.plugins.legend) {
-                options.plugins.legend.labels.color = inkColor;
-            }
-
-            instance.update();
-        });
-    }
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateThemeUI();
+      // Dispatch event to redraw charts
+      window.dispatchEvent(new Event('theme-changed'));
+    });
+    // Initialize UI state
+    updateThemeUI();
+  }
 });
+
+// Define getChartThemeColors globally so it is immediately available when downstream scripts parse.
+window.getChartThemeColors = () => {
+  const isDark = document.documentElement.classList.contains('dark');
+  return {
+    gridColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.05)',
+    tickColor: isDark ? '#9ca3af' : '#475569',
+    titleColor: isDark ? '#f9fafb' : '#0f172a',
+    primaryColor: isDark ? '#a5b4fc' : '#4f46e5',
+    secondaryColor: '#f43f5e', // modern rose/coral
+    cardColor: isDark ? '#0b0f19' : '#ffffff',
+    tooltipBg: isDark ? '#111827' : '#ffffff',
+    tooltipText: isDark ? '#f9fafb' : '#0f172a',
+    palette: ['#4f46e5', '#f43f5e', '#0f766e', '#fbbf24', '#fb923c', '#2dd4bf', '#d97706'] // Indigo, Rose, Teal, Amber, Peach, Mint, Mustard
+  };
+};
+
+if (typeof Chart !== 'undefined') {
+  Chart.defaults.font.family = "'Fragment Mono', monospace";
+  Chart.defaults.font.size = 10;
+}

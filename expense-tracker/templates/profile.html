@@ -1,313 +1,197 @@
 {% extends "base.html" %}
-
-{% block title %}Profile | Spendly{% endblock %}
-
-{% block head %}
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<style>
-    .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        display: inline-block;
-        line-height: 1;
-        text-transform: none;
-        letter-spacing: normal;
-        word-wrap: normal;
-        white-space: nowrap;
-        direction: ltr;
-    }
-    body { font-family: 'Inter', sans-serif; }
-    h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
-    /* Override base styles to allow Tailwind to shine */
-    .navbar, .footer { font-family: 'Inter', sans-serif; }
-    .main-content { padding: 0 !important; }
-</style>
-<script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "secondary-container": "#c8d8f3",
-            "surface-container": "#e5e9eb",
-            "on-error-container": "#570008",
-            "secondary-fixed-dim": "#bacae4",
-            "on-tertiary-container": "#490081",
-            "on-secondary-fixed-variant": "#46556b",
-            "surface-tint": "#266658",
-            "tertiary-dim": "#6b30a4",
-            "secondary-dim": "#415166",
-            "surface": "#f5f7f9",
-            "secondary": "#4d5d73",
-            "tertiary-container": "#cd9bff",
-            "inverse-primary": "#bdfeeb",
-            "secondary-fixed": "#c8d8f3",
-            "primary-container": "#aaead8",
-            "tertiary-fixed-dim": "#c488ff",
-            "on-secondary": "#edf3ff",
-            "primary-fixed-dim": "#9cdbca",
-            "surface-container-highest": "#d9dde0",
-            "on-primary-container": "#14584b",
-            "on-error": "#ffefee",
-            "on-primary": "#c3ffed",
-            "primary-fixed": "#aaead8",
-            "on-tertiary": "#fbefff",
-            "on-secondary-fixed": "#29394e",
-            "error-container": "#fb5151",
-            "on-secondary-container": "#3c4c61",
-            "error": "#b31b25",
-            "outline-variant": "#abadaf",
-            "inverse-surface": "#0b0f10",
-            "surface-container-high": "#dfe3e6",
-            "on-surface-variant": "#595c5e",
-            "on-background": "#2c2f31",
-            "surface-container-low": "#eef1f3",
-            "on-primary-fixed-variant": "#216254",
-            "on-surface": "#2c2f31",
-            "tertiary": "#783db1",
-            "on-tertiary-fixed": "#270048",
-            "background": "#f5f7f9",
-            "surface-bright": "#f5f7f9",
-            "primary-dim": "#16594c",
-            "primary": "#266658",
-            "inverse-on-surface": "#9a9d9f",
-            "surface-container-lowest": "#ffffff",
-            "on-tertiary-fixed-variant": "#53108c",
-            "surface-dim": "#d0d5d8",
-            "error-dim": "#9f0519",
-            "surface-variant": "#d9dde0",
-            "outline": "#747779",
-            "tertiary-fixed": "#cd9bff",
-            "on-primary-fixed": "#004439"
-          },
-          fontFamily: {
-            "headline": ["Manrope"],
-            "body": ["Inter"],
-            "label": ["Inter"]
-          },
-          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-        },
-      },
-    }
-</script>
-{% endblock %}
+{% block title %}Profile Center | Spendly{% endblock %}
 
 {% block content %}
-<div class="bg-surface text-on-surface antialiased min-h-screen pb-32">
-    <main class="max-w-7xl mx-auto px-6 pt-12">
-        <!-- User Overview & Layout Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <!-- Sidebar Navigation/Status (Left Column) -->
-            <div class="lg:col-span-4 space-y-8">
-                <!-- User Profile Hero Card -->
-                <div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_12px_32px_rgba(44,47,49,0.06)] flex flex-col items-center text-center">
-                    <div class="relative mb-6 group">
-                        <div class="p-1 rounded-full bg-gradient-to-tr from-primary to-primary-container">
-                            <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-surface-container-lowest">
-                                <img id="profile-preview" alt="{{ user['name'] }}" src="{{ user['avatar_url'] if user['avatar_url'] else 'https://lh3.googleusercontent.com/aida-public/AB6AXuCtglumBgjwU-w8fHbikQXqtDB6U25ruybXX3gcnM1eZQCzP8miwGrFTB88WOiCS0O3sI318Pj1ZNbwEFrpaMeia9yRJIQCdIeSTmc3XOcBQSD_10Gwr2NwLTnoHknNSQxU7pVovGO5Gs6yx1Sdewcr2QVUAlFD8wBj2I5GeemXQ-5KoBLicxhYHMPyAp8LVv3Bsd8_UE0wUQ27ByFtIsxV0Hm0VQIQWONDU17lD5C5nLN4HuHKWzM_HjaXCgBcs7ctr-xC7VEODPWD' }}"/>
-                            </div>
-                        </div>
-                        <label for="profile_photo" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                            <span class="material-symbols-outlined text-white text-3xl">photo_camera</span>
-                        </label>
-                        <div class="absolute bottom-1 right-1 bg-primary text-on-primary p-1.5 rounded-full border-2 border-surface-container-lowest">
-                            <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
-                        </div>
-                    </div>
-                    <h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1">{{ user['name'] }}</h2>
-                    <p class="text-primary font-semibold tracking-wide text-sm bg-primary-container px-3 py-1 rounded-full">PREMIUM LEDGER</p>
-                    <div class="w-full mt-10 grid grid-cols-2 gap-4">
-                        <div class="bg-surface-container-low p-4 rounded-lg text-left">
-                            <p class="text-on-surface-variant text-xs font-medium uppercase tracking-widest mb-1">Member Since</p>
-                            <p class="text-on-surface font-bold">Jan 2023</p>
-                        </div>
-                        <div class="bg-surface-container-low p-4 rounded-lg text-left">
-                            <p class="text-on-surface-variant text-xs font-medium uppercase tracking-widest mb-1">Tier</p>
-                            <p class="text-on-surface font-bold">Elite</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Financial Insights Summary Card -->
-                <div class="bg-primary text-on-primary p-8 rounded-xl shadow-lg relative overflow-hidden">
-                    <div class="relative z-10">
-                        <h3 class="text-on-primary/80 font-medium text-sm tracking-wide uppercase mb-4">Digital Ledger Score</h3>
-                        <div class="flex items-end gap-2 mb-6">
-                            <span class="text-5xl font-extrabold tracking-tighter">842</span>
-                            <span class="text-on-primary/70 text-sm mb-1 font-medium">/ 1000</span>
-                        </div>
-                        <div class="w-full bg-white/20 h-2 rounded-full mb-4">
-                            <div class="bg-on-primary h-full rounded-full" style="width: 84.2%"></div>
-                        </div>
-                        <p class="text-sm font-medium leading-relaxed text-on-primary/90">Your financial health is in the top 5% of Spendly users this month.</p>
-                    </div>
-                    <!-- Decorative background element -->
-                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-                </div>
-                <!-- Subscription Management -->
-                <div class="bg-surface-container p-6 rounded-xl space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-on-surface-variant text-sm uppercase tracking-widest">Subscription</h3>
-                        <span class="text-xs font-bold text-primary">MANAGE</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-surface-container-lowest rounded-lg flex items-center justify-center text-primary shadow-sm">
-                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">diamond</span>
-                        </div>
-                        <div>
-                            <p class="font-bold text-on-surface">Premium Plan</p>
-                            <p class="text-on-surface-variant text-xs">$14.99 / billed monthly</p>
-                        </div>
-                    </div>
-                    <button class="w-full py-3 bg-primary text-on-primary font-bold rounded-lg text-sm transition-transform active:scale-95">
-                        Upgrade to Enterprise
-                    </button>
-                </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
+
+  <!-- Header Section -->
+  <section class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 relative">
+    <div class="glow-blob -top-10 -left-10 w-48 h-48 bg-primary/10"></div>
+    <div class="relative z-10">
+      <h1 class="heading-display-sm text-slate-900 dark:text-white font-extrabold tracking-tight mb-1">
+        Account Settings
+      </h1>
+      <p class="body-text text-slate-500 dark:text-dark-mute">Personalize your Spendly experience and manage account security.</p>
+    </div>
+    
+    <div class="flex items-center gap-3 relative z-10">
+        <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Status:</span>
+        <span class="px-3 py-1 rounded-full bg-signature-forest/10 text-signature-forest dark:text-signature-mint text-[10px] font-bold border border-signature-forest/20 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-signature-forest dark:bg-signature-mint animate-pulse"></span>
+            ACTIVE LEDGER
+        </span>
+    </div>
+  </section>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+
+    <!-- Sidebar: Profile Identity (Left Column) -->
+    <div class="lg:col-span-4 space-y-6">
+      
+      <!-- Identity Card -->
+      <div class="card-apple flex flex-col items-center text-center p-8 bg-gradient-to-b from-white to-slate-50/50 dark:from-dark-card dark:to-dark-card/60">
+        <div class="relative mb-6 group">
+          <div class="p-1 rounded-full bg-gradient-to-tr from-primary to-signature-coral shadow-lg">
+            <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-dark-card bg-slate-100 relative">
+              <img id="profile-preview" alt="{{ user['name'] }}" 
+                   src="{{ user['avatar_url'] if user['avatar_url'] else 'https://ui-avatars.com/api/?name=' ~ user['name']|urlencode ~ '&background=4f46e5&color=fff&bold=true&size=256' }}" 
+                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+              
+              <label for="profile_photo" class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-[2px]">
+                <span class="material-symbols-outlined text-2xl mb-1">photo_camera</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider">Change</span>
+              </label>
             </div>
-            <!-- Main Content Area (Right Column) -->
-            <div class="lg:col-span-8 space-y-12">
-                <!-- Account Settings Section -->
-                <section>
-                    <div class="flex items-center gap-3 mb-6">
-                        <span class="material-symbols-outlined text-primary">person_outline</span>
-                        <h3 class="text-xl font-bold tracking-tight">Account Settings</h3>
-                    </div>
-                    <form method="POST" enctype="multipart/form-data" class="bg-surface-container-lowest rounded-xl p-8 space-y-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
-                        <!-- Hidden File Input -->
-                        <input id="profile_photo" name="profile_photo" type="file" class="hidden" accept="image/*" onchange="previewImage(this)"/>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-on-surface-variant uppercase tracking-widest ml-1">Full Name</label>
-                                <input name="name" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary text-on-surface font-medium" type="text" value="{{ user['name'] }}"/>
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-on-surface-variant uppercase tracking-widest ml-1">Email Address</label>
-                                <input name="email" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary text-on-surface font-medium" type="email" value="{{ user['email'] }}"/>
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-on-surface-variant uppercase tracking-widest ml-1">Phone Number</label>
-                                <input name="phone" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary text-on-surface font-medium" type="tel" value="{{ user['phone'] if user['phone'] else '' }}" placeholder="Enter phone number"/>
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-on-surface-variant uppercase tracking-widest ml-1">Profile Photo</label>
-                                <div class="flex items-center gap-4 bg-surface-container-high rounded-lg px-4 py-2 border border-dashed border-outline-variant">
-                                    <button type="button" onclick="document.getElementById('profile_photo').click()" class="bg-primary text-on-primary text-xs font-bold px-4 py-2 rounded-md hover:bg-primary-dim transition-colors">
-                                        Choose File
-                                    </button>
-                                    <span id="file-name" class="text-on-surface-variant text-sm truncate">No file chosen</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-surface-container-high flex justify-end">
-                            <button type="submit" class="px-8 py-3 bg-primary text-on-primary rounded-lg font-bold shadow-md shadow-primary/20 hover:bg-emerald-700 transition-colors">
-                                Save Profile Changes
-                            </button>
-                        </div>
-                    </form>
-                </section>
-                <!-- Linked Accounts Section (Bento Style) -->
-                <section>
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary">account_balance</span>
-                            <h3 class="text-xl font-bold tracking-tight">Linked Accounts</h3>
-                        </div>
-                        <button class="text-primary font-bold text-sm flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">add_circle</span> Link New
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Card 1 -->
-                        <div class="bg-surface-container-lowest p-6 rounded-xl flex items-center justify-between group cursor-pointer hover:bg-primary/5 transition-colors">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center group-hover:bg-primary-container transition-colors">
-                                    <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">credit_card</span>
-                                </div>
-                                <div>
-                                    <p class="font-bold text-on-surface">HDFC Regalia</p>
-                                    <p class="text-on-surface-variant text-xs">Visa •••• 4242</p>
-                                </div>
-                            </div>
-                            <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
-                        </div>
-                        <!-- Card 2 -->
-                        <div class="bg-surface-container-lowest p-6 rounded-xl flex items-center justify-between group cursor-pointer hover:bg-primary/5 transition-colors">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center group-hover:bg-primary-container transition-colors">
-                                    <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">account_balance</span>
-                                </div>
-                                <div>
-                                    <p class="font-bold text-on-surface">ICICI Savings</p>
-                                    <p class="text-on-surface-variant text-xs">Savings •••• 9801</p>
-                                </div>
-                            </div>
-                            <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
-                        </div>
-                    </div>
-                </section>
-                <!-- Security & Privacy Section -->
-                <section>
-                    <div class="flex items-center gap-3 mb-6">
-                        <span class="material-symbols-outlined text-primary">security</span>
-                        <h3 class="text-xl font-bold tracking-tight">Security &amp; Privacy</h3>
-                    </div>
-                    <div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
-                        <div class="divide-y divide-surface-container-low">
-                            <div class="p-6 flex items-center justify-between hover:bg-surface-container-low/50 transition-colors cursor-pointer">
-                                <div class="flex items-center gap-4">
-                                    <span class="material-symbols-outlined text-on-surface-variant">lock</span>
-                                    <div>
-                                        <p class="font-bold text-on-surface">Change Password</p>
-                                        <p class="text-on-surface-variant text-sm">Update your security credentials</p>
-                                    </div>
-                                </div>
-                                <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
-                            </div>
-                            <div class="p-6 flex items-center justify-between hover:bg-surface-container-low/50 transition-colors cursor-pointer">
-                                <div class="flex items-center gap-4">
-                                    <span class="material-symbols-outlined text-on-surface-variant">vibration</span>
-                                    <div>
-                                        <p class="font-bold text-on-surface">Two-Factor Authentication</p>
-                                        <p class="text-on-surface-variant text-sm">Enhanced protection for your ledger</p>
-                                    </div>
-                                </div>
-                                <div class="w-12 h-6 bg-primary rounded-full relative">
-                                    <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
-                                </div>
-                            </div>
-                            <div class="p-6 flex items-center justify-between hover:bg-surface-container-low/50 transition-colors cursor-pointer">
-                                <div class="flex items-center gap-4">
-                                    <span class="material-symbols-outlined text-on-surface-variant">shield</span>
-                                    <div>
-                                        <p class="font-bold text-on-surface">Privacy Preferences</p>
-                                        <p class="text-on-surface-variant text-sm">Control what data you share</p>
-                                    </div>
-                                </div>
-                                <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+          </div>
+          <div class="absolute -bottom-1 -right-1 bg-primary text-white w-8 h-8 rounded-full border-4 border-white dark:border-dark-card flex items-center justify-center shadow-md">
+            <span class="material-symbols-outlined text-[16px]">verified</span>
+          </div>
+        </div>
+
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">{{ user['name'] }}</h2>
+        <p class="text-sm font-mono text-slate-400 dark:text-dark-mute mb-6">{{ user['email'] }}</p>
+        
+        <div class="w-full grid grid-cols-2 gap-3 pt-6 border-t border-slate-100 dark:border-dark-border/40">
+            <div class="text-left">
+                <span class="block text-[8px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold mb-1">Member Since</span>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200">2026</span>
+            </div>
+            <div class="text-right">
+                <span class="block text-[8px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold mb-1">Ledger Type</span>
+                <span class="text-xs font-bold text-primary dark:text-primary-light">Personal Pro</span>
             </div>
         </div>
-    </main>
+      </div>
+
+      <!-- Quick Stats Bento -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="card-apple p-4 hover-lift border-primary/10">
+            <span class="material-symbols-outlined text-primary text-[20px] mb-2">account_balance_wallet</span>
+            <span class="block text-[8px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold mb-1">Budget</span>
+            <span class="text-sm font-bold text-slate-900 dark:text-white">&#8377;{{ "%.0f"|format(user['monthly_budget'] or 0) }}</span>
+        </div>
+        <div class="card-apple p-4 hover-lift border-signature-coral/10">
+            <span class="material-symbols-outlined text-signature-coral text-[20px] mb-2">stars</span>
+            <span class="block text-[8px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold mb-1">Rank</span>
+            <span class="text-sm font-bold text-slate-900 dark:text-white">Gold Saver</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content: Settings Forms (Right Column) -->
+    <div class="lg:col-span-8 space-y-8">
+
+      <!-- General Information Panel -->
+      <section>
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[18px]">badge</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Personal Details</h3>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="card-apple p-8 space-y-8 hover-lift">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <!-- Hidden real file input -->
+          <input id="profile_photo" name="profile_photo" type="file" style="display:none" accept="image/*" onchange="previewImage(this)"/>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            <div class="space-y-2 group">
+              <label for="name" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Legal Name</label>
+              <div class="relative flex items-center">
+                <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">person</span>
+                <input id="name" name="name" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" type="text" value="{{ user['name'] }}" required>
+              </div>
+            </div>
+
+            <div class="space-y-2 group">
+              <label for="email" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Email Address</label>
+              <div class="relative flex items-center">
+                <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">alternate_email</span>
+                <input id="email" name="email" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" type="email" value="{{ user['email'] }}" required>
+              </div>
+            </div>
+
+            <div class="space-y-2 group">
+              <label for="phone" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Contact Number</label>
+              <div class="relative flex items-center">
+                <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">call</span>
+                <input id="phone" name="phone" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" type="tel" value="{{ user['phone'] if user['phone'] else '' }}" placeholder="+91 00000 00000">
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Profile Image Source</label>
+              <div class="flex items-center gap-3 bg-slate-50 dark:bg-white/[0.03] rounded-xl px-4 py-3 border border-dashed border-slate-200 dark:border-white/10 h-[42px] transition-colors hover:border-primary/40">
+                <span id="file-name" class="text-slate-500 dark:text-dark-mute text-[11px] truncate flex-1 font-medium">
+                  {{ user['avatar_url'].split('/')[-1] if user['avatar_url'] else 'Default Avatar' }}
+                </span>
+                <button type="button" onclick="document.getElementById('profile_photo').click()" class="text-primary dark:text-primary-light text-[10px] font-bold uppercase tracking-wider hover:underline">
+                  Browse
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-6 border-t border-slate-100 dark:border-dark-border/40 flex items-center justify-between">
+            <p class="text-[10px] text-slate-400 dark:text-dark-mute max-w-[280px]">Changes to your email may require re-verification for security purposes.</p>
+            <button type="submit" class="btn-primary px-8 py-2.5 text-sm font-bold shadow-lg shadow-primary/20">
+              Save Configuration
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Advanced Bento Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Security Card -->
+        <div class="card-apple p-6 hover-lift border-accent-red/5">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined text-accent-red text-[20px]">security</span>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Security</h4>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-dark-mute mb-4 leading-relaxed">Ensure your ledger remains private with a strong password and active session management.</p>
+            <a href="{{ url_for('forgot_password') }}" class="inline-flex items-center text-[10px] font-bold text-primary dark:text-primary-light uppercase tracking-widest hover:gap-2 transition-all">
+                Update Password <span class="material-symbols-outlined text-sm">chevron_right</span>
+            </a>
+        </div>
+
+        <!-- Privacy Card -->
+        <div class="card-apple p-6 hover-lift border-signature-mint/10">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined text-signature-mint text-[20px]">verified_user</span>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Privacy</h4>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-dark-mute mb-4 leading-relaxed">Manage how your data is processed and exported. Your financial privacy is our mandate.</p>
+            <a href="{{ url_for('privacy') }}" class="inline-flex items-center text-[10px] font-bold text-primary dark:text-primary-light uppercase tracking-widest hover:gap-2 transition-all">
+                Policy Details <span class="material-symbols-outlined text-sm">chevron_right</span>
+            </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    function previewImage(input) {
-        if (input.files && input.files[0]) {
-            const fileName = input.files[0].name;
-            document.getElementById('file-name').textContent = fileName;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('profile-preview').src = e.target.result;
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      const fileName = input.files[0].name;
+      document.getElementById('file-name').textContent = fileName;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) { 
+        const preview = document.getElementById('profile-preview');
+        preview.style.opacity = '0';
+        setTimeout(() => {
+            preview.src = e.target.result;
+            preview.style.opacity = '1';
+        }, 300);
+      }
+      reader.readAsDataURL(input.files[0]);
     }
+  }
 </script>
 {% endblock %}
-

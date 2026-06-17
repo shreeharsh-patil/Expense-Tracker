@@ -1,85 +1,158 @@
 {% extends "base.html" %}
-
-{% block title %}Recurring Expenses | Spendly{% endblock %}
+{% block title %}Recurring Ledger | Spendly{% endblock %}
 
 {% block content %}
-<section class="dashboard-header">
-    <div class="header-content">
-        <h1>Recurring <span class="highlight">Subscriptions</span></h1>
-        <p>Manage your monthly commitments and automated bills.</p>
-    </div>
-    <div class="summary-card">
-        <span class="label">Monthly Commitment</span>
-        <span class="amount">₹{{ "%.2f"|format(recurring|sum(attribute='amount')) }}</span>
-    </div>
-</section>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
 
-<section class="dashboard-grid" style="grid-template-columns: 1fr 340px; gap: 2rem; margin-bottom: 4rem;">
-    <!-- List of recurring expenses -->
-    <div class="list-container">
-        {% if recurring %}
-            <table class="expense-table">
-                <thead>
-                    <tr>
-                        <th>Day</th>
-                        <th>Category</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for rec in recurring %}
-                    <tr>
-                        <td class="col-date">Every {{ rec.day_of_month }}<sup>th</sup></td>
-                        <td class="col-category"><span class="tag-{{ rec.category|lower }}">{{ rec.category }}</span></td>
-                        <td class="col-description">{{ rec.description }}</td>
-                        <td class="col-amount">₹{{ "%.2f"|format(rec.amount) }}</td>
-                        <td class="col-actions">
-                            <a href="{{ url_for('delete_recurring', id=rec.id) }}" class="delete-btn" onclick="return confirm('Stop this subscription?')">Remove</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <div class="empty-state">
-                <p>No automated subscriptions yet.</p>
-            </div>
-        {% endif %}
+  <!-- Header Panel -->
+  <section class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 relative">
+    <div class="glow-blob -top-10 -left-10 w-48 h-48 bg-primary/10"></div>
+    <div class="relative z-10">
+      <h1 class="heading-display-sm text-slate-900 dark:text-white font-extrabold tracking-tight mb-1">
+        Recurring Commitments
+      </h1>
+      <p class="body-text text-slate-500 dark:text-dark-mute">Manage subscription cycles and automated billing intervals.</p>
     </div>
-
-    <!-- Form to add new recurring expense -->
-    <div class="grid-card" style="padding: 2rem;">
-        <div class="card-header">
-            <h3>Schedule New</h3>
+    
+    <div class="flex items-center gap-3 relative z-10">
+        <div class="px-4 py-2 rounded-xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 backdrop-blur-sm flex items-center gap-3">
+            <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Total Monthly:</span>
+            <span class="text-sm font-bold text-primary dark:text-primary-light">&#8377;{{ "%.0f"|format(recurring_expenses|sum(attribute='amount')) }}</span>
         </div>
-        <form action="{{ url_for('add_recurring') }}" method="POST">
-            <div class="form-group">
-                <label for="amount">Amount (₹)</label>
-                <input type="number" step="0.01" name="amount" class="form-input" required>
-            </div>
-            <div class="form-group">
-                <label for="category">Category</label>
-                <select name="category" class="form-input" required>
-                    <option value="Bills">Bills</option>
-                    <option value="Entertainment">Entertainment</option>
-                    <option value="Food">Food</option>
-                    <option value="Transport">Transport</option>
-                    <option value="Shopping">Shopping</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="day_of_month">Billing Day (1-28)</label>
-                <input type="number" min="1" max="28" name="day_of_month" class="form-input" placeholder="e.g. 5" required>
-            </div>
-            <div class="form-group">
-                <label for="description">Memo</label>
-                <input type="text" name="description" class="form-input" placeholder="e.g. Netflix Subscription" required>
-            </div>
-            <button type="submit" class="btn-submit">Automate This</button>
-        </form>
     </div>
-</section>
+  </section>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+
+    <!-- Active Schedules (Left Column) -->
+    <div class="lg:col-span-8 space-y-6">
+      <div class="card-apple p-0 overflow-hidden shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="px-6 py-4 bg-slate-50/50 dark:bg-white/[0.02] border-b border-slate-100 dark:border-dark-border/40 flex items-center justify-between">
+            <h3 class="text-xs font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Active Schedules</h3>
+            <span class="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-dark-border text-[9px] font-bold text-slate-500 dark:text-dark-mute">{{ recurring_expenses|length }} Items</span>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest border-b border-slate-100 dark:border-dark-border/40">
+                <th class="px-6 py-4 font-bold">Category & Desc</th>
+                <th class="px-6 py-4 font-bold">Schedule</th>
+                <th class="px-6 py-4 font-bold text-right">Amount</th>
+                <th class="px-6 py-4 font-bold text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50 dark:divide-dark-border/20">
+              {% for exp in recurring_expenses %}
+              <tr class="group hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-dark-mute group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">
+                            {% if exp.category == 'Food' %}restaurant{% elif exp.category == 'Transport' %}directions_car{% elif exp.category == 'Shopping' %}shopping_bag{% elif exp.category == 'Bills' %}receipt_long{% elif exp.category == 'Entertainment' %}movie{% elif exp.category == 'Health' %}medical_services{% else %}category{% endif %}
+                        </span>
+                    </div>
+                    <div>
+                      <p class="text-sm font-bold text-slate-800 dark:text-white">{{ exp.description or exp.category }}</p>
+                      <p class="text-[10px] text-slate-400 dark:text-dark-mute font-medium uppercase tracking-tight">{{ exp.category }} &bull; {{ exp.payment_method }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-[10px] font-bold text-slate-600 dark:text-dark-mute border border-slate-200/50 dark:border-white/5">
+                    <span class="material-symbols-outlined text-[14px]">event_repeat</span>
+                    Day {{ exp.day_of_month }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.2f"|format(exp.amount) }}</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <a href="{{ url_for('delete_recurring', id=exp.id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-300 hover:text-accent-red hover:bg-accent-red/10 transition-all" title="Remove Schedule">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                  </a>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="4" class="px-6 py-20 text-center">
+                  <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 rounded-full bg-slate-50 dark:bg-white/[0.02] flex items-center justify-center mb-4 border border-dashed border-slate-200 dark:border-white/10">
+                        <span class="material-symbols-outlined text-slate-200 dark:text-dark-border text-[32px]">sync_disabled</span>
+                    </div>
+                    <p class="text-sm font-medium text-slate-400 dark:text-dark-mute">No active recurring schedules found.</p>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Initialization Form (Right Column) -->
+    <div class="lg:col-span-4">
+      <div class="card-apple p-8 sticky top-24 shadow-2xl shadow-slate-200/40 dark:shadow-none hover-lift border-white/60 dark:border-white/5">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[18px]">add_task</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">New Loop</h3>
+        </div>
+
+        <form action="{{ url_for('add_recurring') }}" method="POST" class="space-y-5">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          
+          <div class="space-y-2 group">
+            <label for="amount" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Monthly Amount (&#8377;)</label>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">payments</span>
+              <input type="number" step="0.01" id="amount" name="amount" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-mono font-bold text-slate-900 dark:text-white" placeholder="0.00" required>
+            </div>
+          </div>
+
+          <div class="space-y-2 group">
+            <label for="day_of_month" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Billing Day (1-28)</label>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">event</span>
+              <input type="number" min="1" max="28" id="day_of_month" name="day_of_month" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" value="1" required>
+            </div>
+          </div>
+
+          <div class="space-y-2 group">
+            <label for="category" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">category</span>
+              <select id="category" name="category" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
+                <option value="Bills">Bills & Rent</option>
+                <option value="Food">Subscription Box</option>
+                <option value="Entertainment">Streaming Service</option>
+                <option value="Health">Gym / Insurance</option>
+                <option value="Transport">Public Transit</option>
+                <option value="Other">Miscellaneous</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-2 group">
+            <label for="description" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Schedule Name</label>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">description</span>
+              <input type="text" id="description" name="description" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" placeholder="e.g. Netflix Monthly">
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <button type="submit" class="btn-primary w-full py-3.5 text-xs font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group">
+              Initialize Schedule
+              <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">schedule_send</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
 {% endblock %}

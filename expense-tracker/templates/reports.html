@@ -1,179 +1,211 @@
 {% extends "base.html" %}
-
-{% block title %}{{ year }} Report | Spendly{% endblock %}
-
+{% block title %}{{ year }} Analytics | Spendly{% endblock %}
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block content %}
-<section class="dashboard-header">
-    <div class="header-content">
-        <h1>📊 Annual <span class="highlight">Report {{ year }}</span></h1>
-        <p>A complete picture of your yearly spending.</p>
-    </div>
-    <div style="display: flex; gap: 0.5rem; align-items: center;">
-        {% for yr in available_years %}
-        <a href="{{ url_for('reports', year=yr) }}"
-           class="btn-{% if yr == year %}submit{% else %}cancel{% endif %}"
-           style="padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 6px; text-decoration: none;">
-            {{ yr }}
-        </a>
-        {% endfor %}
-    </div>
-</section>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
 
-<!-- ── Hero Stats ────────────────────────────────────────── -->
-<section class="insights-bar" style="margin-bottom: 2rem;">
-    <div class="insight-pill">
-        <span class="insight-icon">💰</span>
+  <!-- Header Section -->
+  <section class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 relative">
+    <div class="glow-blob -top-10 -left-10 w-48 h-48 bg-primary/10"></div>
+    <div class="relative z-10">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest">{{ year }} FISCAL YEAR</span>
+      </div>
+      <h1 class="heading-display-sm text-slate-900 dark:text-white font-extrabold tracking-tight mb-1">
+        Financial Intelligence
+      </h1>
+      <p class="body-text text-slate-500 dark:text-dark-mute">Deep-dive analytics into your spending patterns and capital flow.</p>
+    </div>
+    
+    <div class="flex items-center gap-3 relative z-10">
+        <div class="card-apple py-2 px-4 flex items-center gap-4 bg-white/50 dark:bg-white/5">
+            <div class="text-right">
+                <span class="block text-[8px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Annual Outflow</span>
+                <span class="text-lg font-bold text-slate-900 dark:text-white tracking-tighter">&#8377;{{ "%.0f"|format(total_year) }}</span>
+            </div>
+            <div class="w-px h-8 bg-slate-200 dark:bg-dark-border"></div>
+            <div class="text-right">
+                <span class="block text-[8px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Monthly Avg</span>
+                <span class="text-lg font-bold text-primary dark:text-primary-light tracking-tighter">&#8377;{{ "%.0f"|format(total_year / 12) }}</span>
+            </div>
+        </div>
+    </div>
+  </section>
+
+  <!-- High-Level Insights Bento -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="card-apple p-6 hover-lift border-primary/10 group">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+            <span class="material-symbols-outlined text-[20px]">trending_up</span>
+        </div>
+        <h4 class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Peak Spending</h4>
+        <p class="text-xl font-bold text-slate-900 dark:text-white">{{ worst_month }}</p>
+        <p class="text-[10px] text-accent-red font-bold mt-1 tracking-tight">Highest resource allocation</p>
+    </div>
+
+    <div class="card-apple p-6 hover-lift border-signature-mint/10 group">
+        <div class="w-10 h-10 rounded-xl bg-signature-mint/10 text-signature-mint flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+            <span class="material-symbols-outlined text-[20px]">trending_down</span>
+        </div>
+        <h4 class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Optimal Month</h4>
+        <p class="text-xl font-bold text-slate-900 dark:text-white">{{ best_month }}</p>
+        <p class="text-[10px] text-signature-mint font-bold mt-1 tracking-tight">Most efficient month</p>
+    </div>
+
+    <div class="card-apple p-6 hover-lift border-signature-coral/10 group">
+        <div class="w-10 h-10 rounded-xl bg-signature-coral/10 text-signature-coral flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+            <span class="material-symbols-outlined text-[20px]">category</span>
+        </div>
+        <h4 class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Primary Burn</h4>
+        <p class="text-xl font-bold text-slate-900 dark:text-white">{{ labels[0] if labels else 'N/A' }}</p>
+        <p class="text-[10px] text-signature-coral font-bold mt-1 tracking-tight">Leading category outflow</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- Annual Trajectory (Bar Chart) -->
+    <div class="lg:col-span-8">
+      <div class="card-apple p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="flex items-center justify-between mb-8">
+            <h3 class="text-xs font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Annual Outflow Trajectory</h3>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                <span class="text-[10px] font-bold text-slate-500">Monthly Spending</span>
+            </div>
+        </div>
+        <div class="h-[400px]">
+          <canvas id="annualChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Breakdown (Pie Chart & List) -->
+    <div class="lg:col-span-4 space-y-6">
+      <div class="card-apple p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <h3 class="text-xs font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-6 text-center">Categorical Distribution</h3>
+        <div class="h-[240px] mb-8">
+          <canvas id="categoryChart"></canvas>
+        </div>
+        
+        <div class="space-y-4 pt-6 border-t border-slate-100 dark:border-dark-border/40">
+          {% for label, val in zip(labels, values) %}
+          <div class="flex items-center justify-between group">
+            <div class="flex items-center gap-2">
+                <div class="w-1.5 h-1.5 rounded-full" style="background-color: var(--color-{{ loop.index0 }})"></div>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ label }}</span>
+            </div>
+            <span class="text-xs font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.0f"|format(val) }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <!-- Export Card -->
+      <div class="card-apple p-6 bg-slate-950 text-white border-none shadow-xl shadow-primary/10 flex items-center justify-between group cursor-pointer" onclick="window.location='{{ url_for('export_expenses') }}'">
         <div>
-            <span class="insight-label">Total Spent in {{ year }}</span>
-            <span class="insight-value" style="font-size: 1.2rem;">₹{{ "%.0f"|format(year_total) }}</span>
+            <h4 class="text-sm font-bold tracking-tight mb-0.5">Full Data Export</h4>
+            <p class="text-[10px] text-slate-400 font-medium">Download complete CSV ledger</p>
         </div>
-    </div>
-    <div class="insight-pill">
-        <span class="insight-icon">📅</span>
-        <div>
-            <span class="insight-label">Monthly Average</span>
-            <span class="insight-value">₹{{ "%.0f"|format(avg_monthly) }}</span>
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center transition-transform group-hover:scale-110 group-active:scale-95">
+            <span class="material-symbols-outlined text-[20px]">download</span>
         </div>
+      </div>
     </div>
-    <div class="insight-pill">
-        <span class="insight-icon">🔺</span>
-        <div>
-            <span class="insight-label">Highest Month</span>
-            <span class="insight-value">{{ best_month }}</span>
-        </div>
-    </div>
-    <div class="insight-pill">
-        <span class="insight-icon">🔽</span>
-        <div>
-            <span class="insight-label">Lowest Month</span>
-            <span class="insight-value">{{ worst_month }}</span>
-        </div>
-    </div>
-</section>
 
-<!-- ── Monthly Breakdown Chart ───────────────────────────── -->
-<section class="dashboard-grid" style="grid-template-columns: 1fr; gap: 2rem; margin-bottom: 2rem;">
-    <div class="grid-card chart-card" style="min-height: 340px; padding: 2rem;">
-        <div class="card-header">
-            <h3>Monthly Breakdown</h3>
-        </div>
-        <div class="chart-container" style="height: 280px;">
-            <canvas id="yearlyBarChart"></canvas>
-        </div>
-    </div>
-</section>
+  </div>
+</div>
 
-<!-- ── Category & Payment Charts ─────────────────────────── -->
-<section class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-    <div class="grid-card chart-card" style="min-height: 340px; padding: 2rem;">
-        <div class="card-header">
-            <h3>Spending by Category</h3>
-        </div>
-        <div class="chart-container" style="height: 260px;">
-            <canvas id="yearCatChart"></canvas>
-        </div>
-    </div>
-    <div class="grid-card chart-card" style="min-height: 340px; padding: 2rem;">
-        <div class="card-header">
-            <h3>Spending by Payment Method</h3>
-        </div>
-        <div class="chart-container" style="height: 260px;">
-            <canvas id="yearMethodChart"></canvas>
-        </div>
-    </div>
-</section>
-
-<!-- ── Category Detail Table ─────────────────────────────── -->
-<section class="dashboard-grid" style="grid-template-columns: 1fr; gap: 2rem; margin-bottom: 4rem;">
-    <div class="grid-card" style="padding: 2rem;">
-        <div class="card-header">
-            <h3>Category Summary</h3>
-        </div>
-        <table class="expense-table" style="margin-top: 1rem;">
-            <thead>
-                <tr>
-                    <th>Category</th>
-                    <th>Transactions</th>
-                    <th>Total Spent</th>
-                    <th>% of Total</th>
-                    <th>Distribution</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cat in categories %}
-                {% set pct = (cat.total / year_total * 100) if year_total > 0 else 0 %}
-                <tr>
-                    <td><span class="tag-{{ cat.category|lower }}">{{ cat.category }}</span></td>
-                    <td style="color: var(--ink-muted);">{{ cat.count }} txns</td>
-                    <td class="col-amount">₹{{ "%.2f"|format(cat.total) }}</td>
-                    <td style="font-weight: 600;">{{ "%.1f"|format(pct) }}%</td>
-                    <td style="width: 200px;">
-                        <div class="progress-bar-track" style="height: 8px;">
-                            <div class="progress-bar-fill" style="width: {{ pct }}%; background: var(--accent);"></div>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</section>
-
-{% endblock %}
-
-{% block scripts %}
 <script>
-    const palette = ['#06b6d4','#6366f1','#f43f5e','#f59e0b','#10b981','#a855f7','#f97316','#3b82f6'];
-    const methodPalette = ['#1a472a', '#c17f24', '#6366f1', '#f43f5e'];
+  const ctxAnnual = document.getElementById('annualChart').getContext('2d');
+  const ctxCategory = document.getElementById('categoryChart').getContext('2d');
 
-    // Monthly bar chart
-    new Chart(document.getElementById('yearlyBarChart').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: {{ report_labels|tojson }},
-            datasets: [{
-                label: 'Spending (₹)',
-                data: {{ report_values|tojson }},
-                backgroundColor: {{ report_values|tojson }}.map((v, i) => {
-                    const max = Math.max(...{{ report_values|tojson }});
-                    return v === max ? '#c17f24' : '#1a472a';
-                }),
-                borderRadius: 6,
-            }]
+  // Unified chart color system
+  const colors = {
+    primary: '#4f46e5',
+    accent: ['#6366f1', '#f97316', '#10b981', '#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6'],
+    grid: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.05)',
+    text: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#64748b'
+  };
+
+  // Set CSS variables for the legend colors
+  colors.accent.forEach((color, i) => {
+    document.documentElement.style.setProperty(`--color-${i}`, color);
+  });
+
+  function renderReportCharts() {
+    // Annual Chart
+    new Chart(ctxAnnual, {
+      type: 'bar',
+      data: {
+        labels: {{ month_names | tojson }},
+        datasets: [{
+          label: 'Outflow',
+          data: {{ monthly_totals | tojson }},
+          backgroundColor: colors.primary,
+          borderRadius: 6,
+          borderSkipped: false,
+          maxBarThickness: 40
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e293b',
+            titleFont: { size: 12, weight: 'bold' },
+            bodyFont: { size: 12 },
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: false
+          }
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } },
-                x: { grid: { display: false } }
-            }
+        scales: {
+          y: {
+            grid: { color: colors.grid, drawBorder: false },
+            ticks: { color: colors.text, font: { size: 10, family: 'Fragment Mono' }, callback: value => '₹' + value }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: colors.text, font: { size: 10, family: 'Inter', weight: 'bold' } }
+          }
         }
+      }
     });
 
-    // Category doughnut
-    new Chart(document.getElementById('yearCatChart').getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: {{ cat_labels|tojson }},
-            datasets: [{ data: {{ cat_values|tojson }}, backgroundColor: palette, borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'right' } } }
+    // Category Chart
+    new Chart(ctxCategory, {
+      type: 'doughnut',
+      data: {
+        labels: {{ labels | tojson }},
+        datasets: [{
+          data: {{ values | tojson }},
+          backgroundColor: colors.accent,
+          borderWidth: 0,
+          hoverOffset: 15
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '75%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e293b',
+            padding: 12,
+            cornerRadius: 8
+          }
+        }
+      }
     });
+  }
 
-    // Payment method chart
-    new Chart(document.getElementById('yearMethodChart').getContext('2d'), {
-        type: 'polarArea',
-        data: {
-            labels: {{ method_labels|tojson }},
-            datasets: [{ data: {{ method_values|tojson }}, backgroundColor: methodPalette.map(c => c + '99'), borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
-    });
+  renderReportCharts();
 </script>
 {% endblock %}

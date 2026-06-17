@@ -1,82 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Spendly{% endblock %}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
-    {% block head %}{% endblock %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Spendly — Personal Expense Tracker{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fragment+Mono&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <script>
+    // Initialize theme from localStorage or system preference to prevent flash of style
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#4f46e5', // Modern Indigo
+              dim: '#3730a3',
+              light: '#6366f1',
+            },
+            ink: '#0f172a', // Slate-900
+            body: '#334155', // Slate-700
+            muted: '#64748b', // Slate-500
+            hairline: '#e2e8f0', // Slate-200
+            'border-strong': '#cbd5e1', // Slate-300
+            canvas: '#f8fafc', // Slate-50
+            'surface-soft': '#ffffff',
+            'surface-strong': '#f1f5f9',
+            'surface-dark': '#181d26',
+            'surface-dark-elevated': '#1d1f25',
+            'signature-coral': '#aa2d00',
+            'signature-forest': '#0a2e0e',
+            'signature-cream': '#f5e9d4',
+            'signature-peach': '#fcab79',
+            'signature-mint': '#a8d8c4',
+            'signature-yellow': '#f4d35e',
+            'signature-mustard': '#d9a441',
+            'link-blue': '#6366f1', // Indigo-500
+            'link-blue-active': '#4f46e5',
+            accent: {
+              yellow: '#fbbf24',
+              red: '#ef4444',
+              green: '#10b981',
+              orange: '#f97316',
+              blue: '#3b82f6',
+            },
+            dark: {
+              bg: '#030712', // Dark obsidian
+              card: '#0b0f19', // Glass-like card
+              elevated: '#111827',
+              border: '#1f2937',
+              text: '#f9fafb',
+              mute: '#9ca3af',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['Fragment Mono', 'monospace'],
+          },
+          borderRadius: {
+            'card': '16px', // Upgraded to 16px for a friendlier, modern look
+            'btn': '12px',
+            'pill': '9999px',
+          },
+          spacing: {
+            '18': '4.5rem',
+            '88': '22rem',
+            'section': '96px',
+          },
+          boxShadow: {
+            'premium': '0 10px 30px -10px rgba(79, 70, 229, 0.1)',
+            'premium-dark': '0 10px 30px -10px rgba(0, 0, 0, 0.5)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=10">
+  {% block head %}{% endblock %}
 </head>
+<body class="bg-canvas dark:bg-dark-bg text-slate-700 dark:text-dark-text font-sans antialiased min-h-screen pb-20 md:pb-0 transition-colors duration-200 bg-grid-pattern">
 
-<body>
+  <header class="w-full sticky top-0 z-50 bg-white/70 dark:bg-dark-bg/75 backdrop-blur-md border-b border-slate-200/50 dark:border-dark-border/40 transition-all h-16 flex items-center">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="flex items-center justify-between h-full">
+        <a href="{{ url_for('landing') }}" class="flex items-center gap-2.5 group shrink-0">
+          <span class="w-3 h-3 bg-gradient-to-tr from-primary to-primary-light rounded-full shadow-[0_0_10px_rgba(79,70,229,0.4)] dark:shadow-[0_0_15px_rgba(165,180,252,0.4)] transition-transform duration-300 group-hover:scale-125"></span>
+          <span class="font-sans font-bold text-lg tracking-tight text-slate-900 dark:text-white bg-clip-text hover:text-transparent hover:bg-gradient-to-r hover:from-primary hover:to-primary-light transition-all duration-300">Spendly</span>
+        </a>
 
-    <nav class="navbar">
-        <div class="nav-inner">
-            <a href="{{ url_for('landing') }}" class="nav-brand">
-                <span class="brand-icon">◈</span>
-                <span class="brand-name">Spendly</span>
-            </a>
+        <div class="hidden md:flex items-center space-x-1">
+          {% if session.user_id %}
+          <a href="{{ url_for('dashboard') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Dashboard</a>
+          <a href="{{ url_for('reports') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Reports</a>
+          <a href="{{ url_for('scan_receipt') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Scan</a>
+          <a href="{{ url_for('recurring_list') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Recurring</a>
 
-            <!-- Hamburger button (mobile only) -->
-            <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-
-            <div class="nav-links" id="nav-links">
-                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
-                    <span class="mode-icon">🌙</span>
-                </button>
-                {% if session.user_id %}
-                <a href="{{ url_for('dashboard') }}">Dashboard</a>
-                <a href="{{ url_for('reports') }}">Reports</a>
-                <a href="{{ url_for('scan_receipt') }}">Scan</a>
-                <a href="{{ url_for('alert_settings') }}">Alerts</a>
-                <a href="{{ url_for('profile') }}">Profile</a>
-                <a href="{{ url_for('logout') }}" class="nav-cta">Logout</a>
-                {% else %}
-                <a href="{{ url_for('login') }}">Sign in</a>
-                <a href="{{ url_for('register') }}" class="nav-cta">Get started</a>
-                {% endif %}
-            </div>
+          {% else %}
+          <a href="{{ url_for('login') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Features</a>
+          <a href="{{ url_for('login') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Pricing</a>
+          <a href="{{ url_for('login') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">About</a>
+          {% endif %}
         </div>
-    </nav>
 
-    <div class="flash-messages">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
+        <div class="flex items-center space-x-2">
+          <button id="theme-toggle" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors mr-1" aria-label="Toggle theme">
+            <span class="material-symbols-outlined text-[18px]" id="theme-toggle-icon">dark_mode</span>
+          </button>
+          {% if session.user_id %}
+          <a href="{{ url_for('profile') }}" class="hidden md:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+            <span class="material-symbols-outlined text-[16px] text-slate-400">person</span>
+            {{ session.user_name }}
+          </a>
+          <a href="{{ url_for('logout') }}" class="hidden md:inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary to-primary-light hover:brightness-110 text-white text-xs font-semibold rounded-lg transition-all active:scale-95 shadow-[0_4px_12px_-4px_rgba(79,70,229,0.3)]">Logout</a>
+          {% else %}
+          <a href="{{ url_for('login') }}" class="hidden md:inline-flex items-center px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white transition-colors">Sign in</a>
+          <a href="{{ url_for('register') }}" class="hidden md:inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary to-primary-light hover:brightness-110 text-white text-xs font-semibold rounded-lg transition-all active:scale-95 shadow-[0_4px_12px_-4px_rgba(79,70,229,0.3)]">Get started</a>
+          {% endif %}
+
+          <button class="md:hidden flex flex-col justify-center items-center gap-[4px] w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 p-1.5 text-slate-500 dark:text-dark-mute" id="nav-hamburger" aria-label="Toggle menu">
+            <span class="block w-4 h-[1.5px] bg-current transition-all duration-300"></span>
+            <span class="block w-4 h-[1.5px] bg-current transition-all duration-300"></span>
+            <span class="block w-4 h-[1.5px] bg-current transition-all duration-300"></span>
+          </button>
+        </div>
+      </div>
     </div>
 
-    <main class="main-content">
-        {% block content %}{% endblock %}
-    </main>
+    <div class="md:hidden hidden border-t border-slate-200/50 dark:border-dark-border/40 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl transition-all duration-300 absolute top-16 left-0 w-full shadow-lg" id="nav-links">
+      <div class="flex flex-col px-4 py-3 space-y-1">
+        {% if session.user_id %}
+        <a href="{{ url_for('dashboard') }}" class="px-3 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Dashboard</a>
+        <a href="{{ url_for('reports') }}" class="px-3 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Reports</a>
+        <a href="{{ url_for('scan_receipt') }}" class="px-3 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Scan</a>
+        <a href="{{ url_for('recurring_list') }}" class="px-3 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Recurring</a>
 
-    <footer class="footer">
-        <div class="footer-inner">
-            <span class="brand-icon">◈</span>
-            <span class="footer-name">Spendly</span>
-            <p class="footer-copy">Track every rupee. Own your finances.</p>
-            <div class="footer-nav" style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.75rem;">
-                <a href="{{ url_for('terms') }}" style="color: var(--ink-faint);">Terms and Conditions</a>
-                <a href="{{ url_for('privacy') }}" style="color: var(--ink-faint);">Privacy Policy</a>
-            </div>
+        <a href="{{ url_for('profile') }}" class="px-3 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Profile</a>
+        <hr class="border-slate-200/50 dark:border-dark-border/40 my-2">
+        <a href="{{ url_for('logout') }}" class="px-3 py-2.5 text-xs font-semibold bg-gradient-to-r from-primary to-primary-light text-white rounded-lg text-center shadow-md">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="px-3 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white text-center">Sign in</a>
+        <a href="{{ url_for('register') }}" class="px-3 py-2.5 text-xs font-semibold bg-gradient-to-r from-primary to-primary-light text-white rounded-lg text-center shadow-md">Get started</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <div class="fixed top-6 right-6 z-[100] w-full max-w-sm space-y-3 pointer-events-none">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="p-4 bg-white/90 dark:bg-dark-card/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white rounded-2xl shadow-2xl flex items-center justify-between animate-fade-in-up pointer-events-auto group hover:scale-[1.02] transition-transform
+      {% if category == 'success' %}border-l-[4px] border-l-primary{% endif %}
+      {% if category == 'danger' %}border-l-[4px] border-l-accent-red{% endif %}
+      {% if category == 'info' %}border-l-[4px] border-l-accent-blue{% endif %}
+      {% if category == 'warning' %}border-l-[4px] border-l-accent-yellow{% endif %}">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center
+          {% if category == 'success' %}bg-primary/10 text-primary{% endif %}
+          {% if category == 'danger' %}bg-accent-red/10 text-accent-red{% endif %}
+          {% if category == 'info' %}bg-accent-blue/10 text-accent-blue{% endif %}
+          {% if category == 'warning' %}bg-accent-yellow/10 text-accent-yellow{% endif %}">
+          {% if category == 'success' %}<span class="material-symbols-outlined text-[20px]">check_circle</span>{% endif %}
+          {% if category == 'danger' %}<span class="material-symbols-outlined text-[20px]">error</span>{% endif %}
+          {% if category == 'info' %}<span class="material-symbols-outlined text-[20px]">info</span>{% endif %}
+          {% if category == 'warning' %}<span class="material-symbols-outlined text-[20px]">warning</span>{% endif %}
         </div>
-    </footer>
+        <span class="text-xs font-semibold tracking-tight">{{ message }}</span>
+      </div>
+      <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors p-1">&times;</button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+  </div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}?v=2"></script>
-    {% block scripts %}{% endblock %}
+  <main class="min-h-[calc(100vh-64px)]">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% if not session.user_id or request.endpoint in ['landing', 'terms', 'privacy'] %}
+  <footer class="bg-surface-parchment dark:bg-dark-card/50 border-t border-slate-200 dark:border-dark-border/40 px-4 sm:px-6 lg:px-8 py-12 transition-colors">
+    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div class="col-span-2 md:col-span-1 flex flex-col items-start gap-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-primary rounded-full"></span>
+          <span class="font-sans font-bold text-lg text-slate-900 dark:text-white tracking-tight">Spendly</span>
+        </div>
+        <p class="text-xs leading-relaxed text-slate-500 dark:text-dark-mute max-w-xs">
+          Track expenses, set budgets, and take control of your finances.
+        </p>
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute mt-1">
+          &copy; {{ now_year }} Spendly. All rights reserved.
+        </p>
+      </div>
+      <div>
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Product</p>
+        <ul class="space-y-2 text-xs" style="line-height: 2.41">
+          <li><a href="{{ url_for('register') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Features</a></li>
+          <li><a href="{{ url_for('register') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</a></li>
+          <li><a href="{{ url_for('register') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">OCR Scanning</a></li>
+          <li><a href="{{ url_for('register') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Export</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Company</p>
+        <ul class="space-y-2 text-xs" style="line-height: 2.41">
+          <li><a href="{{ url_for('register') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">About</a></li>
+          <li><a href="{{ url_for('register') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Blog</a></li>
+          <li><a href="{{ url_for('register') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Support</p>
+        <ul class="space-y-2 text-xs" style="line-height: 2.41">
+          <li><a href="{{ url_for('privacy') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</a></li>
+          <li><a href="{{ url_for('terms') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</a></li>
+          <li><a href="mailto:support@spendly.app" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  {% endif %}
+
+  {% if session.user_id %}
+  <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-5 pt-2 bg-white/95 dark:bg-dark-card/95 backdrop-blur-xl border-t border-slate-200 dark:border-dark-border transition-colors">
+    <a class="flex flex-col items-center justify-center px-3 py-1.5 rounded-xl transition-all duration-200 {% if request.path == url_for('dashboard') %}text-primary{% else %}text-slate-400 dark:text-dark-mute{% endif %}" href="{{ url_for('dashboard') }}">
+      <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+      <span class="font-sans text-[9px] font-semibold mt-0.5">Dashboard</span>
+    </a>
+    <a class="flex flex-col items-center justify-center px-3 py-1.5 rounded-xl transition-all duration-200 {% if request.path == url_for('reports') %}text-primary{% else %}text-slate-400 dark:text-dark-mute{% endif %}" href="{{ url_for('reports') }}">
+      <span class="material-symbols-outlined text-[20px]">query_stats</span>
+      <span class="font-sans text-[9px] font-semibold mt-0.5">Reports</span>
+    </a>
+    <a class="flex flex-col items-center justify-center px-3 py-1.5 rounded-xl transition-all duration-200 {% if request.path == url_for('scan_receipt') %}text-primary{% else %}text-slate-400 dark:text-dark-mute{% endif %}" href="{{ url_for('scan_receipt') }}">
+      <span class="material-symbols-outlined text-[20px]">center_focus_strong</span>
+      <span class="font-sans text-[9px] font-semibold mt-0.5">Scan</span>
+    </a>
+    <a class="flex flex-col items-center justify-center px-3 py-1.5 rounded-xl transition-all duration-200 {% if request.path == url_for('profile') %}text-primary{% else %}text-slate-400 dark:text-dark-mute{% endif %}" href="{{ url_for('profile') }}">
+      <span class="material-symbols-outlined text-[20px]">person</span>
+      <span class="font-sans text-[9px] font-semibold mt-0.5">Profile</span>
+    </a>
+  </nav>
+  {% endif %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}?v=10"></script>
+  {% block scripts %}{% endblock %}
 </body>
-
 </html>

@@ -1,50 +1,74 @@
 {% extends "base.html" %}
-
-{% block title %}Terms and Conditions — Spendly{% endblock %}
+{% block title %}Operational Terms | Spendly{% endblock %}
 
 {% block content %}
-<div class="form-section">
-    <div class="form-container" style="max-width: 800px;">
-        <div class="form-header" style="margin-bottom: 3rem;">
-            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Terms and Conditions</h1>
-            <p style="color: var(--ink-muted);">Last updated: March 26, 2026</p>
-        </div>
-        
-        <div class="form-card" style="line-height: 1.8; color: var(--ink-soft); padding: 3rem; text-align: left;">
-            <section style="margin-bottom: 2.5rem;">
-                <h3 style="color: var(--ink); margin-bottom: 0.75rem; font-family: var(--font-display); font-size: 1.5rem;">1. Acceptance of Terms</h3>
-                <p>By accessing or using Spendly, you agree to be bound by these Terms and Conditions. Our service is designed to help you track personal expenses and manage your financial life. If you do not agree with any part of these terms, you must discontinue use of the application immediately.</p>
-            </section>
-
-            <section style="margin-bottom: 2.5rem;">
-                <h3 style="color: var(--ink); margin-bottom: 0.75rem; font-family: var(--font-display); font-size: 1.5rem;">2. Use of Service</h3>
-                <p>Spendly provides a platform for logging transactions and visualizing spending. You are solely responsible for:</p>
-                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
-                    <li>Maintaining the security of your account credentials.</li>
-                    <li>The accuracy of the data you input.</li>
-                    <li>Ensuring your use of the service complies with local laws.</li>
-                </ul>
-            </section>
-
-            <section style="margin-bottom: 2.5rem;">
-                <h3 style="color: var(--ink); margin-bottom: 0.75rem; font-family: var(--font-display); font-size: 1.5rem;">3. User Data & Privacy</h3>
-                <p>We take your data seriously. While Spendly stores your expense records to provide its core functionality, we do not monitor or sell your individual financial data. For more details, please refer to our Privacy Policy. You retain all rights to the information you enter into the system.</p>
-            </section>
-
-            <section style="margin-bottom: 2.5rem;">
-                <h3 style="color: var(--ink); margin-bottom: 0.75rem; font-family: var(--font-display); font-size: 1.5rem;">4. Limitations of Liability</h3>
-                <p>Spendly is a tool for informational purposes only. It does not provide professional financial, tax, or investment advice. We shall not be held liable for any financial losses, inaccuracies, or decisions made based on the information provided by the application.</p>
-            </section>
-
-            <section style="margin-bottom: 2.5rem;">
-                <h3 style="color: var(--ink); margin-bottom: 0.75rem; font-family: var(--font-display); font-size: 1.5rem;">5. Changes to Terms</h3>
-                <p>We may update these terms from time to time to reflect changes in our service or legal requirements. We will notify users of any significant changes by updating the "Last updated" date at the top of this page. Your continued use of Spendly after changes are posted constitutes acceptance of the new terms.</p>
-            </section>
-
-            <div style="margin-top: 4rem; text-align: center; border-top: 1px solid var(--border-soft); padding-top: 2rem;">
-                <a href="{{ url_for('landing') }}" class="btn-primary">Return to Home</a>
-            </div>
-        </div>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 animate-fade-in-up">
+  
+  <!-- Header Section -->
+  <section class="mb-12 relative">
+    <div class="glow-blob -top-10 -right-10 w-48 h-48 bg-primary/10"></div>
+    <div class="relative z-10">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="px-2 py-0.5 rounded bg-signature-peach/10 text-signature-peach text-[10px] font-bold uppercase tracking-widest">USER AGREEMENT</span>
+      </div>
+      <h1 class="heading-display-sm text-slate-900 dark:text-white font-extrabold tracking-tight mb-3">
+        Terms of Service
+      </h1>
+      <p class="body-text text-slate-500 dark:text-dark-mute max-w-2xl">Governing the utilization of the Spendly personal finance ledger and its associated data services.</p>
+      <p class="text-[10px] font-mono text-slate-400 dark:text-dark-mute mt-6 uppercase tracking-widest">Version 2026.04 &bull; Legal Framework</p>
     </div>
+  </section>
+
+  <div class="card-apple p-10 shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5 space-y-12">
+    
+    <section class="space-y-4">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]">gavel</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">1. Acceptance of Protocol</h3>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-dark-mute leading-relaxed">By initializing an account within the Spendly network, you agree to adhere to these operational terms. Spendly is provided as a personal tracking tool and should not be used as a replacement for certified tax or financial advice from authorized professionals.</p>
+    </section>
+
+    <section class="space-y-4">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]">verified_user</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">2. User Responsibility</h3>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-dark-mute leading-relaxed">Operators are responsible for maintaining the confidentiality of their vault access keys. Any transactions recorded under your identification are considered authorized by you. We mandate the use of unique passphrases to ensure capital security.</p>
+    </section>
+
+    <section class="space-y-4">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]">block</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">3. Prohibited Activity</h3>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-dark-mute leading-relaxed">The ledger terminal must not be used for illicit capital tracking, money laundering, or any activity that violates local fiscal regulations. We reserve the right to terminate access for accounts that exhibit fraudulent patterns.</p>
+    </section>
+
+    <section class="space-y-4">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]">release_alert</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">4. Service Limitations</h3>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-dark-mute leading-relaxed">Spendly is provided "as is." While we strive for 100% uptime and precision, we do not guarantee that the terminal will be error-free or that data extraction from vouchers will be perfect in all lighting conditions.</p>
+    </section>
+
+    <div class="pt-10 border-t border-slate-100 dark:border-dark-border/40 flex flex-col md:flex-row items-center justify-between gap-6">
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute max-w-[320px]">Spendly is a product of Editorial Finance Labs. All rights reserved. &copy; {{ now_year }}</p>
+        <a href="{{ url_for('landing') }}" class="btn-primary px-8 py-2.5 text-xs font-bold shadow-lg shadow-primary/20 flex items-center gap-2">
+            Return to Terminal
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </a>
+    </div>
+
+  </div>
 </div>
 {% endblock %}

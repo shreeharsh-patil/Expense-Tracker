@@ -1,310 +1,272 @@
 {% extends "base.html" %}
-
-{% block title %}Dashboard | Spendly{% endblock %}
-
+{% block title %}Ledger Terminal | Spendly{% endblock %}
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block content %}
-<section class="dashboard-header">
-    <div class="header-content">
-        <h1>Welcome back, <span class="highlight">{{ session.user_name }}</span>.</h1>
-        <p>Keep your finances in check and track your progress. 
-           &bull; <a href="{{ url_for('recurring_list') }}" style="color: var(--accent); font-weight: 600; text-decoration: underline;">Manage Subscriptions</a>
-        </p>
-    </div>
-    <div class="summary-card">
-        <span class="label">Total Overall</span>
-        <span class="amount">₹{{ "%.2f"|format(total_spent) }}</span>
-    </div>
-</section>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
 
-<!-- ── Insights Bar ─────────────────────────────────────── -->
-{% if insights %}
-<section class="insights-bar">
-    <div class="insight-pill">
-        <span class="insight-icon">🏆</span>
-        <div>
-            <span class="insight-label">Top Category</span>
-            <span class="insight-value">{{ insights.top_category }} &mdash; ₹{{ "%.0f"|format(insights.top_category_amt) }}</span>
-        </div>
-    </div>
-    <div class="insight-pill">
-        <span class="insight-icon">🔺</span>
-        <div>
-            <span class="insight-label">Biggest Expense</span>
-            <span class="insight-value">₹{{ "%.2f"|format(insights.biggest_expense) }} &mdash; {{ insights.biggest_desc[:30] }}</span>
-        </div>
-    </div>
-    <div class="insight-pill">
-        <span class="insight-icon">📅</span>
-        <div>
-            <span class="insight-label">Daily Average</span>
-            <span class="insight-value">₹{{ "%.2f"|format(insights.daily_avg) }} / day</span>
-        </div>
-    </div>
-</section>
-{% endif %}
-
-<!-- ── Savings Goals & Forecast Row ──────────────────────── -->
-<section class="dashboard-grid" style="grid-template-columns: 1fr 340px; gap: 2rem;">
-    <!-- Goals Column -->
-    <div class="grid-card">
-        <div class="card-header">
-            <h3>Savings Goals</h3>
-            <button class="edit-budget-btn" onclick="document.getElementById('goalModal').style.display='flex'">+ New Goal</button>
-        </div>
-        <div class="goals-container" style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1rem;">
-            {% if goals %}
-                {% for goal in goals %}
-                <div class="goal-item">
-                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
-                        <span style="font-weight: 600; font-size: 0.95rem;">{{ goal.name }}</span>
-                        <span style="font-size: 0.8rem; color: var(--ink-muted);">Target: ₹{{ "%.0f"|format(goal.target_amount) }}</span>
-                    </div>
-                    {% set goal_pct = (goal.current_saved / goal.target_amount * 100)|round|int %}
-                    <div class="progress-bar-track" style="height: 10px; margin-bottom: 0.5rem;">
-                        <div class="progress-bar-fill" style="width: {{ [goal_pct, 100]|min }}%; background: #c17f24;"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.85rem; color: var(--ink-soft);">₹{{ "%.0f"|format(goal.current_saved) }} saved ({{ goal_pct }}%)</span>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <form action="{{ url_for('save_for_goal', id=goal.id) }}" method="POST" style="display: flex; gap: 0.25rem;">
-                                <input type="number" name="amount" placeholder="Add..." style="width: 70px; padding: 0.2rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.8rem;">
-                                <button type="submit" style="background: var(--ink); color: white; border: none; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Save</button>
-                            </form>
-                            <a href="{{ url_for('delete_goal', id=goal.id) }}" style="color: var(--danger); font-size: 0.8rem;" onclick="return confirm('Delete this goal?')">✕</a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <p style="text-align: center; color: var(--ink-faint); font-size: 0.9rem; padding: 2rem;">No goals yet. What are you saving for?</p>
-            {% endif %}
-        </div>
+  <!-- 1. Top Insights Bar (Bento Stats) -->
+  <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+    
+    <!-- User Greeting Card -->
+    <div class="md:col-span-2 card-apple p-8 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-white to-slate-50/50 dark:from-dark-card dark:to-dark-card/60">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none"></div>
+      <div>
+        <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-[0.2em] mb-2">OPERATIONAL CONSOLE</p>
+        <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Welcome, {{ session.user_name }}</h1>
+        <p class="text-sm text-slate-500 dark:text-dark-mute mt-2 max-w-[320px]">Your financial ledger is synchronized and active for the current fiscal period.</p>
+      </div>
+      <div class="mt-8 flex gap-3">
+        <a href="{{ url_for('add_expense') }}" class="btn-primary px-6 py-2.5 text-xs font-bold shadow-lg shadow-primary/20 flex items-center gap-2 group">
+          <span class="material-symbols-outlined text-[18px]">add</span>
+          Record Entry
+        </a>
+        <a href="{{ url_for('scan_receipt') }}" class="btn-secondary px-6 py-2.5 text-xs font-bold flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">center_focus_strong</span>
+          Digitize
+        </a>
+      </div>
     </div>
 
-    <!-- Quick Stats Card -->
-    <div class="grid-card" style="padding: 2rem;">
-        <div class="card-header"><h3>Current Month</h3></div>
-        <div class="quick-stats">
-            <div class="qs-row">
-                <span class="qs-label">Spent so far</span>
-                <span class="qs-value">₹{{ "%.2f"|format(current_month_spent) }}</span>
+    <!-- Monthly Burn Card -->
+    <div class="card-apple p-8 flex flex-col justify-between hover-lift">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Monthly Burn</p>
+                <p class="text-3xl font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.0f"|format(current_month_spent) }}</p>
             </div>
-            <div class="qs-row">
-                <span class="qs-label">Monthly budget</span>
-                <span class="qs-value">₹{{ "%.2f"|format(monthly_budget) }}</span>
+            <div class="w-10 h-10 rounded-xl bg-accent-blue/10 text-accent-blue flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
             </div>
-            <div class="qs-row" style="border-top: 1px dashed var(--border); margin-top: 0.5rem; padding-top: 1rem;">
-                <span class="qs-label" title="AI Projection based on daily average">Projected Month-End</span>
-                <span class="qs-value {% if projected_total > monthly_budget %}danger-text{% endif %}" style="font-size: 1.1rem;">
-                    ₹{{ "%.2f"|format(projected_total) }}
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-100 dark:border-dark-border/40">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] font-bold text-slate-400 dark:text-dark-mute uppercase tracking-tighter">Budget Progress</span>
+                <span class="text-[10px] font-mono font-bold text-slate-900 dark:text-white">
+                    {% if monthly_budget > 0 %}{{ (current_month_spent / monthly_budget * 100)|int }}%{% else %}0%{% endif %}
                 </span>
             </div>
-        </div>
-    </div>
-</section>
-
-<!-- ── Charts Row ────────────────────────────────────────── -->
-<section class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
-
-    <!-- Monthly Trends Bar Chart -->
-    <div class="grid-card chart-card" style="min-height: 320px; padding: 2rem;">
-        <div class="card-header">
-            <h3>Monthly Spending Trend</h3>
-        </div>
-        <div class="chart-container" style="height: 240px;">
-            <canvas id="trendChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Spending by Payment Method (New) -->
-    <div class="grid-card chart-card" style="min-height: 320px; padding: 2rem;">
-        <div class="card-header">
-            <h3>Wallets / Accounts</h3>
-        </div>
-        <div class="chart-container" style="height: 240px;">
-            <canvas id="methodChart"></canvas>
-        </div>
-    </div>
-
-</section>
-
-<!-- ── Category Breakdown Row ────────────────────────────── -->
-<section class="dashboard-grid" style="grid-template-columns: 1fr 340px; gap: 2rem; margin-top: 2rem;">
-    <!-- Category Pie Chart -->
-    <div class="grid-card chart-card" style="min-height: 320px; padding: 2rem;">
-        <div class="card-header">
-            <h3>Category Breakdown</h3>
-        </div>
-        <div class="chart-container" style="height: 240px;">
-            <canvas id="categoryChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Budget Doughnut -->
-    <div class="grid-card budget-card">
-        <div class="card-header">
-            <h3>Budget Status</h3>
-            <button class="edit-budget-btn" onclick="document.getElementById('budgetModal').style.display='flex'">Adjust</button>
-        </div>
-        <div class="chart-container" style="height: 220px; position: relative;">
-            <canvas id="budgetOverviewChart"></canvas>
-            <div id="remaining-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
-                <span style="display: block; font-size: 0.65rem; color: var(--ink-muted); text-transform: uppercase; font-weight: 600;">Remaining</span>
-                <span style="font-size: 1.15rem; font-weight: 800; color: var(--accent);">₹{{ "%.0f"|format(monthly_budget - current_month_spent) if monthly_budget > current_month_spent else 0 }}</span>
+            <div class="h-1.5 w-full bg-slate-100 dark:bg-dark-border rounded-full overflow-hidden">
+                <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: {% if monthly_budget > 0 %}{{ [(current_month_spent / monthly_budget * 100)|int, 100]|min }}{% else %}0{% endif %}%"></div>
             </div>
         </div>
     </div>
-</section>
 
-<!-- ── Expense Controls ──────────────────────────────────── -->
-<section class="expense-controls" style="margin-top: 3rem;">
-    <div class="search-filter-row">
-        <form method="GET" class="search-form" id="filter-form">
-            <input type="text" name="q" placeholder="Search expenses…" value="{{ request.args.get('q', '') }}" class="search-input">
-            <select name="category" class="filter-select">
-                <option value="">All Categories</option>
-                <option value="Food"          {% if request.args.get('category') == "Food"          %}selected{% endif %}>Food</option>
-                <option value="Transport"     {% if request.args.get('category') == "Transport"     %}selected{% endif %}>Transport</option>
-                <option value="Bills"         {% if request.args.get('category') == "Bills"         %}selected{% endif %}>Bills</option>
-                <option value="Health"        {% if request.args.get('category') == "Health"        %}selected{% endif %}>Health</option>
-                <option value="Shopping"      {% if request.args.get('category') == "Shopping"      %}selected{% endif %}>Shopping</option>
-                <option value="Entertainment" {% if request.args.get('category') == "Entertainment" %}selected{% endif %}>Entertainment</option>
-                <option value="Other"         {% if request.args.get('category') == "Other"         %}selected{% endif %}>Other</option>
-            </select>
-            <button type="submit" class="btn-search">Filter</button>
-            {% if request.args.get('q') or request.args.get('category') or date_from or date_to %}
-                <a href="{{ url_for('dashboard') }}" class="btn-clear">Clear</a>
+    <!-- Projected Total Card -->
+    <div class="card-apple p-8 flex flex-col justify-between hover-lift">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Forecast</p>
+                <p class="text-3xl font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.0f"|format(projected_total) }}</p>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-signature-peach/10 text-signature-peach flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">batch_prediction</span>
+            </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-100 dark:border-dark-border/40">
+            <p class="text-[10px] text-slate-400 dark:text-dark-mute leading-tight">Estimated total based on current daily average burn rate.</p>
+        </div>
+    </div>
+
+  </section>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+
+    <!-- 2. Transaction Stream (Left Column) -->
+    <div class="lg:col-span-8 space-y-6">
+      
+      <!-- Filter Controls -->
+      <div class="card-apple p-4 flex flex-wrap items-center gap-4 bg-white/60 dark:bg-dark-card/60 backdrop-blur-md border-white/60 dark:border-white/5">
+        <form action="{{ url_for('dashboard') }}" method="GET" class="flex flex-1 items-center gap-3" id="filter-form">
+          <div class="relative flex-1 max-w-sm group">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] group-focus-within:text-primary transition-colors">search</span>
+            <input type="text" name="q" value="{{ request.args.get('q', '') }}" placeholder="Search ledger..." class="w-full bg-slate-100/50 dark:bg-white/5 border-none py-2.5 pl-10 pr-4 rounded-xl text-xs font-medium focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+          </div>
+          
+          <input type="hidden" name="category" id="hidden-category" value="{{ request.args.get('category', '') }}">
+          
+          <div class="flex gap-2 items-center">
+            <button type="submit" class="p-2.5 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-[18px]">filter_list</span>
+            </button>
+            {% if request.args.get('q') or request.args.get('category') %}
+            <a href="{{ url_for('dashboard') }}" class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-accent-red transition-all">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </a>
             {% endif %}
+          </div>
         </form>
-        <div style="display:flex; gap: 0.75rem; align-items:center;">
-            <a href="{{ url_for('export_expenses') }}" class="btn-export" title="Download CSV">⬇ Export CSV</a>
-            <a href="{{ url_for('add_expense') }}" class="add-btn">+ Add Expense</a>
+
+        <div class="h-8 w-px bg-slate-200 dark:bg-dark-border hidden md:block"></div>
+
+        <!-- Quick Category Chips -->
+        <div class="flex gap-2 overflow-x-auto scrollbar-none pb-1 md:pb-0">
+          {% for cat in ['Food', 'Transport', 'Shopping', 'Bills'] %}
+          <button onclick="filterByChip('{{ cat }}')" class="px-4 py-1.5 rounded-pill text-[10px] font-bold uppercase tracking-widest border transition-all whitespace-nowrap
+            {% if request.args.get('category') == cat %}bg-primary border-primary text-white shadow-lg shadow-primary/20{% else %}border-slate-200 dark:border-white/10 text-slate-500 dark:text-dark-mute hover:border-primary/50{% endif %}">
+            {{ cat }}
+          </button>
+          {% endfor %}
         </div>
-    </div>
-</section>
+      </div>
 
-<!-- ── Expense Table ─────────────────────────────────────── -->
-<section class="expenses-list">
-    <div class="list-container">
-        {% if expenses %}
-            <table class="expense-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Category</th>
-                        <th>Payment</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for expense in expenses %}
-                    <tr>
-                        <td class="col-date">{{ expense.date[:10] }}</td>
-                        <td class="col-category"><span class="tag-{{ expense.category|lower }}">{{ expense.category }}</span></td>
-                        <td class="col-method" style="font-size: 0.8rem; color: var(--ink-muted);">{{ expense.payment_method }}</td>
-                        <td class="col-description">{{ expense.description or "-" }}</td>
-                        <td class="col-amount">₹{{ "%.2f"|format(expense.amount) }}</td>
-                        <td class="col-actions">
-                            <a href="{{ url_for('delete_expense', id=expense.id) }}" class="delete-btn" onclick="return confirm('Delete this expense?')">Delete</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <div class="empty-state">
-                <p>No transactions found.</p>
+      <!-- Transaction Table -->
+      <div class="card-apple p-0 overflow-hidden shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-[0.2em] border-b border-slate-100 dark:border-dark-border/40">
+                <th class="px-6 py-5 font-bold">Entry Date</th>
+                <th class="px-6 py-5 font-bold">Allocation & Memo</th>
+                <th class="px-6 py-5 font-bold text-right">Amount</th>
+                <th class="px-6 py-5 font-bold text-right">Channel</th>
+                <th class="px-6 py-5 font-bold text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50 dark:divide-dark-border/10">
+              {% for exp in expenses %}
+              <tr class="group hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-all duration-300">
+                <td class="px-6 py-5">
+                  <span class="text-xs font-mono font-bold text-slate-500 dark:text-dark-mute">{{ exp.date }}</span>
+                </td>
+                <td class="px-6 py-5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-dark-mute transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                        <span class="material-symbols-outlined text-[20px]">
+                            {% if exp.category == 'Food' %}restaurant{% elif exp.category == 'Transport' %}directions_car{% elif exp.category == 'Shopping' %}shopping_bag{% elif exp.category == 'Bills' %}receipt_long{% elif exp.category == 'Entertainment' %}movie{% elif exp.category == 'Health' %}medical_services{% else %}category{% endif %}
+                        </span>
+                    </div>
+                    <div>
+                      <p class="text-sm font-bold text-slate-800 dark:text-white">{{ exp.description or exp.category }}</p>
+                      <p class="text-[10px] text-slate-400 dark:text-dark-mute font-medium uppercase tracking-tight">{{ exp.category }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-5 text-right">
+                  <span class="text-sm font-mono font-bold text-slate-900 dark:text-white tracking-tighter">&#8377;{{ "%.2f"|format(exp.amount) }}</span>
+                </td>
+                <td class="px-6 py-5 text-right">
+                  <span class="px-2 py-1 rounded bg-slate-100 dark:bg-white/5 text-[9px] font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest border border-slate-200/50 dark:border-white/5">{{ exp.payment_method }}</span>
+                </td>
+                <td class="px-6 py-5 text-right">
+                  <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <a href="{{ url_for('edit_expense', id=exp.id) }}" class="p-1.5 rounded-lg text-slate-300 hover:text-primary hover:bg-primary/10 transition-all">
+                      <span class="material-symbols-outlined text-[18px]">edit</span>
+                    </a>
+                    <a href="{{ url_for('delete_expense', id=exp.id) }}" class="p-1.5 rounded-lg text-slate-300 hover:text-accent-red hover:bg-accent-red/10 transition-all" onclick="return confirm('Confirm deletion of entry?')">
+                      <span class="material-symbols-outlined text-[18px]">delete</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="5" class="px-6 py-24 text-center">
+                  <div class="flex flex-col items-center opacity-40">
+                    <span class="material-symbols-outlined text-6xl mb-4">history_edu</span>
+                    <p class="text-sm font-bold uppercase tracking-[0.2em]">No Ledger Entries Found</p>
+                    <p class="text-[10px] mt-2 max-w-[240px] mx-auto">Initialize your ledger by recording a new transaction or digitizing a voucher.</p>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Visual Analytics (Right Column) -->
+    <div class="lg:col-span-4 space-y-8">
+      
+      <!-- Category Distribution -->
+      <div class="card-apple p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <h3 class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-[0.2em] mb-8 text-center">Categorical Outflow</h3>
+        <div class="h-[260px] relative">
+          <canvas id="categoryChart"></canvas>
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span class="text-[10px] font-bold text-slate-400 dark:text-dark-mute uppercase">Total</span>
+            <span class="text-xl font-mono font-bold text-slate-900 dark:text-white tracking-tighter">&#8377;{{ "%.0f"|format(total_spent) }}</span>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 mt-10 pt-6 border-t border-slate-100 dark:border-dark-border/40">
+            {% for label in chart_labels[:4] %}
+            <div class="flex items-center gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-primary/40"></div>
+                <span class="text-[10px] font-bold text-slate-500 dark:text-dark-mute uppercase tracking-tight">{{ label }}</span>
             </div>
-        {% endif %}
-    </div>
-</section>
+            {% endfor %}
+        </div>
+      </div>
 
-<!-- ── Modals ────────────────────────────────────────────── -->
-<div id="budgetModal" class="modal-overlay" style="display:none">
-    <div class="modal-card">
-        <div class="modal-header"><h3>Set Monthly Budget</h3><button onclick="document.getElementById('budgetModal').style.display='none'" class="close-btn">×</button></div>
-        <form action="{{ url_for('update_budget') }}" method="POST">
-            <div class="form-group"><label for="budget">New Monthly Limit (₹)</label><input type="number" step="100" name="budget" id="budget" class="form-input" value="{{ monthly_budget }}" required></div>
-            <button type="submit" class="btn-submit">Update Budget</button>
+      <!-- Budget Management Bento -->
+      <div class="card-apple p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5 bg-slate-950 text-white border-none">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]">tune</span>
+            </div>
+            <h3 class="text-[10px] font-mono font-bold uppercase tracking-[0.2em]">Terminal Config</h3>
+        </div>
+        
+        <form action="{{ url_for('update_budget') }}" method="POST" class="space-y-6">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="space-y-2 group">
+            <label for="budget" class="block text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest transition-colors group-focus-within:text-white">Monthly Threshold (&#8377;)</label>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-0 text-slate-600 text-[18px]">track_changes</span>
+              <input type="number" step="100" name="budget" id="budget" class="w-full bg-transparent border-b border-slate-800 py-2.5 pl-7 outline-none focus:border-white transition-all text-sm font-mono font-bold text-white" value="{{ monthly_budget }}" required>
+            </div>
+          </div>
+          <button type="submit" class="w-full py-3 bg-white text-slate-950 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-95 shadow-lg shadow-white/5">
+            Update Threshold
+          </button>
         </form>
+      </div>
+
     </div>
+
+  </div>
 </div>
 
-<div id="goalModal" class="modal-overlay" style="display:none">
-    <div class="modal-card">
-        <div class="modal-header"><h3>New Savings Goal</h3><button onclick="document.getElementById('goalModal').style.display='none'" class="close-btn">×</button></div>
-        <form action="{{ url_for('add_goal') }}" method="POST">
-            <div class="form-group"><label>What are you saving for?</label><input type="text" name="name" class="form-input" placeholder="e.g. New iPhone" required></div>
-            <div class="form-group"><label>Target Amount (₹)</label><input type="number" name="target_amount" class="form-input" required></div>
-            <div class="form-group"><label>Deadline (Optional)</label><input type="date" name="deadline" class="form-input"></div>
-            <button type="submit" class="btn-submit">Start Saving</button>
-        </form>
-    </div>
-</div>
-
-{% endblock %}
-
-{% block scripts %}
 <script>
-    const chartData = {
-        categories: { labels: {{ chart_labels|tojson }}, values: {{ chart_values|tojson }} },
-        methods: { labels: {{ (methods_data|map(attribute='payment_method')|list)|tojson }}, values: {{ (methods_data|map(attribute='total')|list)|tojson }} },
-        trends: { labels: {{ trend_labels|tojson }}, values: {{ trend_values|tojson }} },
-        total: {{ total_spent }},
-        spent: {{ current_month_spent }},
-        budget: {{ monthly_budget }}
-    };
+  // Unified Chart configuration
+  const chartColors = ['#4f46e5', '#6366f1', '#f97316', '#10b981', '#ef4444', '#3b82f6', '#f59e0b'];
+  const isDark = document.documentElement.classList.contains('dark');
 
-    const palette = ['#06b6d4','#6366f1','#f43f5e','#f59e0b','#10b981','#a855f7','#f97316','#3b82f6'];
+  function filterByChip(catName) {
+    document.getElementById('hidden-category').value = catName;
+    document.getElementById('filter-form').submit();
+  }
 
-    // 1. Monthly Trend
-    new Chart(document.getElementById('trendChart').getContext('2d'), {
-        type: 'line',
-        data: {
-            labels: chartData.trends.labels,
-            datasets: [{ label: 'Spending', data: chartData.trends.values, borderColor: '#1a472a', tension: 0.3, fill: true, backgroundColor: 'rgba(26,71,42,0.05)' }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-
-    // 2. Wallets / Payment Method
-    new Chart(document.getElementById('methodChart').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: chartData.methods.labels,
-            datasets: [{ data: chartData.methods.values, backgroundColor: '#c17f24', borderRadius: 4 }]
-        },
-        options: { 
-            indexAxis: 'y',
-            responsive: true, 
-            maintainAspectRatio: false, 
-            plugins: { legend: { display: false } },
-            scales: { x: { grid: { display: false } } }
+  const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+  new Chart(ctxCategory, {
+    type: 'doughnut',
+    data: {
+      labels: {{ chart_labels | tojson }},
+      datasets: [{
+        data: {{ chart_values | tojson }},
+        backgroundColor: chartColors,
+        borderWidth: 0,
+        hoverOffset: 12
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '82%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e293b',
+          padding: 12,
+          cornerRadius: 8,
+          titleFont: { weight: 'bold' }
         }
-    });
-
-    // 3. Category Pie
-    new Chart(document.getElementById('categoryChart').getContext('2d'), {
-        type: 'pie',
-        data: { labels: chartData.categories.labels, datasets: [{ data: chartData.categories.values, backgroundColor: palette, borderWidth: 0 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-    });
-
-    // 4. Budget Doughnut
-    const rem = Math.max(0, chartData.budget - chartData.spent);
-    new Chart(document.getElementById('budgetOverviewChart').getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Spent', 'Remaining'],
-            datasets: [{ data: [chartData.spent, rem], backgroundColor: [chartData.spent > chartData.budget ? '#b31b25' : '#1a472a', '#e5e9eb'], borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false } } }
-    });
+      }
+    }
+  });
 </script>
 {% endblock %}

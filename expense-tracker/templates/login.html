@@ -1,45 +1,60 @@
 {% extends "base.html" %}
-
-{% block title %}Sign in — Spendly{% endblock %}
+{% block title %}Sign in | Spendly{% endblock %}
 
 {% block content %}
+<section class="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 sm:px-6 py-12 relative overflow-hidden">
+  <!-- Decorative Background Blobs -->
+  <div class="glow-blob top-1/4 -left-20 w-72 h-72 bg-primary/10"></div>
+  <div class="glow-blob bottom-1/4 -right-20 w-72 h-72 bg-signature-peach/10"></div>
 
-<section class="auth-section">
-    <div class="auth-container">
-
-        <div class="auth-header">
-            <h1 class="auth-title">Welcome back</h1>
-            <p class="auth-subtitle">Sign in to your Spendly account</p>
-        </div>
-
-        <div class="auth-card">
-            {% if error %}
-            <div class="auth-error">{{ error }}</div>
-            {% endif %}
-
-            <form method="POST" action="/login">
-                <div class="form-group">
-                    <label for="email">Email address</label>
-                    <input type="email" id="email" name="email"
-                           class="form-input" placeholder="nitish@example.com"
-                           required autofocus>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password"
-                           class="form-input" placeholder="Your password"
-                           required>
-                </div>
-                <button type="submit" class="btn-submit">Sign in</button>
-            </form>
-        </div>
-
-        <p class="auth-switch">
-            Don't have an account?
-            <a href="{{ url_for('register') }}">Create one free</a>
-        </p>
-
+  <div class="w-full max-w-[420px] relative z-10 animate-fade-in-up">
+    <div class="mb-10 flex flex-col items-center text-center">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary to-primary-light text-white flex items-center justify-center mb-6 shadow-lg shadow-primary/20 rotate-3">
+        <span class="material-symbols-outlined text-[32px]">lock_open</span>
+      </div>
+      <h1 class="heading-display-sm text-slate-900 dark:text-white mb-2 font-extrabold tracking-tight">Security Access</h1>
+      <p class="body-text text-slate-500 dark:text-dark-mute max-w-[300px]">Authentication required to access the personal ledger terminal.</p>
     </div>
-</section>
 
+    <div class="card-apple p-8 shadow-2xl shadow-slate-200/50 dark:shadow-none border-white/60 dark:border-white/5">
+      <form method="POST" action="/login" class="space-y-6">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="space-y-2 group">
+          <label for="email" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">User Identification</label>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">alternate_email</span>
+            <input id="email" name="email" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-300 dark:placeholder:text-dark-border" type="email" placeholder="email@address.com" required autofocus>
+          </div>
+        </div>
+
+        <div class="space-y-2 group">
+          <div class="flex justify-between items-end">
+            <label for="password" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Passphrase</label>
+            <a href="{{ url_for('forgot_password') }}" class="text-[9px] font-bold text-primary dark:text-primary-light uppercase tracking-widest hover:underline">Lost?</a>
+          </div>
+          <div class="relative flex items-center">
+            <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">key</span>
+            <input id="password" name="password" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-300 dark:placeholder:text-dark-border" type="password" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <div class="pt-4">
+          <button type="submit" class="btn-primary w-full py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group">
+            Establish Session
+            <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">login</span>
+          </button>
+        </div>
+      </form>
+      
+      <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40 text-center">
+        <p class="text-xs text-slate-400 dark:text-dark-mute mb-2">New operator?</p>
+        <a href="{{ url_for('register') }}" class="text-xs font-bold text-slate-900 dark:text-white hover:text-primary dark:hover:text-primary-light transition-colors flex items-center justify-center gap-1 group">
+          Register new account 
+          <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-0.5">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

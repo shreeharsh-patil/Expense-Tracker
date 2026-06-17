@@ -7,6 +7,7 @@ import smtplib
 import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from markupsafe import escape
 
 
 # Configuration — users can set these via environment variables
@@ -21,11 +22,14 @@ def _build_budget_alert_html(user_name, spent, budget, projected, top_category, 
     pct = int((spent / budget) * 100) if budget > 0 else 0
     bar_color = '#c0392b' if pct >= 100 else '#f39c12' if pct >= 80 else '#1a472a'
     
+    e_user_name = escape(user_name)
+    e_top_category = escape(top_category)
+    
     return f"""
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 520px; margin: 0 auto; background: #f7f6f3; border-radius: 16px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #1a472a, #2e7d32); padding: 2rem; color: white; text-align: center;">
             <h1 style="margin: 0; font-size: 1.4rem;">⚠️ Budget Alert</h1>
-            <p style="margin: 0.5rem 0 0; opacity: 0.85; font-size: 0.9rem;">Spendly noticed you're spending fast, {user_name}.</p>
+            <p style="margin: 0.5rem 0 0; opacity: 0.85; font-size: 0.9rem;">Spendly noticed you're spending fast, {e_user_name}.</p>
         </div>
         <div style="padding: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
@@ -46,7 +50,7 @@ def _build_budget_alert_html(user_name, spent, budget, projected, top_category, 
                 </div>
                 <div style="flex: 1; background: white; border-radius: 12px; padding: 1rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                     <p style="margin: 0; color: #6b6b6b; font-size: 0.75rem; text-transform: uppercase;">Top Category</p>
-                    <p style="margin: 0.25rem 0 0; font-size: 1rem; font-weight: 700;">{top_category}</p>
+                    <p style="margin: 0.25rem 0 0; font-size: 1rem; font-weight: 700;">{e_top_category}</p>
                     <p style="margin: 0; font-size: 0.85rem; color: #6b6b6b;">₹{top_amount:,.0f}</p>
                 </div>
             </div>
@@ -64,17 +68,19 @@ def _build_weekly_summary_html(user_name, week_total, daily_avg, expense_count, 
     for exp in top_expenses[:5]:
         top_rows += f"""
         <tr>
-            <td style="padding: 0.5rem; border-bottom: 1px solid #f0ede6;">{exp['date'][:10]}</td>
-            <td style="padding: 0.5rem; border-bottom: 1px solid #f0ede6;">{exp['category']}</td>
+            <td style="padding: 0.5rem; border-bottom: 1px solid #f0ede6;">{escape(exp['date'][:10])}</td>
+            <td style="padding: 0.5rem; border-bottom: 1px solid #f0ede6;">{escape(exp['category'])}</td>
             <td style="padding: 0.5rem; border-bottom: 1px solid #f0ede6; text-align: right; font-weight: 600;">₹{exp['amount']:,.2f}</td>
         </tr>
         """
+    
+    e_user_name = escape(user_name)
     
     return f"""
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 520px; margin: 0 auto; background: #f7f6f3; border-radius: 16px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #1a472a, #2e7d32); padding: 2rem; color: white; text-align: center;">
             <h1 style="margin: 0; font-size: 1.4rem;">📊 Weekly Spending Summary</h1>
-            <p style="margin: 0.5rem 0 0; opacity: 0.85; font-size: 0.9rem;">Here's how your week looked, {user_name}.</p>
+            <p style="margin: 0.5rem 0 0; opacity: 0.85; font-size: 0.9rem;">Here's how your week looked, {e_user_name}.</p>
         </div>
         <div style="padding: 2rem;">
             <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">

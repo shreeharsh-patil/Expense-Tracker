@@ -2,32 +2,203 @@ import os
 import csv
 import io
 import json
+import secrets
+import logging
 from datetime import datetime, date, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_from_directory, make_response, jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from database.db import get_db, init_db, seed_db
+from database.db import get_db, init_db
 from ocr_engine import process_receipt
 from email_alerts import send_budget_alert, send_weekly_summary
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
+
+
 app = Flask(__name__)
+
+@app.context_processor
+def inject_now():
+    return {'now_year': datetime.now().year}
 # Use a fixed secret key so sessions survive across Vercel serverless instances.
-# Falls back to a hardcoded key for local dev if SECRET_KEY env var is not set.
-app.secret_key = os.environ.get('SECRET_KEY', 'spendly-local-dev-secret-key-change-in-prod')
+# Falls back to a random key if SECRET_KEY env var is not set.
+app.secret_key = os.environ.get('SECRET_KEY')
+if not app.secret_key:
+    # Use a persistent but unique-to-this-install key if possible, 
+    # or a random one (which means sessions will reset on each serverless boot if env is missing)
+    app.secret_key = 'spendly-local-dev-secret-key-change-in-prod'
+    if not os.environ.get('VERCEL'):
+        logger.warning("SECRET_KEY not set. Using insecure default key for local development.")
+    else:
+        # On Vercel, if SECRET_KEY is missing, we must use a random one for safety, 
+        # though it will break sessions between requests if it scales up.
+        app.secret_key = secrets.token_hex(32)
 
 import traceback
 from werkzeug.exceptions import HTTPException
+
+# ------------------------------------------------------------------ #
+# Password Reset Tokens (in-memory, expires after 1 hour)             #
+# ------------------------------------------------------------------ #
+_reset_tokens = {}
+
+def _generate_reset_token(email):
+    token = secrets.token_urlsafe(32)
+    _reset_tokens[token] = {
+        'email': email,
+        'expires': datetime.now() + timedelta(hours=1)
+    }
+    return token
+
+def _verify_reset_token(token):
+    data = _reset_tokens.get(token)
+    if not data:
+        return None
+    if datetime.now() > data['expires']:
+        _reset_tokens.pop(token, None)
+        return None
+    return data['email']
+
+def _consume_reset_token(token):
+    _reset_tokens.pop(token, None)
+
+# ------------------------------------------------------------------ #
+# Rate Limiting (login brute-force protection)                        #
+# ------------------------------------------------------------------ #
+_login_attempts = {}
+
+def _is_rate_limited(ip):
+    now = datetime.now()
+    if ip in _login_attempts:
+        attempts = [t for t in _login_attempts[ip] if now - t < timedelta(minutes=15)]
+        _login_attempts[ip] = attempts
+        if len(attempts) >= 10:
+            return True
+    return False
+
+def _record_login_attempt(ip):
+    if ip not in _login_attempts:
+        _login_attempts[ip] = []
+    _login_attempts[ip].append(datetime.now())
+
+# ------------------------------------------------------------------ #
+# Input Validation Helpers                                            #
+# ------------------------------------------------------------------ #
+
+def validate_amount(val):
+    try:
+        v = float(val)
+        if v <= 0:
+            return (False, "Amount must be greater than zero.")
+        if v > 999999999:
+            return (False, "Amount is too large.")
+        return (True, v)
+    except (ValueError, TypeError):
+        return (False, "Invalid amount.")
+
+def validate_budget(val):
+    try:
+        v = float(val)
+        if v < 0:
+            return (False, "Budget cannot be negative.")
+        if v > 999999999:
+            return (False, "Budget is too large.")
+        return (True, v)
+    except (ValueError, TypeError):
+        return (False, "Invalid budget.")
+
+# ------------------------------------------------------------------ #
+# Recurring Expense Auto-Processing                                   #
+# ------------------------------------------------------------------ #
+
+def process_recurring_expenses(user_id):
+    """Auto-add recurring expenses as actual expenses when their day_of_month matches current date
+    and they haven't been processed for the current month."""
+    today = datetime.now()
+    current_month_str = today.strftime('%Y-%m')
+    
+    db = get_db()
+    # Select recurring expenses due today or earlier in the month, not yet processed this month
+    due = db.execute(
+        "SELECT * FROM recurring_expenses WHERE user_id = ? AND day_of_month <= ? AND (last_processed_month IS NULL OR last_processed_month != ?)",
+        (user_id, today.day, current_month_str)
+    ).fetchall()
+    
+    for rec in due:
+        # Set the expense date to the day specified in the recurring config (within current month)
+        expense_date = f"{current_month_str}-{rec['day_of_month']:02d}"
+        
+        db.execute(
+            "INSERT INTO expenses (user_id, amount, category, payment_method, description, date) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, rec['amount'], rec['category'], rec['payment_method'], rec['description'] + " (Auto)", expense_date)
+        )
+        # Mark as processed
+        db.execute(
+            "UPDATE recurring_expenses SET last_processed_month = ? WHERE id = ?",
+            (current_month_str, rec['id'])
+        )
+        logger.info(f"Auto-processed recurring expense {rec['id']} for user {user_id}")
+    
+    if due:
+        db.commit()
+    return len(due)
+
+# ------------------------------------------------------------------ #
+# Weekly Summary Check                                                #
+# ------------------------------------------------------------------ #
+
+_weekly_summary_sent = {}
+
+def _check_and_send_weekly_summary(user_id, user_email, user_name):
+    """Send weekly summary if not already sent this week (Mondays)."""
+    from email_alerts import send_weekly_summary
+    
+    today = datetime.now()
+    # Only send on Mondays
+    if today.weekday() != 0:
+        return
+    
+    week_key = f"{user_id}_{today.isocalendar()[0]}_{today.isocalendar()[1]}"
+    if _weekly_summary_sent.get(week_key):
+        return
+    
+    db = get_db()
+    # Expenses from last 7 days
+    week_ago = (today - timedelta(days=7)).strftime('%Y-%m-%d')
+    week_expenses = db.execute(
+        "SELECT * FROM expenses WHERE user_id = ? AND date >= ? ORDER BY amount DESC",
+        (user_id, week_ago)
+    ).fetchall()
+    
+    if not week_expenses:
+        return
+    
+    week_total = sum(e['amount'] for e in week_expenses)
+    expense_count = len(week_expenses)
+    daily_avg = week_total / 7
+    top_expenses = [dict(e) for e in week_expenses[:5]]
+    
+    send_weekly_summary(user_email, user_name, week_total, daily_avg, expense_count, top_expenses)
+    _weekly_summary_sent[week_key] = True
+    logger.info(f"Weekly summary sent to user {user_id}")
+
+# ------------------------------------------------------------------ #
+# Error Handler                                                       #
+# ------------------------------------------------------------------ #
 
 @app.errorhandler(Exception)
 def handle_exception(e):
     if isinstance(e, HTTPException):
         return e
     
-    # Debugging information
-    env_keys = "\n\nAvailable Environment Variables:\n" + "\n".join(sorted(os.environ.keys()))
-    error_trace = traceback.format_exc()
+    logger.error(f"Unhandled exception: {e}", exc_info=True)
     
-    return "<pre>" + error_trace + env_keys + "</pre>", 500
+    if app.debug:
+        error_trace = traceback.format_exc()
+        return "<pre>" + error_trace + "</pre>", 500
+    
+    return render_template("500.html"), 500
 # ------------------------------------------------------------------ #
 # Database Helpers                                                   #
 # ------------------------------------------------------------------ #
@@ -93,20 +264,25 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'}
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-
 try:
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(app.config['RECEIPT_FOLDER'], exist_ok=True)
-except Exception:
-    pass
+except Exception as e:
+    logger.error(f"Error creating upload directories: {e}")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
-        db = get_db()
         
+        # Rate limiting
+        ip = request.remote_addr or 'unknown'
+        if _is_rate_limited(ip):
+            flash("Too many login attempts. Please try again in 15 minutes.", "danger")
+            return render_template("login.html"), 429
+        
+        db = get_db()
         user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
         
         if user and check_password_hash(user['password_hash'], password):
@@ -116,9 +292,79 @@ def login():
             flash(f"Welcome back, {user['name']}!", "success")
             return redirect(url_for("dashboard"))
         
+        _record_login_attempt(ip)
         flash("Invalid credentials.", "danger")
         
     return render_template("login.html")
+
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = request.form.get("email")
+        db = get_db()
+        user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+        
+        if user:
+            token = _generate_reset_token(email)
+            reset_url = url_for('reset_password', token=token, _external=True)
+            
+            from email_alerts import send_email
+            from email_alerts import _build_budget_alert_html
+            
+            html = f"""
+            <div style="font-family: 'Segoe UI', sans-serif; max-width: 520px; margin: 0 auto; background: #f7f6f3; border-radius: 16px; overflow: hidden;">
+                <div style="background: linear-gradient(135deg, #1a472a, #2e7d32); padding: 2rem; color: white; text-align: center;">
+                    <h1 style="margin: 0; font-size: 1.4rem;">Reset Your Password</h1>
+                </div>
+                <div style="padding: 2rem; text-align: center;">
+                    <p style="margin: 0 0 1.5rem; color: #2d2d2d;">Click the button below to reset your Spendly password. This link expires in 1 hour.</p>
+                    <a href="{reset_url}" style="display: inline-block; padding: 12px 32px; background: linear-gradient(135deg, #1a472a, #2e7d32); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Reset Password</a>
+                    <p style="margin-top: 1.5rem; color: #a0a0a0; font-size: 0.75rem;">If you didn't request this, you can safely ignore this email.</p>
+                </div>
+            </div>
+            """
+            
+            send_email(email, 'Spendly — Password Reset', html)
+        
+        # Always show success to prevent email enumeration
+        flash("If that email is registered, a password reset link has been sent.", "info")
+        return redirect(url_for("login"))
+    
+    return render_template("forgot_password.html")
+
+
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    email = _verify_reset_token(token)
+    if not email:
+        flash("Invalid or expired reset link. Please request a new one.", "danger")
+        return redirect(url_for("forgot_password"))
+    
+    if request.method == "POST":
+        password = request.form.get("password")
+        confirm = request.form.get("confirm_password")
+        
+        if not password or len(password) < 6:
+            flash("Password must be at least 6 characters.", "danger")
+            return render_template("reset_password.html", token=token)
+        
+        if password != confirm:
+            flash("Passwords do not match.", "danger")
+            return render_template("reset_password.html", token=token)
+        
+        db = get_db()
+        db.execute(
+            "UPDATE users SET password_hash = ? WHERE email = ?",
+            (generate_password_hash(password), email)
+        )
+        db.commit()
+        _consume_reset_token(token)
+        
+        flash("Password reset successfully! Please log in.", "success")
+        return redirect(url_for("login"))
+    
+    return render_template("reset_password.html", token=token)
+
 
 @app.route("/logout")
 def logout():
@@ -132,13 +378,16 @@ def dashboard():
         return redirect(url_for("login"))
     
     db = get_db()
+    user_id = session['user_id']
     
-    # Process any due recurring expenses
-    from database.db import process_recurring_expenses
-    process_recurring_expenses(session['user_id'])
-
-    # 1. Fetch user budget
-    user = db.execute("SELECT monthly_budget FROM users WHERE id = ?", (session['user_id'],)).fetchone()
+    # 0. Auto-process recurring expenses
+    try:
+        process_recurring_expenses(user_id)
+    except Exception as e:
+        logger.error(f"Failed to process recurring expenses: {e}")
+    
+    # 1. Fetch user
+    user = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     monthly_budget = user['monthly_budget'] if user else 10000.0
 
     # 2. Fetch expenses with optional search / category / date-range filters
@@ -148,7 +397,7 @@ def dashboard():
     date_to        = request.args.get('date_to', '')
     
     query  = "SELECT * FROM expenses WHERE user_id = ?"
-    params = [session['user_id']]
+    params = [user_id]
     
     if search_query:
         query += " AND (description LIKE ? OR category LIKE ?)"
@@ -175,13 +424,13 @@ def dashboard():
     current_month_str = datetime.now().strftime("%Y-%m")
     current_month_spent = db.execute(
         "SELECT SUM(amount) as total FROM expenses WHERE user_id = ? AND date LIKE ?",
-        (session['user_id'], f"{current_month_str}%")
+        (user_id, f"{current_month_str}%")
     ).fetchone()['total'] or 0.0
 
     # 4. Category totals — overall (unfiltered) for pie chart
     categories_data = db.execute(
         "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category ORDER BY total DESC",
-        (session['user_id'],)
+        (user_id,)
     ).fetchall()
     chart_labels = [c['category'] for c in categories_data]
     chart_values = [c['total'] for c in categories_data]
@@ -193,7 +442,7 @@ def dashboard():
         FROM expenses WHERE user_id = ?
         GROUP BY month ORDER BY month DESC LIMIT 6
         """,
-        (session['user_id'],)
+        (user_id,)
     ).fetchall()
     monthly_trends = list(reversed(monthly_trends))
     trend_labels = [r['month'] for r in monthly_trends]
@@ -202,14 +451,14 @@ def dashboard():
     # 6. Spending insights (computed from ALL user expenses)
     all_user_expenses = db.execute(
         "SELECT * FROM expenses WHERE user_id = ? ORDER BY amount DESC",
-        (session['user_id'],)
+        (user_id,)
     ).fetchall()
 
     insights = {}
     if all_user_expenses:
         top_cat_row = db.execute(
             "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category ORDER BY total DESC LIMIT 1",
-            (session['user_id'],)
+            (user_id,)
         ).fetchone()
         insights['top_category']    = top_cat_row['category'] if top_cat_row else '—'
         insights['top_category_amt'] = top_cat_row['total'] if top_cat_row else 0
@@ -221,7 +470,7 @@ def dashboard():
             d_min = datetime.strptime(min(dates), '%Y-%m-%d')
             d_max = datetime.strptime(max(dates), '%Y-%m-%d')
             num_days = max(1, (d_max - d_min).days + 1)
-        except Exception:
+        except ValueError:
             num_days = 1
         total_all = sum(e['amount'] for e in all_user_expenses)
         insights['daily_avg'] = total_all / num_days
@@ -232,14 +481,33 @@ def dashboard():
     current_day = now.day
     projected_total = (current_month_spent / current_day) * days_in_month if current_day > 0 else 0
 
-    # 8. Savings Goals
-    goals = db.execute("SELECT * FROM goals WHERE user_id = ?", (session['user_id'],)).fetchall()
-
-    # 9. Payment Method Breakdown (for the new chart/list)
-    methods_data = db.execute(
+    # 8. Payment Method Breakdown (for the new chart/list)
+    methods_raw = db.execute(
         "SELECT payment_method, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY payment_method",
-        (session['user_id'],)
+        (user_id,)
     ).fetchall()
+    methods_labels = [m['payment_method'] for m in methods_raw]
+    methods_values = [m['total'] for m in methods_raw]
+
+    # 9. Email alerts: check budget and send alert if needed
+    user_email = user['email'] if user and 'email' in user.keys() else None
+    if user_email and monthly_budget > 0 and current_month_spent > monthly_budget * 0.8:
+        try:
+            send_budget_alert(
+                user['email'], user['name'], current_month_spent,
+                monthly_budget, projected_total,
+                insights.get('top_category', 'Other'),
+                insights.get('top_category_amt', 0)
+            )
+        except Exception as e:
+            logger.error(f"Failed to send budget alert: {e}")
+
+    # 10. Weekly summary (only on Mondays)
+    if user_email:
+        try:
+            _check_and_send_weekly_summary(user_id, user['email'], user['name'])
+        except Exception as e:
+            logger.error(f"Failed to send weekly summary: {e}")
 
     return render_template(
         "dashboard.html", 
@@ -255,18 +523,23 @@ def dashboard():
         date_from=date_from,
         date_to=date_to,
         projected_total=projected_total,
-        goals=goals,
-        methods_data=methods_data
+        methods_labels=methods_labels,
+        methods_values=methods_values
     )
+
 
 @app.route("/budget/update", methods=["POST"])
 def update_budget():
     if 'user_id' not in session:
         return redirect(url_for("login"))
         
-    new_budget = request.form.get("budget")
+    valid, result = validate_budget(request.form.get("budget"))
+    if not valid:
+        flash(result, "danger")
+        return redirect(url_for("dashboard"))
+    
     db = get_db()
-    db.execute("UPDATE users SET monthly_budget = ? WHERE id = ?", (new_budget, session['user_id']))
+    db.execute("UPDATE users SET monthly_budget = ? WHERE id = ?", (result, session['user_id']))
     db.commit()
     flash("Budget updated successfully!", "success")
     return redirect(url_for("dashboard"))
@@ -277,7 +550,12 @@ def add_expense():
         return redirect(url_for("login"))
     
     if request.method == "POST":
-        amount = request.form.get("amount")
+        valid, result = validate_amount(request.form.get("amount"))
+        if not valid:
+            flash(result, "danger")
+            return render_template("add_expense.html")
+        
+        amount = result
         category = request.form.get("category")
         payment_method = request.form.get("payment_method", "Cash")
         description = request.form.get("description")
@@ -307,7 +585,12 @@ def edit_expense(id):
         return redirect(url_for("dashboard"))
         
     if request.method == "POST":
-        amount = request.form.get("amount")
+        valid, result = validate_amount(request.form.get("amount"))
+        if not valid:
+            flash(result, "danger")
+            return render_template("edit_expense.html", expense=expense)
+        
+        amount = result
         category = request.form.get("category")
         payment_method = request.form.get("payment_method", "Cash")
         description = request.form.get("description")
@@ -347,16 +630,30 @@ def recurring_list():
 def add_recurring():
     if 'user_id' not in session:
         return redirect(url_for("login"))
-    amount = request.form.get("amount")
+    valid, result = validate_amount(request.form.get("amount"))
+    if not valid:
+        flash(result, "danger")
+        return redirect(url_for("recurring_list"))
+    
+    amount = result
     category = request.form.get("category")
     payment_method = request.form.get("payment_method", "Cash")
     description = request.form.get("description")
     day = request.form.get("day_of_month")
     
+    try:
+        day_int = int(day)
+        if day_int < 1 or day_int > 28:
+            flash("Day of month must be between 1 and 28.", "danger")
+            return redirect(url_for("recurring_list"))
+    except (ValueError, TypeError):
+        flash("Invalid day of month.", "danger")
+        return redirect(url_for("recurring_list"))
+    
     db = get_db()
     db.execute(
         "INSERT INTO recurring_expenses (user_id, amount, category, payment_method, description, day_of_month) VALUES (?, ?, ?, ?, ?, ?)",
-        (session['user_id'], amount, category, payment_method, description, day)
+        (session['user_id'], amount, category, payment_method, description, day_int)
     )
     db.commit()
     flash("Recurring expense scheduled!", "success")
@@ -371,49 +668,6 @@ def delete_recurring(id):
     db.commit()
     flash("Recurring expense removed.", "info")
     return redirect(url_for("recurring_list"))
-
-
-# ------------------------------------------------------------------ #
-# Savings Goals                                                      #
-# ------------------------------------------------------------------ #
-
-@app.route("/goals/add", methods=["POST"])
-def add_goal():
-    if 'user_id' not in session:
-        return redirect(url_for("login"))
-    name = request.form.get("name")
-    target = request.form.get("target_amount")
-    deadline = request.form.get("deadline")
-    
-    db = get_db()
-    db.execute(
-        "INSERT INTO goals (user_id, name, target_amount, deadline) VALUES (?, ?, ?, ?)",
-        (session['user_id'], name, target, deadline)
-    )
-    db.commit()
-    flash("New goal set! Every rupee counts.", "success")
-    return redirect(url_for("dashboard"))
-
-@app.route("/goals/<int:id>/save", methods=["POST"])
-def save_for_goal(id):
-    if 'user_id' not in session:
-        return redirect(url_for("login"))
-    amount = float(request.form.get("amount", 0))
-    db = get_db()
-    db.execute("UPDATE goals SET current_saved = current_saved + ? WHERE id = ? AND user_id = ?", (amount, id, session['user_id']))
-    db.commit()
-    flash(f"₹{amount} added to your goal! Keep going.", "success")
-    return redirect(url_for("dashboard"))
-
-@app.route("/goals/<int:id>/delete")
-def delete_goal(id):
-    if 'user_id' not in session:
-        return redirect(url_for("login"))
-    db = get_db()
-    db.execute("DELETE FROM goals WHERE id = ? AND user_id = ?", (id, session['user_id']))
-    db.commit()
-    flash("Goal removed.", "info")
-    return redirect(url_for("dashboard"))
 
 
 # ------------------------------------------------------------------ #
@@ -488,6 +742,7 @@ def profile():
 
     # GET: Load current user details
     user = db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],)).fetchone()
+    
     return render_template("profile.html", user=user)
 
 
@@ -606,99 +861,17 @@ def reports():
         worst_month=month_names[worst_month_idx],
         avg_monthly=avg_monthly,
     )
-
-
-# ------------------------------------------------------------------ #
-# Email Alerts                                                        #
-# ------------------------------------------------------------------ #
-
-@app.route("/alerts/send-budget", methods=["POST"])
-def send_budget_alert_route():
-    if 'user_id' not in session:
-        return redirect(url_for("login"))
-    
-    db = get_db()
-    user = db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],)).fetchone()
-    
-    current_month_str = datetime.now().strftime("%Y-%m")
-    spent = db.execute(
-        "SELECT SUM(amount) as total FROM expenses WHERE user_id = ? AND date LIKE ?",
-        (session['user_id'], f"{current_month_str}%")
-    ).fetchone()['total'] or 0.0
-    
-    budget = user['monthly_budget']
-    
-    now = datetime.now()
-    days_in_month = (date(now.year + (now.month // 12), (now.month % 12) + 1, 1) - date(now.year, now.month, 1)).days
-    projected = (spent / now.day) * days_in_month if now.day > 0 else 0
-    
-    top_cat = db.execute(
-        "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? AND date LIKE ? GROUP BY category ORDER BY total DESC LIMIT 1",
-        (session['user_id'], f"{current_month_str}%")
-    ).fetchone()
-    
-    result = send_budget_alert(
-        user['email'], user['name'], spent, budget, projected,
-        top_cat['category'] if top_cat else 'Other',
-        top_cat['total'] if top_cat else 0
-    )
-    
-    if result['success']:
-        flash(f"Budget alert sent to {user['email']}!", "success")
-    else:
-        flash(f"Failed to send email: {result['error']}", "danger")
-    
-    return redirect(url_for("dashboard"))
-
-
-@app.route("/alerts/send-weekly", methods=["POST"])
-def send_weekly_summary_route():
-    if 'user_id' not in session:
-        return redirect(url_for("login"))
-    
-    db = get_db()
-    user = db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],)).fetchone()
-    
-    week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-    expenses = db.execute(
-        "SELECT * FROM expenses WHERE user_id = ? AND date >= ? ORDER BY amount DESC",
-        (session['user_id'], week_ago)
-    ).fetchall()
-    
-    week_total = sum(e['amount'] for e in expenses)
-    daily_avg = week_total / 7
-    expense_count = len(expenses)
-    
-    top_expenses = [dict(e) for e in expenses[:5]]
-    
-    result = send_weekly_summary(
-        user['email'], user['name'], week_total, daily_avg, expense_count, top_expenses
-    )
-    
-    if result['success']:
-        flash(f"Weekly summary sent to {user['email']}!", "success")
-    else:
-        flash(f"Failed to send email: {result['error']}", "danger")
-    
-    return redirect(url_for("dashboard"))
-
-
-@app.route("/alerts/settings")
-def alert_settings():
-    if 'user_id' not in session:
-        return redirect(url_for("login"))
-    return render_template("alert_settings.html")
-
-
 # Ensure database tables are created on Vercel
 try:
     with app.app_context():
         init_db()
-except Exception:
-    pass
+except Exception as e:
+    logger.error(f"Could not initialize database at startup: {e}")
 
 if __name__ == "__main__":
     with app.app_context():
         init_db()
-        seed_db()
-    app.run(debug=True, port=5001)
+    
+    # Use environment variable for debug mode, default to False for safety
+    debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+    app.run(debug=debug_mode, port=5001)
