@@ -29,51 +29,83 @@
 
   </section>
 
-  <!-- 2. Coral Signature Card Section (Brand Voltage) -->
-  <section class="relative bg-white dark:bg-dark-bg py-16 px-6 overflow-hidden">
+  <!-- 2. Premium Feature Section (Ledger Updates) -->
+  <section class="relative bg-white dark:bg-dark-bg py-20 px-6 overflow-hidden">
     <div class="max-w-7xl mx-auto relative z-10">
-      <div class="bg-signature-coral text-white rounded-xl p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-12 hover-lift shadow-xl">
-        <div class="max-w-xl space-y-6">
-          <h2 class="text-3xl md:text-5xl font-normal tracking-tight leading-tight" style="font-family: 'Haas Groot Disp', 'Haas', sans-serif;">
+      
+      <!-- Premium Dark Container with Glowing Accents -->
+      <div class="relative bg-slate-950 border border-slate-800/60 rounded-3xl p-8 md:p-16 flex flex-col lg:flex-row items-center justify-between gap-16 shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden group">
+        
+        <!-- Abstract Glowing Background Orbs -->
+        <div class="absolute -top-32 -right-32 w-96 h-96 bg-primary/30 rounded-full mix-blend-screen filter blur-[80px] opacity-60 group-hover:opacity-100 transition-opacity duration-700"></div>
+        <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-fuchsia-600/20 rounded-full mix-blend-screen filter blur-[80px] opacity-60 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+        <div class="max-w-xl space-y-8 relative z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-mono tracking-widest text-primary-light uppercase">
+            <span class="w-2 h-2 rounded-full bg-primary-light animate-pulse"></span>
+            Live Synchronization
+          </div>
+          
+          <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-white">
             Real-time ledger updates.<br>
-            Cryptographic status.
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400">Cryptographic status.</span>
           </h2>
-          <p class="text-sm opacity-90 leading-relaxed font-sans font-light">
+          <p class="text-sm md:text-base text-slate-400 leading-relaxed font-light">
             Add single transactions or recurring billing items instantly. Spendly's robust backend logs every memo, category, and payment channel with perfect auditability, giving you a comprehensive view of your financial flow.
           </p>
           <div class="pt-4 flex flex-wrap gap-4">
             {% if session.user_id %}
-            <a href="{{ url_for('dashboard') }}" class="px-6 py-4 bg-white text-ink font-medium rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-sm">View Dashboard</a>
+            <a href="{{ url_for('dashboard') }}" class="px-6 py-3.5 bg-white text-slate-900 font-semibold rounded-xl hover:bg-slate-100 transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] text-sm flex items-center gap-2">
+              View Dashboard <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </a>
             {% else %}
-            <a href="{{ url_for('register') }}" class="px-6 py-4 bg-white text-ink font-medium rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-sm">Start Logging</a>
+            <a href="{{ url_for('register') }}" class="px-6 py-3.5 bg-white text-slate-900 font-semibold rounded-xl hover:bg-slate-100 transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] text-sm flex items-center gap-2">
+              Start Logging <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </a>
             {% endif %}
           </div>
         </div>
         
-        <!-- Graphical preview on coral -->
-        <div class="w-full lg:w-[400px] bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 font-mono text-xs text-white/90 space-y-4 shadow-2xl">
-          <div class="border-b border-white/20 pb-3 flex justify-between items-center text-[10px] uppercase tracking-widest text-white/70">
-            <span>LEDGER_VERIFIED</span>
-            <span class="flex h-2 w-2 relative">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-signature-mint opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-signature-mint"></span>
-            </span>
-          </div>
-          <div class="space-y-2.5">
-            <div class="flex justify-between items-center bg-white/5 hover:bg-white/10 p-3 rounded-xl transition-colors">
-              <span>FOOD_SUPPLIES</span>
-              <span class="font-semibold text-white">&#8377;1,420.50</span>
+        <!-- Graphical preview pane (Glassmorphism) -->
+        <div class="w-full lg:w-[420px] relative z-10 perspective-1000">
+          <div class="bg-slate-900/40 backdrop-blur-2xl border border-white/10 rounded-2xl p-6 font-mono text-xs text-slate-300 space-y-4 shadow-[0_20px_40px_rgba(0,0,0,0.4)] transform hover:rotate-y-2 hover:-rotate-x-2 transition-transform duration-500">
+            <div class="border-b border-white/10 pb-4 mb-2 flex justify-between items-center text-[10px] uppercase tracking-widest text-slate-400">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px]">terminal</span>
+                LEDGER_VERIFIED
+              </div>
+              <span class="flex h-2 w-2 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
             </div>
-            <div class="flex justify-between items-center bg-white/5 hover:bg-white/10 p-3 rounded-xl transition-colors">
-              <span>ELECTRICITY_BILL</span>
-              <span class="font-semibold text-white">&#8377;3,240.00</span>
-            </div>
-            <div class="flex justify-between items-center bg-white/5 hover:bg-white/10 p-3 rounded-xl transition-colors text-signature-peach border border-signature-peach/20 bg-signature-peach/5">
-              <span>LIMIT_BREACH_WARN</span>
-              <span class="font-semibold">&#8377;4,660.50</span>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center bg-white/5 hover:bg-white/10 p-3.5 rounded-xl transition-all border border-white/5 hover:border-white/10">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">restaurant</span></div>
+                  <span>FOOD_SUPPLIES</span>
+                </div>
+                <span class="font-bold text-white">&#8377;1,420.50</span>
+              </div>
+              <div class="flex justify-between items-center bg-white/5 hover:bg-white/10 p-3.5 rounded-xl transition-all border border-white/5 hover:border-white/10">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">bolt</span></div>
+                  <span>ELECTRICITY_BILL</span>
+                </div>
+                <span class="font-bold text-white">&#8377;3,240.00</span>
+              </div>
+              <div class="flex justify-between items-center p-3.5 rounded-xl transition-all text-rose-400 border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 relative overflow-hidden">
+                <div class="absolute inset-0 bg-rose-500/10 animate-pulse"></div>
+                <div class="flex items-center gap-3 relative z-10">
+                  <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">warning</span></div>
+                  <span>LIMIT_BREACH_WARN</span>
+                </div>
+                <span class="font-bold relative z-10">&#8377;4,660.50</span>
+              </div>
             </div>
           </div>
         </div>
+        
       </div>
     </div>
   </section>
