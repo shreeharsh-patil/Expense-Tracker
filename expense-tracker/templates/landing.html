@@ -33,74 +33,68 @@
   <section class="relative bg-white dark:bg-dark-bg py-20 px-6 overflow-hidden">
     <div class="max-w-7xl mx-auto relative z-10">
       
-      <!-- Premium Dark Container with Glowing Accents -->
-      <div class="relative bg-slate-950 border border-slate-800/60 rounded-3xl p-8 md:p-16 flex flex-col lg:flex-row items-center justify-between gap-16 shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden group">
+      <!-- Premium Dark Container -->
+      <div class="relative bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-16 flex flex-col lg:flex-row items-center justify-between gap-16 shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden group">
         
-        <!-- Abstract Glowing Background Orbs -->
-        <div class="absolute -top-32 -right-32 w-96 h-96 bg-primary/30 rounded-full mix-blend-screen filter blur-[80px] opacity-60 group-hover:opacity-100 transition-opacity duration-700"></div>
-        <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-fuchsia-600/20 rounded-full mix-blend-screen filter blur-[80px] opacity-60 group-hover:opacity-100 transition-opacity duration-700"></div>
-
         <div class="max-w-xl space-y-8 relative z-10">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-mono tracking-widest text-primary-light uppercase">
-            <span class="w-2 h-2 rounded-full bg-primary-light animate-pulse"></span>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-mono tracking-widest text-slate-300 uppercase">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
             Live Synchronization
           </div>
           
           <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-white">
             Real-time ledger updates.<br>
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-400">Cryptographic status.</span>
+            <span class="text-indigo-400">Verified status.</span>
           </h2>
           <p class="text-sm md:text-base text-slate-400 leading-relaxed font-light">
             Add single transactions or recurring billing items instantly. Spendly's robust backend logs every memo, category, and payment channel with perfect auditability, giving you a comprehensive view of your financial flow.
           </p>
           <div class="pt-4 flex flex-wrap gap-4">
             {% if session.user_id %}
-            <a href="{{ url_for('dashboard') }}" class="px-6 py-3.5 bg-white text-slate-900 font-semibold rounded-xl hover:bg-slate-100 transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] text-sm flex items-center gap-2">
+            <a href="{{ url_for('dashboard') }}" class="px-6 py-3 bg-white text-slate-900 hover:bg-slate-100 font-semibold rounded-xl transition-all text-sm flex items-center gap-2 border border-slate-200">
               View Dashboard <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
             </a>
             {% else %}
-            <a href="{{ url_for('register') }}" class="px-6 py-3.5 bg-white text-slate-900 font-semibold rounded-xl hover:bg-slate-100 transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] text-sm flex items-center gap-2">
+            <a href="{{ url_for('register') }}" class="px-6 py-3 bg-white text-slate-900 hover:bg-slate-100 font-semibold rounded-xl transition-all text-sm flex items-center gap-2 border border-slate-200">
               Start Logging <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
             </a>
             {% endif %}
           </div>
         </div>
         
-        <!-- Graphical preview pane (Glassmorphism) -->
-        <div class="w-full lg:w-[420px] relative z-10 perspective-1000">
-          <div class="bg-slate-900/40 backdrop-blur-2xl border border-white/10 rounded-2xl p-6 font-mono text-xs text-slate-300 space-y-4 shadow-[0_20px_40px_rgba(0,0,0,0.4)] transform hover:rotate-y-2 hover:-rotate-x-2 transition-transform duration-500">
-            <div class="border-b border-white/10 pb-4 mb-2 flex justify-between items-center text-[10px] uppercase tracking-widest text-slate-400">
+        <!-- Graphical preview pane -->
+        <div class="w-full lg:w-[420px] relative z-10">
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 text-sm text-slate-300 space-y-4 shadow-xl">
+            <div class="border-b border-slate-800 pb-3 mb-2 flex justify-between items-center text-[10px] uppercase tracking-widest text-slate-400 font-mono">
               <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-[16px]">terminal</span>
+                <span class="material-symbols-outlined text-[16px] text-slate-500">verified</span>
                 LEDGER_VERIFIED
               </div>
               <span class="flex h-2 w-2 relative">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
             </div>
             <div class="space-y-3">
-              <div class="flex justify-between items-center bg-white/5 hover:bg-white/10 p-3.5 rounded-xl transition-all border border-white/5 hover:border-white/10">
+              <div class="flex justify-between items-center bg-slate-900/50 border border-slate-800 p-3.5 rounded-xl">
                 <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">restaurant</span></div>
-                  <span>FOOD_SUPPLIES</span>
+                  <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">restaurant</span></div>
+                  <span class="text-slate-200 font-medium">Grocery & Supplies</span>
                 </div>
-                <span class="font-bold text-white">&#8377;1,420.50</span>
+                <span class="font-bold text-white font-mono">&#8377;1,420.50</span>
               </div>
-              <div class="flex justify-between items-center bg-white/5 hover:bg-white/10 p-3.5 rounded-xl transition-all border border-white/5 hover:border-white/10">
+              <div class="flex justify-between items-center bg-slate-900/50 border border-slate-800 p-3.5 rounded-xl">
                 <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">bolt</span></div>
-                  <span>ELECTRICITY_BILL</span>
+                  <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">bolt</span></div>
+                  <span class="text-slate-200 font-medium">Electricity Bill</span>
                 </div>
-                <span class="font-bold text-white">&#8377;3,240.00</span>
+                <span class="font-bold text-white font-mono">&#8377;3,240.00</span>
               </div>
-              <div class="flex justify-between items-center p-3.5 rounded-xl transition-all text-rose-400 border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 relative overflow-hidden">
-                <div class="absolute inset-0 bg-rose-500/10 animate-pulse"></div>
-                <div class="flex items-center gap-3 relative z-10">
-                  <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">warning</span></div>
-                  <span>LIMIT_BREACH_WARN</span>
+              <div class="flex justify-between items-center bg-rose-950/20 border border-rose-900/30 p-3.5 rounded-xl">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">warning</span></div>
+                  <span class="text-rose-200 font-medium">Limit Breach Alert</span>
                 </div>
-                <span class="font-bold relative z-10">&#8377;4,660.50</span>
+                <span class="font-bold text-rose-400 font-mono">&#8377;4,660.50</span>
               </div>
             </div>
           </div>
@@ -125,12 +119,10 @@
 
   <!-- 6. Interactive Platform Rail (Tabbed Feature Card) -->
   <section class="relative bg-slate-50/50 dark:bg-dark-bg py-24 px-6 md:px-12 overflow-hidden bg-grid-pattern">
-    <div class="glow-blob -bottom-20 right-1/4 w-96 h-96 bg-primary/5"></div>
     <div class="max-w-7xl mx-auto relative z-10">
       <div class="max-w-2xl mb-16 space-y-4">
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest">
-          <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-          Platform Specifications
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-mono tracking-widest text-slate-500 dark:text-slate-300 uppercase">
+          Specifications
         </span>
         <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
           Complete ledger visibility.
@@ -146,9 +138,8 @@
         <!-- Left Topic filter rail -->
         <div class="lg:col-span-4 flex flex-col space-y-3">
           
-          <button onclick="switchTab('tab-ingest')" id="btn-tab-ingest" class="tab-button w-full text-left p-5 rounded-2xl border transition-all duration-300 text-sm font-medium flex items-center gap-5 bg-white dark:bg-dark-card border-primary/40 dark:border-primary/50 text-slate-900 dark:text-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none group relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-100"></div>
-            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform relative z-10">
+          <button onclick="switchTab('tab-ingest')" id="btn-tab-ingest" class="tab-button w-full text-left p-5 rounded-2xl border transition-all duration-300 text-sm font-medium flex items-center gap-5 bg-white dark:bg-dark-card border-primary dark:border-primary-light text-slate-900 dark:text-white shadow-sm group relative overflow-hidden">
+            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary relative z-10">
               <span class="material-symbols-outlined text-[20px]">center_focus_strong</span>
             </div>
             <div class="relative z-10">
@@ -190,7 +181,7 @@
         </div>
 
         <!-- Right Pane Card (Surface soft inside container) -->
-        <div class="lg:col-span-8 bg-white dark:bg-dark-card/80 border border-slate-200/80 dark:border-white/10 p-8 md:p-12 rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.05)] flex flex-col justify-center transition-all duration-500 relative overflow-hidden">
+        <div class="lg:col-span-8 bg-white dark:bg-dark-card/80 border border-slate-200/80 dark:border-white/10 p-8 md:p-12 rounded-[2rem] shadow-lg flex flex-col justify-center transition-all duration-500 relative overflow-hidden">
           
           <!-- Abstract Background subtle pattern -->
           <div class="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] opacity-50"></div>
@@ -208,9 +199,8 @@
                   <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">Extraction accuracy scores exceeding 99.5% on standard retail vouchers.</p>
                 </div>
               </div>
-              <div class="relative group perspective-1000">
-                <div class="absolute -inset-2 bg-gradient-to-r from-primary/20 to-teal-400/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-                <div class="relative border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden bg-slate-50 dark:bg-dark-bg p-2 shadow-2xl transform group-hover:scale-[1.02] transition-transform duration-500">
+              <div class="relative">
+                <div class="relative border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden bg-slate-50 dark:bg-dark-bg p-2 shadow-lg">
                   <img src="{{ url_for('static', filename='images/receipt_scan_graphic.jpg') }}" alt="Voucher processing parsing display" class="w-full h-auto rounded-xl object-cover shadow-sm">
                 </div>
               </div>
@@ -231,15 +221,14 @@
                 </div>
               </div>
               
-              <!-- Code block representation (Premium Dark) -->
-              <div class="relative group">
-                <div class="absolute -inset-1 bg-gradient-to-br from-indigo-500/30 to-purple-600/30 rounded-2xl blur-lg group-hover:blur-xl transition-all duration-500"></div>
-                <div class="relative border border-slate-700 rounded-2xl bg-slate-950 shadow-2xl overflow-hidden">
+              <!-- Code block representation -->
+              <div class="relative">
+                <div class="relative border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-950 shadow-lg overflow-hidden">
                   <!-- Mac-style Header -->
                   <div class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
-                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-slate-800/40 border border-slate-700"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-slate-800/40 border border-slate-700"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-slate-800/40 border border-slate-700"></div>
                     <span class="ml-4 text-[10px] font-mono text-slate-500">engine.py</span>
                   </div>
                   <!-- Code Content -->
@@ -270,31 +259,30 @@
                 </div>
               </div>
               
-              <!-- Checklist display (Premium Dark Glow) -->
-              <div class="relative group">
-                <div class="absolute -inset-1 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl blur-lg group-hover:blur-xl transition-all duration-500"></div>
-                <div class="relative border border-slate-700 rounded-2xl bg-slate-900 shadow-2xl p-6 space-y-4">
-                  <p class="font-mono text-[10px] text-slate-400 border-b border-slate-800 pb-3 mb-4 tracking-widest">// BILLING MONITOR</p>
+              <!-- Checklist display -->
+              <div class="relative">
+                <div class="relative border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 shadow-lg p-6 space-y-4">
+                  <p class="font-mono text-[10px] text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 tracking-widest">// BILLING MONITOR</p>
                   
-                  <div class="flex items-center gap-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
-                    <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                      <span class="material-symbols-outlined text-[14px] text-emerald-400">check</span>
+                  <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
+                    <div class="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-500">
+                      <span class="material-symbols-outlined text-[14px]">check</span>
                     </div>
-                    <span class="font-mono text-xs text-slate-300">Daily transaction scan ok</span>
+                    <span class="text-xs font-sans text-slate-700 dark:text-slate-300 font-medium">Daily transaction scan complete</span>
                   </div>
                   
-                  <div class="flex items-center gap-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
-                    <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                      <span class="material-symbols-outlined text-[14px] text-emerald-400">check</span>
+                  <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
+                    <div class="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-500">
+                      <span class="material-symbols-outlined text-[14px]">check</span>
                     </div>
-                    <span class="font-mono text-xs text-slate-300">Subscriptions compiled</span>
+                    <span class="text-xs font-sans text-slate-700 dark:text-slate-300 font-medium">Subscriptions compiled</span>
                   </div>
                   
-                  <div class="flex items-center gap-4 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
-                    <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                      <span class="material-symbols-outlined text-[14px] text-emerald-400">check</span>
+                  <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
+                    <div class="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-500">
+                      <span class="material-symbols-outlined text-[14px]">check</span>
                     </div>
-                    <span class="font-mono text-xs text-slate-300">Balance projections refreshed</span>
+                    <span class="text-xs font-sans text-slate-700 dark:text-slate-300 font-medium">Balance projections refreshed</span>
                   </div>
                 </div>
               </div>
@@ -315,10 +303,9 @@
                 </div>
               </div>
               
-              <!-- CSV code block (Premium Dark Terminal) -->
-              <div class="relative group">
-                <div class="absolute -inset-1 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-2xl blur-lg group-hover:blur-xl transition-all duration-500"></div>
-                <div class="relative border border-slate-700 rounded-2xl bg-[#0d1117] shadow-2xl overflow-hidden">
+              <!-- CSV code block -->
+              <div class="relative">
+                <div class="relative border border-slate-200 dark:border-slate-800 rounded-2xl bg-[#0d1117] shadow-lg overflow-hidden">
                   <div class="bg-[#161b22] border-b border-slate-800 px-4 py-3 flex justify-between items-center">
                     <span class="text-[10px] font-mono text-slate-400">export.csv</span>
                     <span class="material-symbols-outlined text-[14px] text-slate-500">download</span>
@@ -341,9 +328,8 @@
     </div>
   </section>
 
-  <!-- 7. Dark Obsidian CTA Band (Brand Voltage Reset) -->
-  <section class="relative bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 text-white py-28 px-6 md:px-12 text-center overflow-hidden border-t border-white/5">
-    <div class="glow-blob top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/20"></div>
+  <!-- 7. Dark Obsidian CTA Band -->
+  <section class="relative bg-slate-950 text-white py-28 px-6 md:px-12 text-center overflow-hidden border-t border-slate-800">
     <div class="max-w-4xl mx-auto space-y-8 relative z-10 animate-fade-in">
       <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight max-w-2xl mx-auto leading-tight">
         Build your capital foundation on quiet precision.
@@ -353,9 +339,9 @@
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center w-full sm:w-auto pt-4">
         {% if session.user_id %}
-        <a href="{{ url_for('dashboard') }}" class="btn-primary bg-white text-slate-900 hover:bg-slate-100 px-8 py-3 rounded-lg text-sm font-semibold">Open Ledger Console</a>
+        <a href="{{ url_for('dashboard') }}" class="btn-primary bg-white text-slate-900 hover:bg-slate-100 px-8 py-3 rounded-lg text-sm font-semibold border border-slate-200">Open Ledger Console</a>
         {% else %}
-        <a href="{{ url_for('register') }}" class="btn-primary bg-white text-slate-900 hover:bg-slate-100 px-8 py-3 rounded-lg text-sm font-semibold">Get started free</a>
+        <a href="{{ url_for('register') }}" class="btn-primary bg-white text-slate-900 hover:bg-slate-100 px-8 py-3 rounded-lg text-sm font-semibold border border-slate-200">Get started free</a>
         <a href="{{ url_for('login') }}" class="btn-secondary bg-transparent text-white border-white/20 hover:border-white/50 hover:bg-white/5 px-8 py-3 rounded-lg text-sm font-semibold">Sign in</a>
         {% endif %}
       </div>
@@ -376,13 +362,13 @@
     
     // Reset all tab button styles to inactive
     document.querySelectorAll('.tab-button').forEach(btn => {
-      btn.className = "tab-button w-full text-left p-4 rounded-xl border border-slate-200/50 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white/60 dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-4";
+      btn.className = "tab-button w-full text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-5 group hover:shadow-sm";
     });
     
     // Set active style for selected tab button
     const activeBtn = document.getElementById('btn-' + tabId);
     if (activeBtn) {
-      activeBtn.className = "tab-button w-full text-left p-4 rounded-xl border transition-all duration-300 text-sm font-medium flex items-center gap-4 bg-white dark:bg-dark-card border-primary dark:border-primary-light text-slate-900 dark:text-white shadow-md shadow-slate-100/50 dark:shadow-none";
+      activeBtn.className = "tab-button w-full text-left p-5 rounded-2xl border transition-all duration-300 text-sm font-medium flex items-center gap-5 bg-white dark:bg-dark-card border-primary dark:border-primary-light text-slate-900 dark:text-white shadow-sm group relative overflow-hidden";
     }
   }
 </script>
