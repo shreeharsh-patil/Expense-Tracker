@@ -11,6 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fragment+Mono&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.5/dist/turbo.es2017-umd.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}?v=10" defer></script>
 
   <script>
     // Initialize theme from localStorage or system preference to prevent flash of style
@@ -189,7 +192,6 @@
   </nav>
   {% endif %}
 
-  <script src="{{ url_for('static', filename='js/main.js') }}?v=10"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

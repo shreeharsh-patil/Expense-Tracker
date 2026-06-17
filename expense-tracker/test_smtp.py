@@ -26,7 +26,7 @@ def test_connection():
     <p><small>Sent via Spendly Test Utility</small></p>
     """
     
-    result = send_email(email, subject, body)
+    result = send_email(email, subject, body, sync=True)
     
     if result['success']:
         print("\n✅ SUCCESS! A test email has been sent to your inbox.")

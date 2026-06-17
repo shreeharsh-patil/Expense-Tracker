@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('turbo:load', () => {
   const hamburger = document.getElementById('nav-hamburger');
   const navLinks = document.getElementById('nav-links');
 

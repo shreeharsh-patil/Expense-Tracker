@@ -111,27 +111,44 @@ def _build_weekly_summary_html(user_name, week_total, daily_avg, expense_count, 
     """
 
 
-def send_email(to_email, subject, html_body):
+import threading
+import logging
+
+logger = logging.getLogger(__name__)
+
+def send_email(to_email, subject, html_body, sync=False):
     """Send an HTML email using configured SMTP."""
     if not SMTP_EMAIL or not SMTP_PASSWORD:
         return {'success': False, 'error': 'SMTP credentials not configured. Set SPENDLY_SMTP_EMAIL and SPENDLY_SMTP_PASSWORD environment variables.'}
 
-    try:
-        msg = MIMEMultipart('alternative')
-        msg['From'] = f'Spendly <{SMTP_EMAIL}>'
-        msg['To'] = to_email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(html_body, 'html'))
+    def _send_email_task():
+        try:
+            msg = MIMEMultipart('alternative')
+            msg['From'] = f'Spendly <{SMTP_EMAIL}>'
+            msg['To'] = to_email
+            msg['Subject'] = subject
+            msg.attach(MIMEText(html_body, 'html'))
 
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.ehlo()
-            server.starttls()
-            server.login(SMTP_EMAIL, SMTP_PASSWORD)
-            server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
+            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+                server.ehlo()
+                server.starttls()
+                server.login(SMTP_EMAIL, SMTP_PASSWORD)
+                server.sendmail(SMTP_EMAIL, to_email, msg.as_string())
 
+            logger.info(f"Email sent successfully to {to_email} with subject: {subject}")
+            return {'success': True, 'error': None}
+        except Exception as e:
+            logger.error(f"Failed to send email to {to_email}: {e}")
+            return {'success': False, 'error': str(e)}
+
+    if sync:
+        return _send_email_task()
+    else:
+        # Spawn daemon thread to send the email asynchronously
+        thread = threading.Thread(target=_send_email_task)
+        thread.daemon = True
+        thread.start()
         return {'success': True, 'error': None}
-    except Exception as e:
-        return {'success': False, 'error': str(e)}
 
 
 def send_budget_alert(to_email, user_name, spent, budget, projected, top_category='Other', top_amount=0):
@@ -144,3 +161,4 @@ def send_weekly_summary(to_email, user_name, week_total, daily_avg, expense_coun
     """Send a weekly spending summary email."""
     html = _build_weekly_summary_html(user_name, week_total, daily_avg, expense_count, top_expenses)
     return send_email(to_email, '📊 Your Spendly Weekly Summary', html)
+
