@@ -45,6 +45,7 @@ from werkzeug.exceptions import HTTPException
 # Password Reset Tokens (in-memory, expires after 1 hour)             #
 # ------------------------------------------------------------------ #
 _reset_tokens = {}
+_budget_alerts_sent = {}
 
 def _generate_reset_token(email):
     token = secrets.token_urlsafe(32)
@@ -492,18 +493,21 @@ def dashboard():
     methods_labels = [m['payment_method'] for m in methods_raw]
     methods_values = [m['total'] for m in methods_raw]
 
-    # 9. Email alerts: check budget and send alert if needed
+    # 9. Email alerts: check budget and send alert if needed (cached monthly to prevent SMTP delays)
     user_email = user['email'] if user and 'email' in user.keys() else None
     if user_email and monthly_budget > 0 and current_month_spent > monthly_budget * 0.8:
-        try:
-            send_budget_alert(
-                user['email'], user['name'], current_month_spent,
-                monthly_budget, projected_total,
-                insights.get('top_category', 'Other'),
-                insights.get('top_category_amt', 0)
-            )
-        except Exception as e:
-            logger.error(f"Failed to send budget alert: {e}")
+        alert_key = f"{user_id}_{current_month_str}"
+        if not _budget_alerts_sent.get(alert_key):
+            try:
+                send_budget_alert(
+                    user['email'], user['name'], current_month_spent,
+                    monthly_budget, projected_total,
+                    insights.get('top_category', 'Other'),
+                    insights.get('top_category_amt', 0)
+                )
+                _budget_alerts_sent[alert_key] = True
+            except Exception as e:
+                logger.error(f"Failed to send budget alert: {e}")
 
     # 10. Weekly summary (only on Mondays)
     if user_email:
