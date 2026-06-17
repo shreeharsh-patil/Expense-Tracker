@@ -107,6 +107,18 @@ def process_receipt(image_path):
         return result
 
     if TESSERACT_AVAILABLE:
+        # Dynamically resolve tesseract_cmd if not set (handles installations post-server start)
+        current_cmd = getattr(pytesseract.pytesseract, 'tesseract_cmd', None)
+        if not current_cmd or not os.path.exists(current_cmd):
+            for path in [
+                r'C:\Program Files\Tesseract-OCR\tesseract.exe',
+                r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe',
+                r'C:\Users\shree\AppData\Local\Tesseract-OCR\tesseract.exe',
+            ]:
+                if os.path.exists(path):
+                    pytesseract.pytesseract.tesseract_cmd = path
+                    break
+
         try:
             img = Image.open(image_path)
             

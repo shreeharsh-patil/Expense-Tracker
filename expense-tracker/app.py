@@ -120,36 +120,78 @@ def validate_budget(val):
 # ------------------------------------------------------------------ #
 
 def process_recurring_expenses(user_id):
-    """Auto-add recurring expenses as actual expenses when their day_of_month matches current date
-    and they haven't been processed for the current month."""
+    """Auto-add recurring expenses as actual expenses. Supports backfilling
+    missed months if the user has not visited the dashboard for a while."""
     today = datetime.now()
     current_month_str = today.strftime('%Y-%m')
     
     db = get_db()
-    # Select recurring expenses due today or earlier in the month, not yet processed this month
-    due = db.execute(
-        "SELECT * FROM recurring_expenses WHERE user_id = ? AND day_of_month <= ? AND (last_processed_month IS NULL OR last_processed_month != ?)",
-        (user_id, today.day, current_month_str)
+    
+    # Select all active recurring expenses for the user
+    recurring = db.execute(
+        "SELECT * FROM recurring_expenses WHERE user_id = ?",
+        (user_id,)
     ).fetchall()
     
-    for rec in due:
-        # Set the expense date to the day specified in the recurring config (within current month)
-        expense_date = f"{current_month_str}-{rec['day_of_month']:02d}"
-        
-        db.execute(
-            "INSERT INTO expenses (user_id, amount, category, payment_method, description, date) VALUES (?, ?, ?, ?, ?, ?)",
-            (user_id, rec['amount'], rec['category'], rec['payment_method'], rec['description'] + " (Auto)", expense_date)
-        )
-        # Mark as processed
-        db.execute(
-            "UPDATE recurring_expenses SET last_processed_month = ? WHERE id = ?",
-            (current_month_str, rec['id'])
-        )
-        logger.info(f"Auto-processed recurring expense {rec['id']} for user {user_id}")
+    processed_count = 0
     
-    if due:
+    for rec in recurring:
+        last_processed = rec['last_processed_month']
+        
+        # If it has never been processed, we start from the current month
+        if not last_processed:
+            # Check if it's due in the current month
+            if rec['day_of_month'] <= today.day:
+                expense_date = f"{current_month_str}-{rec['day_of_month']:02d}"
+                db.execute(
+                    "INSERT INTO expenses (user_id, amount, category, payment_method, description, date) VALUES (?, ?, ?, ?, ?, ?)",
+                    (user_id, rec['amount'], rec['category'], rec['payment_method'], rec['description'] + " (Auto)", expense_date)
+                )
+                db.execute(
+                    "UPDATE recurring_expenses SET last_processed_month = ? WHERE id = ?",
+                    (current_month_str, rec['id'])
+                )
+                processed_count += 1
+            continue
+            
+        # If it has been processed before, backfill any missed months
+        try:
+            last_date = datetime.strptime(last_processed, '%Y-%m')
+        except ValueError:
+            last_date = today
+            
+        # Loop through each month from last_date + 1 month up to today
+        temp_date = last_date
+        while True:
+            # Advance to the next month
+            # (Add 32 days and set to day 1 to safely cross month boundaries)
+            next_month_day = temp_date + timedelta(days=32)
+            temp_date = datetime(next_month_day.year, next_month_day.month, 1)
+            
+            # Stop if we went past the current month
+            if temp_date.year > today.year or (temp_date.year == today.year and temp_date.month > today.month):
+                break
+                
+            temp_month_str = temp_date.strftime('%Y-%m')
+            
+            # Check if the billing date is due for this month
+            is_current_month = (temp_date.year == today.year and temp_date.month == today.month)
+            if not is_current_month or rec['day_of_month'] <= today.day:
+                expense_date = f"{temp_month_str}-{rec['day_of_month']:02d}"
+                db.execute(
+                    "INSERT INTO expenses (user_id, amount, category, payment_method, description, date) VALUES (?, ?, ?, ?, ?, ?)",
+                    (user_id, rec['amount'], rec['category'], rec['payment_method'], rec['description'] + " (Auto)", expense_date)
+                )
+                db.execute(
+                    "UPDATE recurring_expenses SET last_processed_month = ? WHERE id = ?",
+                    (temp_month_str, rec['id'])
+                )
+                processed_count += 1
+                
+    if processed_count > 0:
         db.commit()
-    return len(due)
+        
+    return processed_count
 
 # ------------------------------------------------------------------ #
 # Weekly Summary Check                                                #
