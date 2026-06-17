@@ -179,51 +179,78 @@
     </div>
 
     <!-- 3. Visual Analytics (Right Column) -->
-    <div class="lg:col-span-4 space-y-8">
+    <div class="lg:col-span-4 space-y-6">
       
-      <!-- Category Distribution -->
-      <div class="card-apple p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
-        <h3 class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-[0.2em] mb-8 text-center">Categorical Outflow</h3>
-        <div class="h-[260px] relative">
-          <canvas id="categoryChart"></canvas>
-          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span class="text-[10px] font-bold text-slate-400 dark:text-dark-mute uppercase">Total</span>
-            <span class="text-xl font-mono font-bold text-slate-900 dark:text-white tracking-tighter">&#8377;{{ "%.0f"|format(total_spent) }}</span>
-          </div>
+      <!-- THIS MONTH Card -->
+      <div class="card-apple p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="flex items-center gap-2 mb-6">
+            <span class="material-symbols-outlined text-primary text-[20px]">calendar_today</span>
+            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest">THIS MONTH</h3>
         </div>
         
-        <div class="grid grid-cols-2 gap-4 mt-10 pt-6 border-t border-slate-100 dark:border-dark-border/40">
-            {% for label in chart_labels[:4] %}
-            <div class="flex items-center gap-2">
-                <div class="w-1.5 h-1.5 rounded-full bg-primary/40"></div>
-                <span class="text-[10px] font-bold text-slate-500 dark:text-dark-mute uppercase tracking-tight">{{ label }}</span>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-dark-border/40">
+                <span class="text-xs font-medium text-slate-500 dark:text-dark-mute">Spent so far</span>
+                <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.2f"|format(current_month_spent) }}</span>
             </div>
-            {% endfor %}
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-dark-border/40">
+                <span class="text-xs font-medium text-slate-500 dark:text-dark-mute">Monthly budget limit</span>
+                <form action="{{ url_for('update_budget') }}" method="POST" class="flex items-center gap-2">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">&#8377;</span>
+                    <input type="number" step="any" name="budget" value="{{ '%.0f'|format(monthly_budget) }}" class="w-24 px-2 py-1 text-xs text-right font-mono border rounded-lg bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
+                    <button type="submit" class="p-1.5 rounded-lg text-primary hover:bg-primary/10 active:scale-95 transition-all" title="Update Budget">
+                        <span class="material-symbols-outlined text-[16px]">save</span>
+                    </button>
+                </form>
+            </div>
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-dark-border/40">
+                <span class="text-xs font-medium text-slate-500 dark:text-dark-mute">Projected total</span>
+                <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.2f"|format(projected_total) }}</span>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            {% if projected_total <= monthly_budget %}
+            <div class="bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl p-4 flex gap-3 items-start">
+                <span class="material-symbols-outlined text-signature-mint text-[18px] mt-0.5">check_circle</span>
+                <div>
+                    <p class="text-xs font-bold text-slate-900 dark:text-white mb-1">Status Compliant:</p>
+                    <p class="text-[10px] text-slate-500 dark:text-dark-mute leading-tight">Expense trajectory is within safety limits.</p>
+                </div>
+            </div>
+            {% else %}
+            <div class="bg-accent-red/5 border border-accent-red/20 rounded-xl p-4 flex gap-3 items-start">
+                <span class="material-symbols-outlined text-accent-red text-[18px] mt-0.5">warning</span>
+                <div>
+                    <p class="text-xs font-bold text-accent-red mb-1">Status Critical:</p>
+                    <p class="text-[10px] text-slate-500 dark:text-dark-mute leading-tight">Projected spending will exceed the monthly budget.</p>
+                </div>
+            </div>
+            {% endif %}
         </div>
       </div>
 
-      <!-- Budget Management Bento -->
-      <div class="card-apple p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5 bg-slate-950 text-white border-none">
-        <div class="flex items-center gap-3 mb-6">
-            <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center">
-                <span class="material-symbols-outlined text-[18px]">tune</span>
-            </div>
-            <h3 class="text-[10px] font-mono font-bold uppercase tracking-[0.2em]">Terminal Config</h3>
+      <!-- MONTHLY SPENDING TREND Card -->
+      <div class="card-apple p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="flex items-center gap-2 mb-6">
+            <span class="material-symbols-outlined text-primary text-[20px]">show_chart</span>
+            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest">MONTHLY SPENDING TREND</h3>
         </div>
-        
-        <form action="{{ url_for('update_budget') }}" method="POST" class="space-y-6">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <div class="space-y-2 group">
-            <label for="budget" class="block text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest transition-colors group-focus-within:text-white">Monthly Threshold (&#8377;)</label>
-            <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-0 text-slate-600 text-[18px]">track_changes</span>
-              <input type="number" step="100" name="budget" id="budget" class="w-full bg-transparent border-b border-slate-800 py-2.5 pl-7 outline-none focus:border-white transition-all text-sm font-mono font-bold text-white" value="{{ monthly_budget }}" required>
-            </div>
-          </div>
-          <button type="submit" class="w-full py-3 bg-white text-slate-950 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-95 shadow-lg shadow-white/5">
-            Update Threshold
-          </button>
-        </form>
+        <div class="h-[180px] w-full">
+            <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- PAYMENT METHODS Card -->
+      <div class="card-apple p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="flex items-center gap-2 mb-6">
+            <span class="material-symbols-outlined text-primary text-[20px]">credit_card</span>
+            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest">PAYMENT METHODS</h3>
+        </div>
+        <div class="h-[180px] w-full">
+            <canvas id="methodChart"></canvas>
+        </div>
       </div>
 
     </div>
@@ -232,39 +259,88 @@
 </div>
 
 <script>
-  // Unified Chart configuration
   const chartColors = ['#4f46e5', '#6366f1', '#f97316', '#10b981', '#ef4444', '#3b82f6', '#f59e0b'];
   const isDark = document.documentElement.classList.contains('dark');
+  const textColor = isDark ? '#9ca3af' : '#64748b';
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
 
   function filterByChip(catName) {
     document.getElementById('hidden-category').value = catName;
     document.getElementById('filter-form').submit();
   }
 
-  const ctxCategory = document.getElementById('categoryChart').getContext('2d');
-  new Chart(ctxCategory, {
-    type: 'doughnut',
+  // Declared for testing and unified visualization logic
+  const chartData = {
+    trendLabels: {{ trend_labels | tojson }},
+    trendValues: {{ trend_values | tojson }},
+    methodsLabels: {{ methods_labels | tojson }},
+    methodsValues: {{ methods_values | tojson }}
+  };
+
+  // 1. Monthly Trend Chart (Line)
+  const ctxTrend = document.getElementById('trendChart').getContext('2d');
+  new Chart(ctxTrend, {
+    type: 'line',
     data: {
-      labels: {{ chart_labels | tojson }},
+      labels: chartData.trendLabels,
       datasets: [{
-        data: {{ chart_values | tojson }},
-        backgroundColor: chartColors,
-        borderWidth: 0,
-        hoverOffset: 12
+        label: 'Spending',
+        data: chartData.trendValues,
+        borderColor: '#4f46e5',
+        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#fff',
+        pointBorderColor: '#4f46e5',
+        pointRadius: 4
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: '82%',
       plugins: {
         legend: { display: false },
         tooltip: {
           backgroundColor: '#1e293b',
-          padding: 12,
-          cornerRadius: 8,
-          titleFont: { weight: 'bold' }
+          padding: 10,
+          callbacks: { label: ctx => ` ₹${ctx.raw}` }
         }
+      },
+      scales: {
+        y: { display: false, min: 0 },
+        x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, family: 'Inter' } } }
+      }
+    }
+  });
+
+  // 2. Payment Methods Chart (Bar)
+  const ctxMethod = document.getElementById('methodChart').getContext('2d');
+  new Chart(ctxMethod, {
+    type: 'bar',
+    data: {
+      labels: chartData.methodsLabels,
+      datasets: [{
+        data: chartData.methodsValues,
+        backgroundColor: ['#6366f1', '#f97316', '#10b981', '#f59e0b'],
+        borderRadius: 4
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e293b',
+          padding: 10,
+          callbacks: { label: ctx => ` ₹${ctx.raw}` }
+        }
+      },
+      scales: {
+        x: { display: false, min: 0 },
+        y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, family: 'Inter', weight: 'bold' } } }
       }
     }
   });

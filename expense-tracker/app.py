@@ -8,6 +8,7 @@ from datetime import datetime, date, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_from_directory, make_response, jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_wtf.csrf import CSRFProtect
 from database.db import get_db, init_db
 from ocr_engine import process_receipt
 from email_alerts import send_budget_alert, send_weekly_summary
@@ -17,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 app = Flask(__name__)
+csrf = CSRFProtect(app)
+app.jinja_env.globals.update(zip=zip)
 
 @app.context_processor
 def inject_now():
@@ -837,10 +840,12 @@ def reports():
     # 5. Best and worst spending months (robust)
     non_zero = [(i, v) for i, v in enumerate(report_values) if v > 0]
     if non_zero:
-        best_month_idx  = max(non_zero, key=lambda x: x[1])[0]
-        worst_month_idx = min(non_zero, key=lambda x: x[1])[0]
+        max_month_idx = max(non_zero, key=lambda x: x[1])[0]
+        min_month_idx = min(non_zero, key=lambda x: x[1])[0]
+        best_month = month_names[min_month_idx]  # lowest spending is best/optimal
+        worst_month = month_names[max_month_idx] # highest spending is worst/peak
     else:
-        best_month_idx = worst_month_idx = 0
+        best_month = worst_month = '—'
     
     # 6. Average monthly spend
     active_months = sum(1 for v in report_values if v > 0) or 1
@@ -849,16 +854,16 @@ def reports():
     return render_template("reports.html",
         year=year,
         available_years=available_years,
-        report_labels=report_labels,
-        report_values=report_values,
-        year_total=year_total,
+        month_names=report_labels,
+        monthly_totals=report_values,
+        total_year=year_total,
         categories=categories,
-        cat_labels=cat_labels,
-        cat_values=cat_values,
+        labels=cat_labels,
+        values=cat_values,
         method_labels=method_labels,
         method_values=method_values,
-        best_month=month_names[best_month_idx],
-        worst_month=month_names[worst_month_idx],
+        best_month=best_month,
+        worst_month=worst_month,
         avg_monthly=avg_monthly,
     )
 # Ensure database tables are created on Vercel

@@ -22,6 +22,10 @@ def setup_db():
     import app as app_module
     app_module._login_attempts.clear()
 
+    # Also patch app_module's local imported reference to get_db
+    original_app_get_db = app_module.get_db
+    app_module.get_db = lambda: test_db
+
     with flask_app.app_context():
         init_db()
 
@@ -29,11 +33,13 @@ def setup_db():
 
     conn.close()
     db_module.get_db = original
+    app_module.get_db = original_app_get_db
 
 
 @pytest.fixture
 def client():
     flask_app.config['TESTING'] = True
+    flask_app.config['WTF_CSRF_ENABLED'] = False
     flask_app.config['SECRET_KEY'] = 'test-secret'
     with flask_app.test_client() as c:
         yield c
@@ -151,7 +157,7 @@ class TestExpenseCRUD:
     def test_authorization(self, client):
         from app import _login_attempts
         _login_attempts.clear()
-
+    
         # User A adds an expense
         reg_a = client.post('/register', data={
             'name': 'A', 'email': 'a@test.com', 'password': 'pppppp'

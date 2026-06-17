@@ -136,15 +136,23 @@
     document.documentElement.style.setProperty(`--color-${i}`, color);
   });
 
+  // Declared for testing and unified visualization logic
+  const reportData = {
+    monthNames: {{ month_names | tojson }},
+    monthlyTotals: {{ monthly_totals | tojson }},
+    labels: {{ labels | tojson }},
+    values: {{ values | tojson }}
+  };
+
   function renderReportCharts() {
     // Annual Chart
     new Chart(ctxAnnual, {
       type: 'bar',
       data: {
-        labels: {{ month_names | tojson }},
+        labels: reportData.monthNames,
         datasets: [{
           label: 'Outflow',
-          data: {{ monthly_totals | tojson }},
+          data: reportData.monthlyTotals,
           backgroundColor: colors.primary,
           borderRadius: 6,
           borderSkipped: false,
@@ -182,9 +190,9 @@
     new Chart(ctxCategory, {
       type: 'doughnut',
       data: {
-        labels: {{ labels | tojson }},
+        labels: reportData.labels,
         datasets: [{
-          data: {{ values | tojson }},
+          data: reportData.values,
           backgroundColor: colors.accent,
           borderWidth: 0,
           hoverOffset: 15

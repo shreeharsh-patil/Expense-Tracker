@@ -5,6 +5,7 @@ from database.db import get_db, init_db, seed_db
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
+    app.config['WTF_CSRF_ENABLED'] = False
     app.config['SECRET_KEY'] = 'test-secret'
     # Reset rate limiter for test isolation
     _login_attempts.clear()
