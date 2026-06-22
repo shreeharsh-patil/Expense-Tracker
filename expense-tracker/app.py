@@ -429,7 +429,7 @@ def forgot_password():
             </div>
             """
             
-            send_email(email, 'Spendly â€” Password Reset', html)
+            send_email(email, 'Spendly — Password Reset', html)
         
         # Always show success to prevent email enumeration
         flash("If that email is registered, a password reset link has been sent.", "info")

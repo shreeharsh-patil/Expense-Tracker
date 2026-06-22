@@ -12,7 +12,6 @@
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.5/dist/turbo.es2017-umd.js"></script>
   <script src="{{ url_for('static', filename='js/main.js') }}?v=10" defer></script>
 
   <script>
@@ -128,8 +127,50 @@
   </main>
 
   {% block footer %}
-  {% if not session.user_id or request.endpoint in ['landing', 'terms', 'privacy', 'features', 'pricing', 'ocr_scanning', 'export_info', 'about', 'blog', 'careers'] %}
+  {% if not session.user_id %}
   <footer class="bg-surface-parchment dark:bg-dark-card/50 border-t border-slate-200 dark:border-dark-border/40 px-4 sm:px-6 lg:px-8 py-12 transition-colors">
+    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div class="col-span-2 md:col-span-1 flex flex-col items-start gap-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-primary rounded-full"></span>
+          <span class="font-sans font-bold text-lg text-slate-900 dark:text-white tracking-tight">Spendly</span>
+        </div>
+        <p class="text-xs leading-relaxed text-slate-500 dark:text-dark-mute max-w-xs">
+          Track expenses, set budgets, and take control of your finances.
+        </p>
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute mt-1">
+          &copy; {{ now_year }} Spendly. All rights reserved.
+        </p>
+      </div>
+      <div>
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Product</p>
+        <ul class="space-y-2 text-xs" style="line-height: 2.41">
+          <li><a href="{{ url_for('features') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Features</a></li>
+          <li><a href="{{ url_for('pricing') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</a></li>
+          <li><a href="{{ url_for('ocr_scanning') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">OCR Scanning</a></li>
+          <li><a href="{{ url_for('export_info') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Export</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Company</p>
+        <ul class="space-y-2 text-xs" style="line-height: 2.41">
+          <li><a href="{{ url_for('about') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">About</a></li>
+          <li><a href="{{ url_for('blog') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Blog</a></li>
+          <li><a href="{{ url_for('careers') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Support</p>
+        <ul class="space-y-2 text-xs" style="line-height: 2.41">
+          <li><a href="{{ url_for('privacy') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</a></li>
+          <li><a href="{{ url_for('terms') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</a></li>
+          <li><a href="mailto:support@spendly.app" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  {% elif request.endpoint in ['landing', 'terms', 'privacy', 'features', 'pricing', 'ocr_scanning', 'export_info', 'about', 'blog', 'careers'] %}
+  <footer class="bg-surface-parchment dark:bg-dark-card/50 border-t border-slate-200 dark:border-dark-border/40 px-4 sm:px-6 lg:px-8 py-12 transition-colors hidden md:block">
     <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
       <div class="col-span-2 md:col-span-1 flex flex-col items-start gap-3">
         <div class="flex items-center gap-2">

@@ -1,5 +1,5 @@
-// Update UI on load/navigation
-document.addEventListener('turbo:load', () => {
+// Unified post-navigation handler (Turbo Drive + standard page loads)
+function onPageReady() {
   const isDark = document.documentElement.classList.contains('dark');
   const themeToggleIcon = document.getElementById('theme-toggle-icon');
   if (themeToggleIcon) {
@@ -7,8 +7,9 @@ document.addEventListener('turbo:load', () => {
   }
 
   // Auto-dismiss flash notifications after 5 seconds
-  const flashMessages = document.querySelectorAll('.flash-message');
-  flashMessages.forEach((msg) => {
+  document.querySelectorAll('.flash-message').forEach((msg) => {
+    if (msg.dataset.autoDismissed) return;
+    msg.dataset.autoDismissed = 'true';
     setTimeout(() => {
       msg.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
       msg.style.opacity = '0';
@@ -16,7 +17,13 @@ document.addEventListener('turbo:load', () => {
       setTimeout(() => msg.remove(), 500);
     }, 5000);
   });
-});
+
+  // Re-run chart rendering if chart global exists
+  if (typeof renderDashboardCharts === 'function') renderDashboardCharts();
+  if (typeof renderReportCharts === 'function') renderReportCharts();
+}
+
+document.addEventListener('DOMContentLoaded', onPageReady);
 
 // Use event delegation for all button clicks to avoid detached listener issues with Turbo Drive
 document.addEventListener('click', (e) => {
@@ -76,4 +83,6 @@ window.getChartThemeColors = () => {
 if (typeof Chart !== 'undefined') {
   Chart.defaults.font.family = "'Fragment Mono', monospace";
   Chart.defaults.font.size = 10;
+  // Fix for Chart.js v4+ font resolution
+  Chart.defaults.color = '#475569';
 }

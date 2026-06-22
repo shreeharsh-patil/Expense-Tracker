@@ -65,10 +65,10 @@ class TestAuth:
 
     def test_register_duplicate_email(self, client):
         client.post('/register', data={
-            'name': 'A', 'email': 'dup@test.com', 'password': 'secret123'
+            'name': 'Alice', 'email': 'dup@test.com', 'password': 'secret123'
         })
         resp = client.post('/register', data={
-            'name': 'B', 'email': 'dup@test.com', 'password': 'secret123'
+            'name': 'Bob', 'email': 'dup@test.com', 'password': 'secret123'
         }, follow_redirects=True)
         assert b'Email already exists' in resp.data
 
@@ -84,9 +84,9 @@ class TestAuth:
 
     def test_logout(self, client):
         client.post('/register', data={
-            'name': 'U', 'email': 'u@test.com', 'password': 'p'
+            'name': 'U', 'email': 'u@test.com', 'password': 'pass123'
         })
-        client.post('/login', data={'email': 'u@test.com', 'password': 'p'})
+        client.post('/login', data={'email': 'u@test.com', 'password': 'pass123'})
         resp = client.get('/logout', follow_redirects=True)
         assert b'Successfully logged out' in resp.data
 
@@ -94,11 +94,11 @@ class TestAuth:
 class TestExpenseCRUD:
     def _login(self, client):
         client.post('/register', data={
-            'name': 'User', 'email': 'user@test.com', 'password': 'pass123'
-        })
+            'name': 'User', 'email': 'user@test.com', 'password': 'pass1234'
+        }, follow_redirects=True)
         client.post('/login', data={
-            'email': 'user@test.com', 'password': 'pass123'
-        })
+            'email': 'user@test.com', 'password': 'pass1234'
+        }, follow_redirects=True)
 
     def test_add_expense(self, client):
         self._login(client)
@@ -145,7 +145,7 @@ class TestExpenseCRUD:
             'amount': '100', 'category': 'Food',
             'payment_method': 'Cash', 'description': 'To delete', 'date': '2026-06-15'
         }, follow_redirects=True)
-        resp = client.get('/expenses/1/delete', follow_redirects=True)
+        resp = client.post('/expenses/1/delete', follow_redirects=True)
         assert resp.status_code == 200
         assert b'Expense deleted' in resp.data
 
@@ -188,9 +188,9 @@ class TestExpenseCRUD:
 class TestBudget:
     def _login(self, client):
         client.post('/register', data={
-            'name': 'U', 'email': 'u@test.com', 'password': 'p'
-        })
-        client.post('/login', data={'email': 'u@test.com', 'password': 'p'})
+            'name': 'U', 'email': 'u@test.com', 'password': 'pass123'
+        }, follow_redirects=True)
+        client.post('/login', data={'email': 'u@test.com', 'password': 'pass123'}, follow_redirects=True)
 
     def test_update_budget(self, client):
         self._login(client)
@@ -211,9 +211,9 @@ class TestBudget:
 class TestRecurring:
     def _login(self, client):
         client.post('/register', data={
-            'name': 'U', 'email': 'u@test.com', 'password': 'p'
-        })
-        client.post('/login', data={'email': 'u@test.com', 'password': 'p'})
+            'name': 'U', 'email': 'u@test.com', 'password': 'pass123'
+        }, follow_redirects=True)
+        client.post('/login', data={'email': 'u@test.com', 'password': 'pass123'}, follow_redirects=True)
 
     def test_add_recurring(self, client):
         self._login(client)
@@ -249,16 +249,16 @@ class TestRecurring:
             'payment_method': 'Auto', 'description': 'Netflix',
             'day_of_month': '5'
         }, follow_redirects=True)
-        resp = client.get('/recurring/1/delete', follow_redirects=True)
+        resp = client.post('/recurring/1/delete', follow_redirects=True)
         assert b'Recurring expense removed' in resp.data
 
 
 class TestCSVExport:
     def _login(self, client):
         client.post('/register', data={
-            'name': 'U', 'email': 'u@test.com', 'password': 'p'
-        })
-        client.post('/login', data={'email': 'u@test.com', 'password': 'p'})
+            'name': 'U', 'email': 'u@test.com', 'password': 'pass123'
+        }, follow_redirects=True)
+        client.post('/login', data={'email': 'u@test.com', 'password': 'pass123'}, follow_redirects=True)
 
     def test_export(self, client):
         self._login(client)
