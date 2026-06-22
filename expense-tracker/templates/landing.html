@@ -60,11 +60,10 @@
         <!-- Glowing ambient shadow -->
         <div class="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-primary/20 to-violet-500/15 blur-2xl opacity-60"></div>
         <!-- Dashboard image -->
-        <div class="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10 bg-gradient-to-br from-slate-50 to-white dark:from-dark-card dark:to-dark-bg p-8 flex items-center justify-center min-h-[300px]">
-          <div class="text-center">
-            <span class="material-symbols-outlined text-6xl text-primary/30">account_balance_wallet</span>
-            <p class="text-xs text-slate-400 dark:text-dark-mute mt-4 font-mono">Interactive Dashboard Preview</p>
-          </div>
+        <div class="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
+          <img src="{{ url_for('static', filename='images/spendly_hero_dashboard.png') }}"
+               alt="Spendly expense tracking dashboard"
+               class="w-full h-auto object-contain">
         </div>
       </div>
     </div>
@@ -361,11 +360,10 @@
     </div>
 
     <!-- Receipt scanner image below CTA -->
-    <div class="mt-14 max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10 bg-gradient-to-br from-slate-50 to-white dark:from-dark-card dark:to-dark-bg p-8 flex items-center justify-center min-h-[200px]">
-      <div class="text-center">
-        <span class="material-symbols-outlined text-5xl text-primary/30">document_scanner</span>
-        <p class="text-xs text-slate-400 dark:text-dark-mute mt-4 font-mono">Receipt Scanner Integration</p>
-      </div>
+    <div class="mt-14 max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
+      <img src="{{ url_for('static', filename='images/spendly_receipt_scanner.png') }}"
+           alt="Spendly AI receipt scanner feature"
+           class="w-full h-auto object-contain">
     </div>
   </div>
 </section>
