@@ -127,6 +127,7 @@
     {% block content %}{% endblock %}
   </main>
 
+  {% block footer %}
   {% if not session.user_id or request.endpoint in ['landing', 'terms', 'privacy'] %}
   <footer class="bg-surface-parchment dark:bg-dark-card/50 border-t border-slate-200 dark:border-dark-border/40 px-4 sm:px-6 lg:px-8 py-12 transition-colors">
     <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -170,6 +171,7 @@
     </div>
   </footer>
   {% endif %}
+  {% endblock %}
 
   {% if session.user_id %}
   <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-5 pt-2 bg-white/95 dark:bg-dark-card/95 backdrop-blur-xl border-t border-slate-200 dark:border-dark-border transition-colors">

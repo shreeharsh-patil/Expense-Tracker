@@ -1,3 +1,4 @@
+﻿# reload-stamp: 20260622-171402
 import os
 import csv
 import io
@@ -373,7 +374,7 @@ def forgot_password():
             </div>
             """
             
-            send_email(email, 'Spendly — Password Reset', html)
+            send_email(email, 'Spendly â€” Password Reset', html)
         
         # Always show success to prevent email enumeration
         flash("If that email is registered, a password reset link has been sent.", "info")
@@ -476,7 +477,7 @@ def dashboard():
         (user_id, f"{current_month_str}%")
     ).fetchone()['total'] or 0.0
 
-    # 4. Category totals — overall (unfiltered) for pie chart
+    # 4. Category totals â€” overall (unfiltered) for pie chart
     categories_data = db.execute(
         "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category ORDER BY total DESC",
         (user_id,)
@@ -484,7 +485,7 @@ def dashboard():
     chart_labels = [c['category'] for c in categories_data]
     chart_values = [c['total'] for c in categories_data]
 
-    # 5. Monthly trends — last 6 months for bar chart
+    # 5. Monthly trends â€” last 6 months for bar chart
     monthly_trends = db.execute(
         """
         SELECT TO_CHAR(date::date, 'YYYY-MM') as month, SUM(amount) as total
@@ -509,7 +510,7 @@ def dashboard():
             "SELECT category, SUM(amount) as total FROM expenses WHERE user_id = ? GROUP BY category ORDER BY total DESC LIMIT 1",
             (user_id,)
         ).fetchone()
-        insights['top_category']    = top_cat_row['category'] if top_cat_row else '—'
+        insights['top_category']    = top_cat_row['category'] if top_cat_row else 'â€”'
         insights['top_category_amt'] = top_cat_row['total'] if top_cat_row else 0
         insights['biggest_expense'] = all_user_expenses[0]['amount']
         insights['biggest_desc']    = all_user_expenses[0]['description'] or all_user_expenses[0]['category']
@@ -894,7 +895,7 @@ def reports():
         best_month = month_names[min_month_idx]  # lowest spending is best/optimal
         worst_month = month_names[max_month_idx] # highest spending is worst/peak
     else:
-        best_month = worst_month = '—'
+        best_month = worst_month = 'â€”'
     
     # 6. Average monthly spend
     active_months = sum(1 for v in report_values if v > 0) or 1

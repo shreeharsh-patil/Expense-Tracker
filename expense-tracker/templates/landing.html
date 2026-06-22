@@ -1,375 +1,356 @@
 {% extends "base.html" %}
-{% block title %}Spendly — Editorial Personal Finance Ledger{% endblock %}
+{% block title %}Spendly — Track Smarter. Spend Wiser.{% endblock %}
 
 {% block content %}
-<main class="relative bg-white dark:bg-dark-bg text-body dark:text-dark-text transition-colors duration-300 overflow-hidden">
+<!-- Premium Landing Page Header & Hero Section -->
+<section class="relative min-h-[calc(100vh-64px)] flex items-center justify-center py-16 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-grid-pattern">
+  <!-- Glowing Background Blobs -->
+  <div class="glow-blob top-16 left-8 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-primary/10 dark:bg-primary/15"></div>
+  <div class="glow-blob bottom-16 right-8 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-signature-peach/10 dark:bg-signature-peach/15"></div>
 
-  <!-- 1. Hero Band (White Canvas) -->
-  <section class="relative overflow-visible py-section px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center animate-fade-in-up">
-    <!-- Display Headline -->
-    <h1 class="relative z-10 heading-display text-slate-900 dark:text-white max-w-4xl mb-6 font-extrabold tracking-tight">
-      Quietly powerful expense tracking.<br class="hidden md:inline">
-      Built for individuals who value precision.
-    </h1>
-
-    <!-- Sub-headline -->
-    <p class="relative z-10 text-base md:text-lg text-slate-500 dark:text-dark-mute max-w-2xl mb-10 leading-relaxed font-normal">
-      A clean personal expense ledger. Track transactions, manage budgets, and watch your savings grow.
-    </p>
-
-    <!-- CTAs -->
-    <div class="relative z-10 flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center w-full sm:w-auto mb-20">
-      {% if session.user_id %}
-      <a href="{{ url_for('dashboard') }}" class="btn-primary inline-flex items-center justify-center text-center">Go to Ledger Console</a>
-      {% else %}
-      <a href="{{ url_for('register') }}" class="btn-primary inline-flex items-center justify-center text-center">Get started free</a>
-      <a href="{{ url_for('login') }}" class="btn-secondary inline-flex items-center justify-center text-center">Schedule demo</a>
-      {% endif %}
-    </div>
-
-  </section>
-
-  <!-- 2. Premium Feature Section (Ledger Updates) -->
-  <section class="relative bg-white dark:bg-dark-bg py-20 px-6 overflow-hidden">
-    <div class="max-w-7xl mx-auto relative z-10">
-      
-      <!-- Premium Dark Container -->
-      <div class="relative bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-16 flex flex-col lg:flex-row items-center justify-between gap-16 shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden group">
-        
-        <div class="max-w-xl space-y-8 relative z-10">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-mono tracking-widest text-slate-300 uppercase">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            Live Synchronization
-          </div>
-          
-          <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight text-white">
-            Real-time ledger updates.<br>
-            <span class="text-indigo-400">Verified status.</span>
-          </h2>
-          <p class="text-sm md:text-base text-slate-400 leading-relaxed font-light">
-            Add single transactions or recurring billing items instantly. Spendly's robust backend logs every memo, category, and payment channel with perfect auditability, giving you a comprehensive view of your financial flow.
-          </p>
-          <div class="pt-4 flex flex-wrap gap-4">
-            {% if session.user_id %}
-            <a href="{{ url_for('dashboard') }}" class="px-6 py-3 bg-white text-slate-900 hover:bg-slate-100 font-semibold rounded-xl transition-all text-sm flex items-center gap-2 border border-slate-200">
-              View Dashboard <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-            </a>
-            {% else %}
-            <a href="{{ url_for('register') }}" class="px-6 py-3 bg-white text-slate-900 hover:bg-slate-100 font-semibold rounded-xl transition-all text-sm flex items-center gap-2 border border-slate-200">
-              Start Logging <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-            </a>
-            {% endif %}
-          </div>
-        </div>
-        
-        <!-- Graphical preview pane -->
-        <div class="w-full lg:w-[420px] relative z-10">
-          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 text-sm text-slate-300 space-y-4 shadow-xl">
-            <div class="border-b border-slate-800 pb-3 mb-2 flex justify-between items-center text-[10px] uppercase tracking-widest text-slate-400 font-mono">
-              <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-[16px] text-slate-500">verified</span>
-                LEDGER_VERIFIED
-              </div>
-              <span class="flex h-2 w-2 relative">
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-            </div>
-            <div class="space-y-3">
-              <div class="flex justify-between items-center bg-slate-900/50 border border-slate-800 p-3.5 rounded-xl">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">restaurant</span></div>
-                  <span class="text-slate-200 font-medium">Grocery & Supplies</span>
-                </div>
-                <span class="font-bold text-white font-mono">&#8377;1,420.50</span>
-              </div>
-              <div class="flex justify-between items-center bg-slate-900/50 border border-slate-800 p-3.5 rounded-xl">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">bolt</span></div>
-                  <span class="text-slate-200 font-medium">Electricity Bill</span>
-                </div>
-                <span class="font-bold text-white font-mono">&#8377;3,240.00</span>
-              </div>
-              <div class="flex justify-between items-center bg-rose-950/20 border border-rose-900/30 p-3.5 rounded-xl">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">warning</span></div>
-                  <span class="text-rose-200 font-medium">Limit Breach Alert</span>
-                </div>
-                <span class="font-bold text-rose-400 font-mono">&#8377;4,660.50</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-      </div>
-    </div>
-  </section>
-
-  <!-- 3. Social Proof Logo Strip (Clean typography-based logos) -->
-  <section class="relative bg-white dark:bg-dark-bg py-12 text-center border-y border-slate-100 dark:border-dark-border/40">
-    <p class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-6">TRUSTED BY OPERATORS AT LEADING WORLD TEAMS</p>
-    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-12 md:gap-20 opacity-60 dark:opacity-40 grayscale select-none">
-      <span class="text-base font-semibold tracking-wider font-mono text-slate-800 dark:text-white hover:text-primary transition-colors cursor-pointer">PLAID</span>
-      <span class="text-base font-semibold tracking-widest font-mono text-slate-800 dark:text-white hover:text-primary transition-colors cursor-pointer">MOSS</span>
-      <span class="text-base font-semibold tracking-tight font-mono text-slate-800 dark:text-white hover:text-primary transition-colors cursor-pointer">ADYEN</span>
-      <span class="text-base font-semibold tracking-normal font-mono text-slate-800 dark:text-white hover:text-primary transition-colors cursor-pointer">STRIPE</span>
-    </div>
-  </section>
-
-
-
-  <!-- 6. Interactive Platform Rail (Tabbed Feature Card) -->
-  <section class="relative bg-slate-50/50 dark:bg-dark-bg py-24 px-6 md:px-12 overflow-hidden bg-grid-pattern">
-    <div class="max-w-7xl mx-auto relative z-10">
-      <div class="max-w-2xl mb-16 space-y-4">
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-mono tracking-widest text-slate-500 dark:text-slate-300 uppercase">
-          Specifications
-        </span>
-        <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-          Complete ledger visibility.
-        </h2>
-        <p class="text-base text-slate-500 dark:text-dark-mute max-w-lg">
-          Choose a core platform capability below to inspect our automated data engines.
-        </p>
+  <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center relative z-10">
+    
+    <!-- Left Column: High Impact Headline & Action -->
+    <div class="lg:col-span-6 flex flex-col items-start text-left space-y-8 animate-fade-in-up">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary dark:text-primary-light text-[10px] font-mono font-bold uppercase tracking-widest">
+        <span class="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span>
+        Personal Ledger Terminal
       </div>
 
-      <!-- Tabbed Container -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
-        
-        <!-- Left Topic filter rail -->
-        <div class="lg:col-span-4 flex flex-col space-y-3">
-          
-          <button onclick="switchTab('tab-ingest')" id="btn-tab-ingest" class="tab-button w-full text-left p-5 rounded-2xl border transition-all duration-300 text-sm font-medium flex items-center gap-5 bg-white dark:bg-dark-card border-primary dark:border-primary-light text-slate-900 dark:text-white shadow-sm group relative overflow-hidden">
-            <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary relative z-10">
-              <span class="material-symbols-outlined text-[20px]">center_focus_strong</span>
-            </div>
-            <div class="relative z-10">
-              <p class="font-bold text-sm">Ingest (OCR Scan)</p>
-              <p class="text-xs text-slate-500 dark:text-dark-mute mt-1">Automated image-to-field extraction.</p>
-            </div>
-          </button>
-          
-          <button onclick="switchTab('tab-decide')" id="btn-tab-decide" class="tab-button w-full text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-5 group hover:shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
-              <span class="material-symbols-outlined text-[20px]">fact_check</span>
-            </div>
-            <div>
-              <p class="font-semibold text-sm group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Decide & Alerts</p>
-              <p class="text-xs text-slate-500 dark:text-dark-mute mt-1">Threshold triggers & SMTP setups.</p>
-            </div>
-          </button>
-          
-          <button onclick="switchTab('tab-lifecycle')" id="btn-tab-lifecycle" class="tab-button w-full text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-5 group hover:shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
-              <span class="material-symbols-outlined text-[20px]">sync_alt</span>
-            </div>
-            <div>
-              <p class="font-semibold text-sm group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Recurring Milestones</p>
-              <p class="text-xs text-slate-500 dark:text-dark-mute mt-1">Billing loops and schedule monitors.</p>
-            </div>
-          </button>
-          
-          <button onclick="switchTab('tab-data')" id="btn-tab-data" class="tab-button w-full text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-5 group hover:shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
-              <span class="material-symbols-outlined text-[20px]">database</span>
-            </div>
-            <div>
-              <p class="font-semibold text-sm group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Data Portability</p>
-              <p class="text-xs text-slate-500 dark:text-dark-mute mt-1">Low-latency CSV transaction exports.</p>
-            </div>
-          </button>
-          
-        </div>
+      <h1 class="heading-display text-slate-900 dark:text-white font-extrabold tracking-tight">
+        Track Smarter.<br>
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-light">Spend Wiser.</span>
+      </h1>
 
-        <!-- Right Pane Card (Surface soft inside container) -->
-        <div class="lg:col-span-8 bg-white dark:bg-dark-card/80 border border-slate-200/80 dark:border-white/10 p-8 md:p-12 rounded-[2rem] shadow-lg flex flex-col justify-center transition-all duration-500 relative overflow-hidden">
-          
-          <!-- Abstract Background subtle pattern -->
-          <div class="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] opacity-50"></div>
-
-          <!-- Ingest Tab Content -->
-          <div id="tab-ingest" class="tab-content relative z-10 animate-fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div class="space-y-6">
-                <h4 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Document processing, streamlined.</h4>
-                <p class="text-sm text-slate-500 dark:text-dark-mute leading-relaxed font-normal">
-                  Provide your budget tracking with direct receipt upload. The AI engine automatically parses store names, tax tallies, and timestamps in real-time.
-                </p>
-                <div class="pt-4 border-t border-slate-100 dark:border-white/5">
-                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-2 font-bold">ACCURACY METRICS</span>
-                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">Extraction accuracy scores exceeding 99.5% on standard retail vouchers.</p>
-                </div>
-              </div>
-              <div class="relative">
-                <div class="relative border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden bg-slate-50 dark:bg-dark-bg p-2 shadow-lg">
-                  <img src="{{ url_for('static', filename='images/receipt_scan_graphic.jpg') }}" alt="Voucher processing parsing display" class="w-full h-auto rounded-xl object-cover shadow-sm">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Decide Tab Content -->
-          <div id="tab-decide" class="tab-content hidden relative z-10 animate-fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div class="space-y-6">
-                <h4 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Outlier warnings before breach.</h4>
-                <p class="text-sm text-slate-500 dark:text-dark-mute leading-relaxed font-normal">
-                  Establish custom alert ceilings on utility, leisure, and shopping categories. The engine evaluates limits during entries and fires warnings instantly.
-                </p>
-                <div class="pt-4 border-t border-slate-100 dark:border-white/5">
-                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-2 font-bold">SMTP SYSTEM</span>
-                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">Hooks directly to secure SMTP pipelines for delivery to family boxes.</p>
-                </div>
-              </div>
-              
-              <!-- Code block representation -->
-              <div class="relative">
-                <div class="relative border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-950 shadow-lg overflow-hidden">
-                  <!-- Mac-style Header -->
-                  <div class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 rounded-full bg-slate-800/40 border border-slate-700"></div>
-                    <div class="w-2.5 h-2.5 rounded-full bg-slate-800/40 border border-slate-700"></div>
-                    <div class="w-2.5 h-2.5 rounded-full bg-slate-800/40 border border-slate-700"></div>
-                    <span class="ml-4 text-[10px] font-mono text-slate-500">engine.py</span>
-                  </div>
-                  <!-- Code Content -->
-                  <div class="p-6 font-mono text-xs leading-loose select-all">
-                    <p class="text-slate-500 mb-2">// EVALUATOR ENGINE</p>
-                    <p class="text-slate-300"><span class="text-purple-400">def</span> <span class="text-blue-400">evaluate_limit</span>(spent, budget):</p>
-                    <p class="ml-4 text-slate-300"><span class="text-purple-400">if</span> spent &gt; budget:</p>
-                    <p class="ml-8"><span class="text-blue-400">trigger_warning</span>(<span class="text-emerald-400">"LIMIT_BREACH"</span>)</p>
-                    <p class="ml-8 text-slate-300"><span class="text-purple-400">return</span> <span class="text-rose-400">STATE_EXCEEDED</span></p>
-                    <p class="ml-4 text-slate-300"><span class="text-purple-400">return</span> <span class="text-teal-400">STATE_OK</span></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Lifecycle Tab Content -->
-          <div id="tab-lifecycle" class="tab-content hidden relative z-10 animate-fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div class="space-y-6">
-                <h4 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Track subscription intervals easily.</h4>
-                <p class="text-sm text-slate-500 dark:text-dark-mute leading-relaxed font-normal">
-                  Prevent silent budget drains from gym or streaming renewals. Record billing intervals and track upcoming payments in an elegant timeline.
-                </p>
-                <div class="pt-4 border-t border-slate-100 dark:border-white/5">
-                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-2 font-bold">TIMELINE TASKS</span>
-                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">Aggregates upcoming expenditures into monthly projected cost sums.</p>
-                </div>
-              </div>
-              
-              <!-- Checklist display -->
-              <div class="relative">
-                <div class="relative border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 shadow-lg p-6 space-y-4">
-                  <p class="font-mono text-[10px] text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 tracking-widest">// BILLING MONITOR</p>
-                  
-                  <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
-                    <div class="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-500">
-                      <span class="material-symbols-outlined text-[14px]">check</span>
-                    </div>
-                    <span class="text-xs font-sans text-slate-700 dark:text-slate-300 font-medium">Daily transaction scan complete</span>
-                  </div>
-                  
-                  <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
-                    <div class="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-500">
-                      <span class="material-symbols-outlined text-[14px]">check</span>
-                    </div>
-                    <span class="text-xs font-sans text-slate-700 dark:text-slate-300 font-medium">Subscriptions compiled</span>
-                  </div>
-                  
-                  <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
-                    <div class="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-500">
-                      <span class="material-symbols-outlined text-[14px]">check</span>
-                    </div>
-                    <span class="text-xs font-sans text-slate-700 dark:text-slate-300 font-medium">Balance projections refreshed</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Data Tab Content -->
-          <div id="tab-data" class="tab-content hidden relative z-10 animate-fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div class="space-y-6">
-                <h4 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Low-latency CSV exporting.</h4>
-                <p class="text-sm text-slate-500 dark:text-dark-mute leading-relaxed font-normal">
-                  Export complete data ranges in structured CSV formats instantly. Perfect for processing in Excel, Google Sheets, or python analytics engines.
-                </p>
-                <div class="pt-4 border-t border-slate-100 dark:border-white/5">
-                  <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest block mb-2 font-bold">INTEGRITY CHECK</span>
-                  <p class="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">Preserves all descriptions, payment methods, and timestamps without loss.</p>
-                </div>
-              </div>
-              
-              <!-- CSV code block -->
-              <div class="relative">
-                <div class="relative border border-slate-200 dark:border-slate-800 rounded-2xl bg-[#0d1117] shadow-lg overflow-hidden">
-                  <div class="bg-[#161b22] border-b border-slate-800 px-4 py-3 flex justify-between items-center">
-                    <span class="text-[10px] font-mono text-slate-400">export.csv</span>
-                    <span class="material-symbols-outlined text-[14px] text-slate-500">download</span>
-                  </div>
-                  <div class="p-6 font-mono text-xs leading-loose select-all overflow-x-auto whitespace-nowrap">
-                    <p class="text-slate-500 mb-2">// EXPORT FORMAT</p>
-                    <p class="text-rose-400 font-bold mb-1">id,date,category,method,amount,memo</p>
-                    <p class="text-slate-300"><span class="text-blue-400">1</span>,2026-06-01,<span class="text-emerald-400">Food</span>,Cash,150.00,Lunch</p>
-                    <p class="text-slate-300"><span class="text-blue-400">2</span>,2026-06-03,<span class="text-emerald-400">Transport</span>,Card,250.00,Cab</p>
-                    <p class="text-slate-300"><span class="text-blue-400">3</span>,2026-06-05,<span class="text-emerald-400">Bills</span>,Bank,1200.00,Internet</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- 7. Dark Obsidian CTA Band -->
-  <section class="relative bg-slate-950 text-white py-28 px-6 md:px-12 text-center overflow-hidden border-t border-slate-800">
-    <div class="max-w-4xl mx-auto space-y-8 relative z-10 animate-fade-in">
-      <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight max-w-2xl mx-auto leading-tight">
-        Build your capital foundation on quiet precision.
-      </h2>
-      <p class="text-sm opacity-80 max-w-xl mx-auto leading-relaxed font-light">
-        Start logging your expenses under an editorial UI. Join operators tracking budgets with Spendly.
+      <p class="body-text text-slate-500 dark:text-dark-mute max-w-[500px] text-base leading-relaxed">
+        Meet Spendly — the minimalist, privacy-first personal expense tracker designed to sync with your financial ledger. Scan receipts, forecast monthly burn, track subscriptions, and visualize cash flow automatically.
       </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center w-full sm:w-auto pt-4">
-        {% if session.user_id %}
-        <a href="{{ url_for('dashboard') }}" class="btn-primary bg-white text-slate-900 hover:bg-slate-100 px-8 py-3 rounded-lg text-sm font-semibold border border-slate-200">Open Ledger Console</a>
-        {% else %}
-        <a href="{{ url_for('register') }}" class="btn-primary bg-white text-slate-900 hover:bg-slate-100 px-8 py-3 rounded-lg text-sm font-semibold border border-slate-200">Get started free</a>
-        <a href="{{ url_for('login') }}" class="btn-secondary bg-transparent text-white border-white/20 hover:border-white/50 hover:bg-white/5 px-8 py-3 rounded-lg text-sm font-semibold">Sign in</a>
-        {% endif %}
+
+      <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+        <a href="{{ url_for('register') }}" class="btn-primary w-full sm:w-auto py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group">
+          Get Started (Free)
+          <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+        </a>
+        <a href="#live-demo" class="btn-secondary w-full sm:w-auto py-3.5 text-sm font-bold flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">terminal</span>
+          Explore Live Simulator
+        </a>
+      </div>
+
+      <!-- Micro Features Bar -->
+      <div class="pt-6 border-t border-slate-200/50 dark:border-dark-border/40 w-full grid grid-cols-3 gap-4 text-slate-400 dark:text-dark-mute">
+        <div>
+          <p class="text-xs font-mono font-bold text-slate-900 dark:text-white">100% Secure</p>
+          <p class="text-[10px] mt-1">Encryption First</p>
+        </div>
+        <div>
+          <p class="text-xs font-mono font-bold text-slate-900 dark:text-white">OCR Parsing</p>
+          <p class="text-[10px] mt-1">AI Digitize</p>
+        </div>
+        <div>
+          <p class="text-xs font-mono font-bold text-slate-900 dark:text-white">Open Source</p>
+          <p class="text-[10px] mt-1">Self-Hostable</p>
+        </div>
       </div>
     </div>
-  </section>
 
-</main>
+    <!-- Right Column: Hero Dashboard Image -->
+    <div class="lg:col-span-6 animate-fade-in-up delay-200">
+      <div class="relative w-full">
+        <!-- Glowing ambient shadow -->
+        <div class="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-primary/20 to-violet-500/15 blur-2xl opacity-60"></div>
+        <!-- Dashboard image -->
+        <div class="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
+          <img src="{{ url_for('static', filename='images/spendly_hero_dashboard.png') }}"
+               alt="Spendly expense tracking dashboard"
+               class="w-full h-auto object-cover object-top">
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Bento Grid Features Section -->
+<section class="py-24 bg-surface-soft dark:bg-dark-elevated transition-colors border-t border-slate-200/50 dark:border-dark-border/40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-primary dark:text-primary-light text-[9px] font-mono font-bold uppercase tracking-widest">
+        Full Stack Engine
+      </div>
+      <h2 class="heading-display-sm text-slate-900 dark:text-white font-extrabold tracking-tight">
+        Engineered for visual clarity and ultimate privacy.
+      </h2>
+      <p class="body-text text-slate-500 dark:text-dark-mute">
+        Spendly combines cutting-edge OCR ingestion with a lightweight transactional database to give you an uncompromised tracking system.
+      </p>
+    </div>
+
+    <!-- Bento Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      
+      <!-- Feature 1: OCR Ingestion -->
+      <div class="card-apple p-8 flex flex-col justify-between hover-lift md:col-span-2">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary dark:text-primary-light flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-[24px]">center_focus_strong</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">OCR Ingestion Receipt Digitation</h3>
+          <p class="body-text text-slate-500 dark:text-dark-mute max-w-xl">
+            Stop manually recording entries. Snap or upload a photo of any bill or receipt, and let Spendly's local OCR scanner automatically extract the merchant name, transactional items, tax configurations, and total billing amounts in real time.
+          </p>
+        </div>
+        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40 flex items-center gap-3">
+          <span class="tag-badge tag-health">AI-assisted</span>
+          <span class="tag-badge tag-other">Zero API leaks</span>
+        </div>
+      </div>
+
+      <!-- Feature 2: Dark/Light Mode -->
+      <div class="card-apple p-8 flex flex-col justify-between hover-lift">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-signature-peach/10 text-signature-peach flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-[24px]">brightness_4</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Obsidian Dark Mode</h3>
+          <p class="body-text text-slate-500 dark:text-dark-mute">
+            A beautiful, low-contrast dark mode designed to ease your eyes. Seamless transitions match your system preferences or active console triggers.
+          </p>
+        </div>
+        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40">
+          <span class="tag-badge tag-transport">Fluid theme sync</span>
+        </div>
+      </div>
+
+      <!-- Feature 3: Smart Forecasting -->
+      <div class="card-apple p-8 flex flex-col justify-between hover-lift">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-accent-blue/10 text-accent-blue flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-[24px]">batch_prediction</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Burn Forecasts</h3>
+          <p class="body-text text-slate-500 dark:text-dark-mute">
+            Project your total monthly burn based on real-time averages. Get early notifications when forecast trajectories exceed active budgets.
+          </p>
+        </div>
+        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40">
+          <span class="tag-badge tag-food">Daily projections</span>
+        </div>
+      </div>
+
+      <!-- Feature 4: Subscriptions & Recurring Manager -->
+      <div class="card-apple p-8 flex flex-col justify-between hover-lift md:col-span-2">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-accent-green/10 text-accent-green flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-[24px]">autorenew</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Subscription & Recurring Manager</h3>
+          <p class="body-text text-slate-500 dark:text-dark-mute max-w-xl">
+            Keep track of monthly, quarterly, and annual SaaS recurring bills. Spendly automatically projects renewals into your active ledger timeline and reminds you when recurring payment channels are about to execute.
+          </p>
+        </div>
+        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40 flex items-center gap-3">
+          <span class="tag-badge tag-bills">Auto renewals</span>
+          <span class="tag-badge tag-shopping">Sub analytics</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- Interactive Live Demo Section -->
+<section id="live-demo" class="py-24 bg-canvas dark:bg-dark-bg transition-colors relative overflow-hidden">
+  <div class="glow-blob top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 dark:bg-primary/10"></div>
+  
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    
+    <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-blue/10 text-accent-blue text-[9px] font-mono font-bold uppercase tracking-widest">
+        Simulator Console
+      </div>
+      <h2 class="heading-display-sm text-slate-900 dark:text-white font-extrabold tracking-tight">
+        Simulate a transaction stream in real time.
+      </h2>
+      <p class="body-text text-slate-500 dark:text-dark-mute">
+        Select category filters to see how the ledger terminal organizes and tracks your transactional burn rate dynamically.
+      </p>
+    </div>
+
+    <!-- Live Terminal Simulator widget -->
+    <div class="max-w-2xl mx-auto card-apple p-6 sm:p-8 bg-white/90 dark:bg-dark-card/95 border-slate-200/50 dark:border-white/5 shadow-2xl relative">
+      
+      <!-- Terminal Header -->
+      <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-100 dark:border-dark-border/40">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-red-400 rounded-full"></span>
+          <span class="w-2.5 h-2.5 bg-yellow-400 rounded-full"></span>
+          <span class="w-2.5 h-2.5 bg-green-400 rounded-full"></span>
+        </div>
+        <span class="text-[9px] font-mono text-slate-400 uppercase tracking-widest font-bold">LIVE INTERACTIVE MOCK</span>
+      </div>
+
+      <!-- Active stats display -->
+      <div class="mb-8">
+        <div class="flex justify-between items-end mb-2">
+          <div>
+            <p class="text-[9px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Current Burn</p>
+            <p class="text-4xl font-mono font-bold text-slate-900 dark:text-white mt-1" id="demo-burn-total">₹4,250.00</p>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Active Limit Progress</span>
+            <p class="text-sm font-mono font-bold text-slate-900 dark:text-white mt-1" id="demo-burn-percent">42% of ₹10,000</p>
+          </div>
+        </div>
+        <div class="h-2 w-full bg-slate-100 dark:bg-dark-border rounded-full overflow-hidden">
+          <div class="h-full bg-primary rounded-full transition-all duration-500" id="demo-progress-bar" style="width: 42.5%"></div>
+        </div>
+      </div>
+
+      <!-- Filter chips inside Demo -->
+      <div class="flex flex-wrap gap-2 mb-6" id="demo-category-chips">
+        <button onclick="updateDemoLedger('All', this)" class="px-4 py-1.5 rounded-pill text-[9px] font-bold uppercase tracking-widest border border-primary bg-primary text-white shadow-lg shadow-primary/10 transition-all">All</button>
+        <button onclick="updateDemoLedger('Food', this)" class="px-4 py-1.5 rounded-pill text-[9px] font-bold uppercase tracking-widest border border-slate-200 dark:border-white/10 text-slate-500 dark:text-dark-mute hover:border-primary/50 transition-all">Food</button>
+        <button onclick="updateDemoLedger('Bills', this)" class="px-4 py-1.5 rounded-pill text-[9px] font-bold uppercase tracking-widest border border-slate-200 dark:border-white/10 text-slate-500 dark:text-dark-mute hover:border-primary/50 transition-all">Bills</button>
+        <button onclick="updateDemoLedger('Transport', this)" class="px-4 py-1.5 rounded-pill text-[9px] font-bold uppercase tracking-widest border border-slate-200 dark:border-white/10 text-slate-500 dark:text-dark-mute hover:border-primary/50 transition-all">Transport</button>
+      </div>
+
+      <!-- Simulated List of Items -->
+      <div class="space-y-3 min-h-[195px]" id="demo-transactions-list">
+        <!-- JS will populate or filter these -->
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-24 bg-surface-strong dark:bg-dark-elevated transition-colors border-t border-slate-200/50 dark:border-dark-border/40 relative overflow-hidden">
+  <!-- Glowing Ambient Blob -->
+  <div class="glow-blob bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[250px] bg-primary/10 rounded-t-full"></div>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
+    <h2 class="heading-display text-slate-900 dark:text-white font-extrabold tracking-tight">
+      Take Control of Your Cash Flow today.
+    </h2>
+    <p class="body-text text-slate-500 dark:text-dark-mute max-w-xl mx-auto text-base leading-relaxed">
+      Spendly gives you the diagnostic visual telemetry you need to stay on budget. Fully customizable, responsive, and completely secure.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+      <a href="{{ url_for('register') }}" class="btn-primary w-full sm:w-auto py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center gap-2 group">
+        <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">rocket_launch</span>
+        Get Started Free
+      </a>
+      <a href="{{ url_for('login') }}" class="btn-secondary w-full sm:w-auto py-3.5 text-sm font-bold">
+        Sign In
+      </a>
+    </div>
+
+    <!-- Receipt scanner image below CTA -->
+    <div class="mt-14 max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
+      <img src="{{ url_for('static', filename='images/spendly_receipt_scanner.png') }}"
+           alt="Spendly AI receipt scanner feature"
+           class="w-full h-auto object-cover">
+    </div>
+  </div>
+</section>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  function switchTab(tabId) {
-    // Hide all tab content panes
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-    
-    // Show active tab content pane
-    document.getElementById(tabId).classList.remove('hidden');
-    
-    // Reset all tab button styles to inactive
-    document.querySelectorAll('.tab-button').forEach(btn => {
-      btn.className = "tab-button w-full text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-dark-mute hover:bg-white dark:hover:bg-dark-card/60 transition-all duration-300 text-sm font-medium flex items-center gap-5 group hover:shadow-sm";
-    });
-    
-    // Set active style for selected tab button
-    const activeBtn = document.getElementById('btn-' + tabId);
-    if (activeBtn) {
-      activeBtn.className = "tab-button w-full text-left p-5 rounded-2xl border transition-all duration-300 text-sm font-medium flex items-center gap-5 bg-white dark:bg-dark-card border-primary dark:border-primary-light text-slate-900 dark:text-white shadow-sm group relative overflow-hidden";
+  // Mock ledger data for interactive simulator
+  const demoTransactions = [
+    { merchant: "Dinner at Kiara", category: "Food", amount: 1240.00, icon: "restaurant", color: "orange" },
+    { merchant: "AWS Cloud Ingestion", category: "Bills", amount: 2450.00, icon: "receipt_long", color: "indigo" },
+    { merchant: "Uber Commute Taxi", category: "Transport", amount: 560.00, icon: "directions_car", color: "blue" },
+    { merchant: "Netflix subscription", category: "Bills", amount: 649.00, icon: "receipt_long", color: "indigo" },
+    { merchant: "Blue Tokai Coffee", category: "Food", amount: 180.00, icon: "restaurant", color: "orange" },
+    { merchant: "Gas Station Refill", category: "Transport", amount: 1200.00, icon: "directions_car", color: "blue" }
+  ];
+
+  const categoryColorMap = {
+    orange: 'bg-orange-500/10 text-orange-500',
+    indigo: 'bg-indigo-500/10 text-indigo-500',
+    blue: 'bg-blue-500/10 text-blue-500'
+  };
+
+  function updateDemoLedger(category, activeBtn) {
+    // 1. Update chip styling
+    const chipsContainer = document.getElementById('demo-category-chips');
+    const buttons = chipsContainer.getElementsByTagName('button');
+    for (let btn of buttons) {
+      btn.className = "px-4 py-1.5 rounded-pill text-[9px] font-bold uppercase tracking-widest border border-slate-200 dark:border-white/10 text-slate-500 dark:text-dark-mute hover:border-primary/50 transition-all";
     }
+    activeBtn.className = "px-4 py-1.5 rounded-pill text-[9px] font-bold uppercase tracking-widest border border-primary bg-primary text-white shadow-lg shadow-primary/10 transition-all";
+
+    // 2. Filter transaction data and compute burn sum
+    const filteredList = category === 'All' 
+      ? demoTransactions 
+      : demoTransactions.filter(t => t.category === category);
+
+    const burnTotal = filteredList.reduce((sum, item) => sum + item.amount, 0);
+    const burnPercent = Math.min(Math.round((burnTotal / 10000) * 100), 100);
+
+    // 3. Update DOM with smooth transitions
+    const listContainer = document.getElementById('demo-transactions-list');
+    
+    // Fade out
+    listContainer.style.opacity = '0';
+    listContainer.style.transform = 'translateY(10px)';
+    listContainer.style.transition = 'all 0.25s ease';
+
+    setTimeout(() => {
+      // Clear current contents
+      listContainer.innerHTML = '';
+
+      // Add filtered list
+      filteredList.forEach(t => {
+        const itemHtml = `
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/40 dark:bg-white/[0.01] border border-slate-100/50 dark:border-white/[0.02] hover:scale-[1.01] transition-transform">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg ${categoryColorMap[t.color]} flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]">${t.icon}</span>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-800 dark:text-white">${t.merchant}</p>
+                <p class="text-[9px] font-mono text-slate-400 uppercase">${t.category}</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono font-bold text-slate-900 dark:text-white">-₹${t.amount.toFixed(2)}</span>
+          </div>
+        `;
+        listContainer.insertAdjacentHTML('beforeend', itemHtml);
+      });
+
+      // Update counters
+      document.getElementById('demo-burn-total').innerText = `₹${burnTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('demo-burn-percent').innerText = `${burnPercent}% of ₹10,000`;
+      
+      const progressBar = document.getElementById('demo-progress-bar');
+      progressBar.style.width = `${burnPercent}%`;
+      
+      // Update color based on burn percentage
+      if (burnPercent > 70) {
+        progressBar.className = "h-full bg-accent-red rounded-full transition-all duration-500";
+      } else if (burnPercent > 45) {
+        progressBar.className = "h-full bg-accent-yellow rounded-full transition-all duration-500";
+      } else {
+        progressBar.className = "h-full bg-primary rounded-full transition-all duration-500";
+      }
+
+      // Fade back in
+      listContainer.style.opacity = '1';
+      listContainer.style.transform = 'translateY(0)';
+    }, 250);
   }
+
+  // Auto-initialize simulator on load
+  document.addEventListener('DOMContentLoaded', () => {
+    const defaultChip = document.getElementById('demo-category-chips').getElementsByTagName('button')[0];
+    updateDemoLedger('All', defaultChip);
+  });
 </script>
 {% endblock %}

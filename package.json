@@ -4,7 +4,8 @@
   "description": "Spendly Personal Expense Tracker",
   "scripts": {
     "build:css": "tailwindcss -i ./expense-tracker/static/css/tailwind-input.css -o ./expense-tracker/static/css/tailwind.css --minify",
-    "watch:css": "tailwindcss -i ./expense-tracker/static/css/tailwind-input.css -o ./expense-tracker/static/css/tailwind.css --watch"
+    "watch:css": "tailwindcss -i ./expense-tracker/static/css/tailwind-input.css -o ./expense-tracker/static/css/tailwind.css --watch",
+    "dev": "python expense-tracker/app.py"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.1",
