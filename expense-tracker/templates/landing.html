@@ -63,7 +63,7 @@
         <div class="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
           <img src="{{ url_for('static', filename='images/spendly_hero_dashboard.png') }}"
                alt="Spendly expense tracking dashboard"
-               class="w-full h-auto object-cover object-top">
+               class="w-full h-auto object-contain">
         </div>
       </div>
     </div>
@@ -72,7 +72,7 @@
 </section>
 
 <!-- Bento Grid Features Section -->
-<section class="py-24 bg-surface-soft dark:bg-dark-elevated transition-colors border-t border-slate-200/50 dark:border-dark-border/40">
+<section class="py-24 bg-surface-soft dark:bg-dark-elevated transition-colors border-t border-slate-200/50 dark:border-dark-border/40 reveal">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     
     <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
@@ -162,7 +162,7 @@
 </section>
 
 <!-- Interactive Live Demo Section -->
-<section id="live-demo" class="py-24 bg-canvas dark:bg-dark-bg transition-colors relative overflow-hidden">
+<section id="live-demo" class="py-24 bg-canvas dark:bg-dark-bg transition-colors relative overflow-hidden reveal">
   <div class="glow-blob top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 dark:bg-primary/10"></div>
   
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -227,6 +227,116 @@
   </div>
 </section>
 
+<!-- Testimonials Section -->
+<section class="py-24 bg-surface-soft dark:bg-dark-elevated transition-colors border-t border-slate-200/50 dark:border-dark-border/40 reveal">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-signature-peach/10 text-signature-peach text-[9px] font-mono font-bold uppercase tracking-widest">
+        Community Feedback
+      </div>
+      <h2 class="heading-display-sm text-slate-900 dark:text-white font-extrabold tracking-tight">
+        Loved by thousands of conscious spenders.
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="card-apple p-6 flex flex-col gap-4">
+        <div class="flex gap-1 text-amber-400">
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-dark-mute flex-1">"The receipt scanner is incredibly fast. I used to spend hours manually entering my expenses at the end of the month, now it takes seconds."</p>
+        <div class="flex items-center gap-3 mt-4">
+          <div class="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">AJ</div>
+          <div>
+            <p class="text-xs font-bold text-slate-900 dark:text-white">Alex Johnson</p>
+            <p class="text-[10px] text-slate-400">Freelancer</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-apple p-6 flex flex-col gap-4">
+        <div class="flex gap-1 text-amber-400">
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-dark-mute flex-1">"Spendly's burn rate forecast actually stopped me from buying things I didn't need. The interactive charts make managing cashflow so much easier."</p>
+        <div class="flex items-center gap-3 mt-4">
+          <div class="w-10 h-10 rounded-full bg-signature-peach/20 text-signature-peach flex items-center justify-center font-bold">MP</div>
+          <div>
+            <p class="text-xs font-bold text-slate-900 dark:text-white">Maria Patel</p>
+            <p class="text-[10px] text-slate-400">Small Business Owner</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-apple p-6 flex flex-col gap-4">
+        <div class="flex gap-1 text-amber-400">
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+          <span class="material-symbols-outlined text-[16px]">star</span>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-dark-mute flex-1">"Finally, a privacy-first tracker that isn't trying to sell my data to credit card companies. The minimalist dark mode is absolutely beautiful."</p>
+        <div class="flex items-center gap-3 mt-4">
+          <div class="w-10 h-10 rounded-full bg-accent-blue/20 text-accent-blue flex items-center justify-center font-bold">SL</div>
+          <div>
+            <p class="text-xs font-bold text-slate-900 dark:text-white">Sam Lee</p>
+            <p class="text-[10px] text-slate-400">Software Engineer</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="py-24 bg-canvas dark:bg-dark-bg transition-colors border-t border-slate-200/50 dark:border-dark-border/40 reveal">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-green/10 text-accent-green text-[9px] font-mono font-bold uppercase tracking-widest">
+        Transparent Pricing
+      </div>
+      <h2 class="heading-display-sm text-slate-900 dark:text-white font-extrabold tracking-tight">
+        Start free, upgrade when you need to.
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Free Tier -->
+      <div class="card-apple p-8 flex flex-col hover-lift">
+        <p class="text-xs font-mono font-bold text-slate-500 uppercase tracking-widest mb-2">Hobbyist</p>
+        <p class="text-4xl font-extrabold text-slate-900 dark:text-white mb-6">₹0 <span class="text-sm font-normal text-slate-400">/ forever</span></p>
+        <ul class="space-y-4 mb-8 flex-1">
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-emerald-500">check_circle</span> Up to 50 manual entries/mo</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-emerald-500">check_circle</span> 5 Receipt OCR scans/mo</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-emerald-500">check_circle</span> Basic dashboard charts</li>
+        </ul>
+        <a href="{{ url_for('register') }}" class="btn-secondary text-center py-3 text-sm font-bold w-full">Start Free</a>
+      </div>
+
+      <!-- Pro Tier -->
+      <div class="card-apple p-8 flex flex-col relative overflow-hidden border-primary/30 dark:border-primary/50 shadow-lg shadow-primary/10">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary-light"></div>
+        <p class="text-xs font-mono font-bold text-primary uppercase tracking-widest mb-2 flex justify-between items-center">Pro <span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px]">Popular</span></p>
+        <p class="text-4xl font-extrabold text-slate-900 dark:text-white mb-6">₹199 <span class="text-sm font-normal text-slate-400">/ month</span></p>
+        <ul class="space-y-4 mb-8 flex-1">
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-primary">check_circle</span> Unlimited manual entries</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-primary">check_circle</span> Unlimited Receipt OCR scans</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-primary">check_circle</span> Custom budget alerts & forecasting</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-primary">check_circle</span> CSV Data Export</li>
+        </ul>
+        <a href="{{ url_for('register') }}" class="btn-primary text-center py-3 text-sm font-bold w-full shadow-lg shadow-primary/20">Upgrade to Pro</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Call to Action Banner -->
 <section class="py-24 bg-surface-strong dark:bg-dark-elevated transition-colors border-t border-slate-200/50 dark:border-dark-border/40 relative overflow-hidden">
   <!-- Glowing Ambient Blob -->
@@ -253,7 +363,7 @@
     <div class="mt-14 max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
       <img src="{{ url_for('static', filename='images/spendly_receipt_scanner.png') }}"
            alt="Spendly AI receipt scanner feature"
-           class="w-full h-auto object-cover">
+           class="w-full h-auto object-contain">
     </div>
   </div>
 </section>
@@ -351,6 +461,24 @@
   document.addEventListener('DOMContentLoaded', () => {
     const defaultChip = document.getElementById('demo-category-chips').getElementsByTagName('button')[0];
     updateDemoLedger('All', defaultChip);
+
+    // Scroll reveal logic
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px"
+    });
+
+    reveals.forEach(reveal => {
+      observer.observe(reveal);
+    });
   });
 </script>
 {% endblock %}

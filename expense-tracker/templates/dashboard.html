@@ -259,11 +259,6 @@
 </div>
 
 <script>
-  const chartColors = ['#4f46e5', '#6366f1', '#f97316', '#10b981', '#ef4444', '#3b82f6', '#f59e0b'];
-  const isDark = document.documentElement.classList.contains('dark');
-  const textColor = isDark ? '#9ca3af' : '#64748b';
-  const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
-
   function filterByChip(catName) {
     document.getElementById('hidden-category').value = catName;
     document.getElementById('filter-form').submit();
@@ -277,73 +272,92 @@
     methodsValues: {{ methods_values | tojson }}
   };
 
-  // 1. Monthly Trend Chart (Line)
   const ctxTrend = document.getElementById('trendChart').getContext('2d');
-  new Chart(ctxTrend, {
-    type: 'line',
-    data: {
-      labels: chartData.trendLabels,
-      datasets: [{
-        label: 'Spending',
-        data: chartData.trendValues,
-        borderColor: '#4f46e5',
-        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-        borderWidth: 2,
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: '#fff',
-        pointBorderColor: '#4f46e5',
-        pointRadius: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1e293b',
-          padding: 10,
-          callbacks: { label: ctx => ` Rs. ${ctx.raw}` }
-        }
-      },
-      scales: {
-        y: { display: false, min: 0 },
-        x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, family: 'Inter' } } }
-      }
-    }
-  });
-
-  // 2. Payment Methods Chart (Bar)
   const ctxMethod = document.getElementById('methodChart').getContext('2d');
-  new Chart(ctxMethod, {
-    type: 'bar',
-    data: {
-      labels: chartData.methodsLabels,
-      datasets: [{
-        label: 'Amount',
-        data: chartData.methodsValues,
-        backgroundColor: ['#6366f1', '#f97316', '#10b981', '#f59e0b'],
-        borderRadius: 4
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1e293b',
-          padding: 10,
-          callbacks: { label: ctx => ` Rs. ${ctx.raw}` }
-        }
+  let trendChart, methodChart;
+
+  function renderDashboardCharts() {
+    const colors = window.getChartThemeColors();
+
+    if (trendChart) trendChart.destroy();
+    if (methodChart) methodChart.destroy();
+
+    // 1. Monthly Trend Chart (Line)
+    trendChart = new Chart(ctxTrend, {
+      type: 'line',
+      data: {
+        labels: chartData.trendLabels,
+        datasets: [{
+          label: 'Spending',
+          data: chartData.trendValues,
+          borderColor: colors.primaryColor,
+          backgroundColor: 'rgba(79, 70, 229, 0.1)',
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: colors.cardColor,
+          pointBorderColor: colors.primaryColor,
+          pointRadius: 4
+        }]
       },
-      scales: {
-        x: { display: false, min: 0, beginAtZero: true },
-        y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10, family: 'Inter', weight: 'bold' } } }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: colors.tooltipBg,
+            titleColor: colors.tooltipText,
+            bodyColor: colors.tooltipText,
+            padding: 10,
+            callbacks: { label: ctx => ` Rs. ${ctx.raw}` }
+          }
+        },
+        scales: {
+          y: { display: false, min: 0 },
+          x: { grid: { display: false }, ticks: { color: colors.tickColor, font: { size: 10, family: 'Inter' } } }
+        }
       }
-    }
-  });
+    });
+
+    // 2. Payment Methods Chart (Bar)
+    methodChart = new Chart(ctxMethod, {
+      type: 'bar',
+      data: {
+        labels: chartData.methodsLabels,
+        datasets: [{
+          label: 'Amount',
+          data: chartData.methodsValues,
+          backgroundColor: colors.palette,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: colors.tooltipBg,
+            titleColor: colors.tooltipText,
+            bodyColor: colors.tooltipText,
+            padding: 10,
+            callbacks: { label: ctx => ` Rs. ${ctx.raw}` }
+          }
+        },
+        scales: {
+          x: { display: false, min: 0, beginAtZero: true },
+          y: { grid: { display: false }, ticks: { color: colors.tickColor, font: { size: 10, family: 'Inter', weight: 'bold' } } }
+        }
+      }
+    });
+  }
+
+  // Initial draw
+  renderDashboardCharts();
+
+  // Redraw when theme changes
+  window.addEventListener('theme-changed', renderDashboardCharts);
 </script>
 {% endblock %}

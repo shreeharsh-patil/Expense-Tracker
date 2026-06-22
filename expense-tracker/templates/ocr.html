@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}OCR Scanning | Spendly{% endblock %}
+{% block content %}
+<section class="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 sm:px-6 py-24 relative overflow-hidden">
+  <div class="glow-blob top-1/4 -left-20 w-72 h-72 bg-primary/10"></div>
+  <div class="max-w-2xl w-full relative z-10 text-center animate-fade-in-up">
+    <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-primary to-primary-light text-white flex items-center justify-center mb-8 shadow-lg shadow-primary/20 rotate-3">
+      <span class="material-symbols-outlined text-[40px]">document_scanner</span>
+    </div>
+    <h1 class="heading-display-sm text-slate-900 dark:text-white mb-6">AI Receipt Scanning</h1>
+    <p class="body-text text-slate-500 dark:text-dark-mute mb-10 text-lg leading-relaxed">Say goodbye to manual data entry. Spendly uses advanced Optical Character Recognition (OCR) to automatically extract the amount, merchant name, and date from your receipt photos in seconds.</p>
+    <a href="{{ url_for('register') }}" class="btn-primary inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-sm font-bold shadow-xl shadow-primary/20 group">
+      Try it now 
+      <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+    </a>
+  </div>
+</section>
+{% endblock %}

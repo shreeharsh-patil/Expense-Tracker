@@ -1,4 +1,4 @@
-﻿# reload-stamp: 20260622-171402
+# reload-stamp: 20260622-171402
 import os
 import csv
 import io
@@ -280,6 +280,34 @@ def terms():
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
+
+@app.route("/features")
+def features():
+    return render_template("features.html")
+
+@app.route("/pricing")
+def pricing():
+    return render_template("pricing.html")
+
+@app.route("/ocr")
+def ocr_scanning():
+    return render_template("ocr.html")
+
+@app.route("/export")
+def export_info():
+    return render_template("export_info.html")
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+@app.route("/blog")
+def blog():
+    return render_template("blog.html")
+
+@app.route("/careers")
+def careers():
+    return render_template("careers.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
