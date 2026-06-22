@@ -1,10 +1,10 @@
-# reload-stamp: 20260622-171402
 import os
 import csv
 import io
 import json
 import secrets
 import logging
+import re
 from datetime import datetime, date, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_from_directory, make_response, jsonify
 from werkzeug.utils import secure_filename
@@ -22,24 +22,36 @@ app = Flask(__name__)
 csrf = CSRFProtect(app)
 app.jinja_env.globals.update(zip=zip)
 
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    if not app.debug:
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline'; "
+            "style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net 'unsafe-inline'; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "img-src 'self' https://ui-avatars.com data: blob:; "
+            "connect-src 'self'; "
+            "frame-ancestors 'none'"
+        )
+    return response
+
 @app.context_processor
 def inject_csrf_and_now():
     return {
         'now_year': datetime.now().year,
         'csrf_token': generate_csrf
     }
-# Use a fixed secret key so sessions survive across Vercel serverless instances.
-# Falls back to a random key if SECRET_KEY env var is not set.
+
 app.secret_key = os.environ.get('SECRET_KEY')
 if not app.secret_key:
-    # Use a persistent but unique-to-this-install key if possible, 
-    # or a random one (which means sessions will reset on each serverless boot if env is missing)
     app.secret_key = 'spendly-local-dev-secret-key-change-in-prod'
     if not os.environ.get('VERCEL'):
         logger.warning("SECRET_KEY not set. Using insecure default key for local development.")
     else:
-        # On Vercel, if SECRET_KEY is missing, we must use a random one for safety, 
-        # though it will break sessions between requests if it scales up.
         app.secret_key = secrets.token_hex(32)
 
 import traceback
@@ -312,11 +324,23 @@ def careers():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        name = request.form.get("name")
-        email = request.form.get("email")
-        password = request.form.get("password")
+        name = (request.form.get("name") or "").strip()
+        email = (request.form.get("email") or "").strip().lower()
+        password = request.form.get("password") or ""
+
+        if not name or len(name) < 2:
+            flash("Name must be at least 2 characters.", "danger")
+            return render_template("register.html")
+
+        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+            flash("Invalid email address.", "danger")
+            return render_template("register.html")
+
+        if len(password) < 6:
+            flash("Password must be at least 6 characters.", "danger")
+            return render_template("register.html")
+
         db = get_db()
-        
         try:
             db.execute(
                 "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
@@ -327,7 +351,7 @@ def register():
             return redirect(url_for("login"))
         except db.IntegrityError:
             flash("Email already exists.", "danger")
-            
+
     return render_template("register.html")
 
 if os.environ.get('VERCEL'):
@@ -351,10 +375,13 @@ except Exception as e:
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
+        email = (request.form.get("email") or "").strip().lower()
+        password = request.form.get("password") or ""
         
-        # Rate limiting
+        if not email or not password:
+            flash("Email and password are required.", "danger")
+            return render_template("login.html")
+        
         ip = request.remote_addr or 'unknown'
         if _is_rate_limited(ip):
             flash("Too many login attempts. Please try again in 15 minutes.", "danger")
@@ -513,12 +540,12 @@ def dashboard():
     chart_labels = [c['category'] for c in categories_data]
     chart_values = [c['total'] for c in categories_data]
 
-    # 5. Monthly trends â€” last 6 months for bar chart
+    # 5. Monthly trends — last 6 months for bar chart
     monthly_trends = db.execute(
         """
         SELECT TO_CHAR(date::date, 'YYYY-MM') as month, SUM(amount) as total
         FROM expenses WHERE user_id = ?
-        GROUP BY month ORDER BY month DESC LIMIT 6
+        GROUP BY 1 ORDER BY 1 DESC LIMIT 6
         """,
         (user_id,)
     ).fetchall()
@@ -687,7 +714,7 @@ def edit_expense(id):
         
     return render_template("edit_expense.html", expense=expense)
 
-@app.route("/expenses/<int:id>/delete")
+@app.route("/expenses/<int:id>/delete", methods=["POST"])
 def delete_expense(id):
     if 'user_id' not in session:
         return redirect(url_for("login"))
@@ -740,7 +767,7 @@ def add_recurring():
     flash("Recurring expense scheduled!", "success")
     return redirect(url_for("recurring_list"))
 
-@app.route("/recurring/<int:id>/delete")
+@app.route("/recurring/<int:id>/delete", methods=["POST"])
 def delete_recurring(id):
     if 'user_id' not in session:
         return redirect(url_for("login"))
@@ -786,15 +813,20 @@ def profile():
     db = get_db()
     
     if request.method == "POST":
-        new_name = request.form.get("name")
-        new_email = request.form.get("email")
-        new_phone = request.form.get("phone")
+        new_name = (request.form.get("name") or "").strip()
+        new_email = (request.form.get("email") or "").strip().lower()
+        new_phone = (request.form.get("phone") or "").strip()
         
-        # Start with current avatar URL
+        if not new_name or len(new_name) < 2:
+            flash("Name must be at least 2 characters.", "danger")
+            return redirect(url_for("profile"))
+        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', new_email):
+            flash("Invalid email address.", "danger")
+            return redirect(url_for("profile"))
+        
         current_data = db.execute("SELECT avatar_url FROM users WHERE id = ?", (session['user_id'],)).fetchone()
         new_avatar_url = current_data['avatar_url'] if current_data else None
         
-        # Overwrite only if a file is actually uploaded
         if 'profile_photo' in request.files:
             file = request.files['profile_photo']
             if file and file.filename != '' and allowed_file(file.filename):
@@ -803,21 +835,16 @@ def profile():
                 file.save(file_path)
                 new_avatar_url = url_for('static', filename=f'uploads/profile_pics/{filename}')
 
-        if new_name and new_email:
-            try:
-                db.execute(
-                    "UPDATE users SET name = ?, email = ?, phone = ?, avatar_url = ? WHERE id = ?",
-                    (new_name, new_email, new_phone, new_avatar_url, session['user_id'])
-                )
-                db.commit()
-                
-                # Update session data
-                session['user_name'] = new_name
-                flash("Profile updated successfully!", "success")
-            except db.IntegrityError:
-                flash("Email address already in use.", "danger")
-        else:
-            flash("Name and email are required.", "warning")
+        try:
+            db.execute(
+                "UPDATE users SET name = ?, email = ?, phone = ?, avatar_url = ? WHERE id = ?",
+                (new_name, new_email, new_phone, new_avatar_url, session['user_id'])
+            )
+            db.commit()
+            session['user_name'] = new_name
+            flash("Profile updated successfully!", "success")
+        except db.IntegrityError:
+            flash("Email address already in use.", "danger")
         
         return redirect(url_for("profile"))
 
@@ -878,7 +905,7 @@ def reports():
     monthly = db.execute("""
         SELECT TO_CHAR(date::date, 'MM') as month, SUM(amount) as total
         FROM expenses WHERE user_id = ? AND TO_CHAR(date::date, 'YYYY') = ?
-        GROUP BY month ORDER BY month
+        GROUP BY 1 ORDER BY 1
     """, (session['user_id'], year)).fetchall()
     
     month_names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -891,7 +918,7 @@ def reports():
     categories = db.execute("""
         SELECT category, SUM(amount) as total, COUNT(*) as count
         FROM expenses WHERE user_id = ? AND TO_CHAR(date::date, 'YYYY') = ?
-        GROUP BY category ORDER BY total DESC
+        GROUP BY 1 ORDER BY 2 DESC
     """, (session['user_id'], year)).fetchall()
     
     cat_labels = [c['category'] for c in categories]
@@ -901,7 +928,7 @@ def reports():
     methods = db.execute("""
         SELECT payment_method, SUM(amount) as total
         FROM expenses WHERE user_id = ? AND TO_CHAR(date::date, 'YYYY') = ?
-        GROUP BY payment_method ORDER BY total DESC
+        GROUP BY 1 ORDER BY 2 DESC
     """, (session['user_id'], year)).fetchall()
     
     method_labels = [m['payment_method'] for m in methods]
@@ -911,7 +938,7 @@ def reports():
     years = db.execute("""
         SELECT DISTINCT TO_CHAR(date::date, 'YYYY') as yr
         FROM expenses WHERE user_id = ?
-        ORDER BY yr DESC
+        ORDER BY 1 DESC
     """, (session['user_id'],)).fetchall()
     available_years = [y['yr'] for y in years] or [datetime.now().strftime('%Y')]
     

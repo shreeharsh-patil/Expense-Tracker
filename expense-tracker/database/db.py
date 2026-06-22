@@ -70,10 +70,12 @@ class SQLiteDBWrapper:
 
     def _translate_query(self, query):
         q = query
-        # Translate Postgres-specific TO_CHAR(date::date, ...) to SQLite strftime(...)
-        q = re.sub(r"TO_CHAR\(\s*date::date\s*,\s*'YYYY-MM'\s*\)", "strftime('%Y-%m', date)", q, flags=re.IGNORECASE)
-        q = re.sub(r"TO_CHAR\(\s*date::date\s*,\s*'YYYY'\s*\)", "strftime('%Y', date)", q, flags=re.IGNORECASE)
-        q = re.sub(r"TO_CHAR\(\s*date::date\s*,\s*'MM'\s*\)", "strftime('%m', date)", q, flags=re.IGNORECASE)
+        # Translate Postgres-specific TO_CHAR to SQLite strftime
+        q = re.sub(r"TO_CHAR\(\s*(\w+)::date\s*,\s*'YYYY-MM'\s*\)", r"strftime('%Y-%m', \1)", q, flags=re.IGNORECASE)
+        q = re.sub(r"TO_CHAR\(\s*(\w+)::date\s*,\s*'YYYY'\s*\)", r"strftime('%Y', \1)", q, flags=re.IGNORECASE)
+        q = re.sub(r"TO_CHAR\(\s*(\w+)::date\s*,\s*'MM'\s*\)", r"strftime('%m', \1)", q, flags=re.IGNORECASE)
+        # Replace GROUP BY alias with ordinal (SQLite needs ordinal)
+        q = re.sub(r"GROUP BY\s+(\w+)\s*", r"GROUP BY 1 ", q, flags=re.IGNORECASE)
         return q
 
 

@@ -1,8 +1,8 @@
 /* Apple Design System - Spendly */
 
-/* Base transitions */
+/* Base transitions — scoped to properties only, not 'all' (performance) */
 *, *::before, *::after {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
 }
 
 /* Typography */
@@ -88,8 +88,8 @@ body {
   border-color: rgba(99, 102, 241, 0.25);
 }
 .dark .hover-lift:hover {
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px -2px rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px -2px rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.3);
 }
 
 /* Tag badges - Modern Pill Style with subtle glows */
@@ -125,7 +125,7 @@ body {
   box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.06);
 }
 .dark .card-hover:hover {
-  border-color: rgba(139, 92, 246, 0.4);
+  border-color: rgba(99, 102, 241, 0.4);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
 }
 
@@ -173,14 +173,14 @@ body {
 }
 
 .dark .btn-primary {
-  background: linear-gradient(135deg, #ffffff, #f1f5f9);
-  color: #0f172a;
-  box-shadow: 0 4px 14px -4px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: #ffffff;
+  box-shadow: 0 4px 14px -4px rgba(99, 102, 241, 0.3);
 }
 
 .dark .btn-primary:hover {
-  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-  box-shadow: 0 8px 20px -4px rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.5);
 }
 
 .btn-secondary {
@@ -250,9 +250,9 @@ body {
 }
 
 .dark .input-apple:focus {
-  border-color: #8b5cf6;
+  border-color: #6366f1;
   background-color: rgba(17, 24, 39, 0.9);
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
 }
 
 /* Translucent Glassmorphic Cards */
@@ -336,15 +336,15 @@ body {
 }
 
 .dark .link-apple {
-  color: #a5b4fc;
+  color: #818cf8;
 }
 
 .dark .link-apple::after {
-  background-color: #8b5cf6;
+  background-color: #6366f1;
 }
 
 .dark .link-apple:hover {
-  color: #c7d2fe;
+  color: #a5b4fc;
 }
 
 /* Custom Scrollbars */
@@ -420,6 +420,37 @@ body {
   background-image: 
     linear-gradient(to right, rgba(99, 102, 241, 0.015) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(99, 102, 241, 0.015) 1px, transparent 1px);
+}
+
+/* Responsive table wrapper */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-responsive table {
+  min-width: 600px;
+}
+
+/* Better mobile typography */
+@media (max-width: 640px) {
+  .heading-display {
+    font-size: 1.875rem;
+    line-height: 1.2;
+  }
+  .heading-display-sm {
+    font-size: 1.5rem;
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
 }
 
 /* Option styling for dark mode cross-browser support */

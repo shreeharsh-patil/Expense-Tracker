@@ -17,3 +17,15 @@ node_modules/
 .pytest_cache/
 *.db
 expense-tracker/database/*.db
+
+# Scratch and Figma design files
+Untitled (1).fig
+dump_user_input.py
+html-published-jun-17-2026-8-06-pm-utc-body.html
+styles.css
+user_code.tsx
+images/
+
+# Local virtual environments
+.venv/
+venv/

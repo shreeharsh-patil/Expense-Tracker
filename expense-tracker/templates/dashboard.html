@@ -152,9 +152,12 @@
                     <a href="{{ url_for('edit_expense', id=exp.id) }}" class="p-1.5 rounded-lg text-slate-300 hover:text-primary hover:bg-primary/10 transition-all">
                       <span class="material-symbols-outlined text-[18px]">edit</span>
                     </a>
-                    <a href="{{ url_for('delete_expense', id=exp.id) }}" class="p-1.5 rounded-lg text-slate-300 hover:text-accent-red hover:bg-accent-red/10 transition-all" onclick="return confirm('Confirm deletion of entry?')">
-                      <span class="material-symbols-outlined text-[18px]">delete</span>
-                    </a>
+                    <form method="POST" action="{{ url_for('delete_expense', id=exp.id) }}" class="inline" onsubmit="return confirm('Confirm permanent deletion of this ledger entry?')">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="p-1.5 rounded-lg text-slate-300 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+                    </form>
                   </div>
                 </td>
               </tr>

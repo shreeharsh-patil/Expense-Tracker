@@ -17,7 +17,7 @@
     <div class="flex items-center gap-3 relative z-10">
         <div class="px-4 py-2 rounded-xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 backdrop-blur-sm flex items-center gap-3">
             <span class="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Total Monthly:</span>
-            <span class="text-sm font-bold text-primary dark:text-primary-light">&#8377;{{ "%.0f"|format(recurring_expenses|sum(attribute='amount')) }}</span>
+            <span class="text-sm font-bold text-primary dark:text-primary-light">&#8377;{{ "%.0f"|format(recurring|sum(attribute='amount')) }}</span>
         </div>
     </div>
   </section>
@@ -29,7 +29,7 @@
       <div class="card-apple p-0 overflow-hidden shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
         <div class="px-6 py-4 bg-slate-50/50 dark:bg-white/[0.02] border-b border-slate-100 dark:border-dark-border/40 flex items-center justify-between">
             <h3 class="text-xs font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Active Schedules</h3>
-            <span class="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-dark-border text-[9px] font-bold text-slate-500 dark:text-dark-mute">{{ recurring_expenses|length }} Items</span>
+            <span class="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-dark-border text-[9px] font-bold text-slate-500 dark:text-dark-mute">{{ recurring|length }} Items</span>
         </div>
         
         <div class="overflow-x-auto">
@@ -43,7 +43,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-50 dark:divide-dark-border/20">
-              {% for exp in recurring_expenses %}
+              {% for exp in recurring %}
               <tr class="group hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
@@ -68,9 +68,12 @@
                   <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.2f"|format(exp.amount) }}</span>
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <a href="{{ url_for('delete_recurring', id=exp.id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-300 hover:text-accent-red hover:bg-accent-red/10 transition-all" title="Remove Schedule">
-                    <span class="material-symbols-outlined text-[18px]">delete</span>
-                  </a>
+                  <form method="POST" action="{{ url_for('delete_recurring', id=exp.id) }}" class="inline" onsubmit="return confirm('Remove this recurring schedule?')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-300 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer" title="Remove Schedule">
+                      <span class="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                  </form>
                 </td>
               </tr>
               {% else %}
@@ -131,6 +134,18 @@
                 <option value="Health">Gym / Insurance</option>
                 <option value="Transport">Public Transit</option>
                 <option value="Other">Miscellaneous</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-2 group">
+            <label for="payment_method" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Method</label>
+            <div class="relative flex items-center">
+              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">credit_card</span>
+              <select id="payment_method" name="payment_method" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+                <option value="Bank">Bank Transfer / UPI</option>
+                <option value="Cash">Physical Cash</option>
+                <option value="Credit Card">Credit Card</option>
               </select>
             </div>
           </div>
