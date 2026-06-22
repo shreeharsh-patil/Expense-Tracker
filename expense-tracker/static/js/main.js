@@ -5,6 +5,17 @@ document.addEventListener('turbo:load', () => {
   if (themeToggleIcon) {
     themeToggleIcon.textContent = isDark ? 'light_mode' : 'dark_mode';
   }
+
+  // Auto-dismiss flash notifications after 5 seconds
+  const flashMessages = document.querySelectorAll('.flash-message');
+  flashMessages.forEach((msg) => {
+    setTimeout(() => {
+      msg.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      msg.style.opacity = '0';
+      msg.style.transform = 'translateY(-12px)';
+      setTimeout(() => msg.remove(), 500);
+    }, 5000);
+  });
 });
 
 // Use event delegation for all button clicks to avoid detached listener issues with Turbo Drive
