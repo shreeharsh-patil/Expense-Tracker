@@ -22,7 +22,7 @@
         <div class="space-y-2 group">
           <label for="login-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Email Address</label>
           <div style="position: relative; display: flex; align-items: center;">
-            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; pointer-events: none; z-index: 1;">alternate_email</span>
+            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 1;">alternate_email</span>
             <input id="login-email" name="email" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" style="background: rgba(248,250,252,0.5); padding: 0.75rem 1rem 0.75rem 2.75rem; width: 100%; border-radius: 0.75rem;" type="email" placeholder="email@address.com" required autofocus>
           </div>
           <p class="text-[11px] text-accent-red hidden mt-1" id="login-email-error">Please enter a valid email address.</p>
@@ -34,10 +34,10 @@
             <a href="{{ url_for('forgot_password') }}" class="text-[10px] font-medium text-primary hover:text-primary-light transition-colors">Forgot password?</a>
           </div>
           <div style="position: relative; display: flex; align-items: center;">
-            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; pointer-events: none; z-index: 1;">key</span>
+            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 1;">key</span>
             <input id="login-password" name="password" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" style="background: rgba(248,250,252,0.5); padding: 0.75rem 3rem 0.75rem 2.75rem; width: 100%; border-radius: 0.75rem;" type="password" placeholder="Enter your password" required>
-            <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors toggle-password" style="position: absolute; right: 0.75rem; padding: 0.25rem; background: none; border: none; cursor: pointer;" data-target="login-password" aria-label="Toggle password visibility">
-              <span class="material-symbols-outlined text-[18px]">visibility</span>
+            <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors toggle-password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; padding: 0.25rem; background: none; border: none; cursor: pointer; line-height: 1;" data-target="login-password" aria-label="Toggle password visibility">
+              <span class="material-symbols-outlined" style="font-size: 18px; line-height: 1;">visibility</span>
             </button>
           </div>
           <p class="text-[11px] text-accent-red hidden mt-1" id="login-password-error">Please enter your password.</p>
