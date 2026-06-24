@@ -21,18 +21,18 @@
 
         <div class="space-y-2 group">
           <label for="name" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Full Name</label>
-          <div class="relative flex items-center">
-            <span class="material-symbols-outlined absolute left-4 text-slate-400 dark:text-dark-border text-[18px]">person</span>
-            <input id="name" name="name" class="w-full bg-slate-50/50 dark:bg-dark-bg/50 border border-slate-200 dark:border-dark-border rounded-xl py-3 pr-4 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-dark-border" style="padding-left: 2.75rem;" type="text" placeholder="Your full name" required autofocus>
+          <div style="position: relative; display: flex; align-items: center;">
+            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; pointer-events: none; z-index: 1;">person</span>
+            <input id="name" name="name" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white reg-input" style="background: rgba(248,250,252,0.5); padding: 0.75rem 1rem 0.75rem 2.75rem; width: 100%; border-radius: 0.75rem;" type="text" placeholder="Your full name" required autofocus>
           </div>
           <p class="text-[11px] text-accent-red hidden mt-1" id="name-error">Name must be at least 2 characters.</p>
         </div>
 
         <div class="space-y-2 group">
           <label for="reg-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Email Address</label>
-          <div class="relative flex items-center">
-            <span class="material-symbols-outlined absolute left-4 text-slate-400 dark:text-dark-border text-[18px]">alternate_email</span>
-            <input id="reg-email" name="email" class="w-full bg-slate-50/50 dark:bg-dark-bg/50 border border-slate-200 dark:border-dark-border rounded-xl py-3 pr-4 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-dark-border" style="padding-left: 2.75rem;" type="email" placeholder="email@address.com" required>
+          <div style="position: relative; display: flex; align-items: center;">
+            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; pointer-events: none; z-index: 1;">alternate_email</span>
+            <input id="reg-email" name="email" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white reg-input" style="background: rgba(248,250,252,0.5); padding: 0.75rem 1rem 0.75rem 2.75rem; width: 100%; border-radius: 0.75rem;" type="email" placeholder="email@address.com" required>
           </div>
           <p class="text-[11px] text-accent-red hidden mt-1" id="reg-email-error">Please enter a valid email address.</p>
         </div>
@@ -42,10 +42,10 @@
             <label for="reg-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Password</label>
             <span class="text-[10px] text-slate-400 dark:text-dark-mute font-medium" id="password-strength-label"></span>
           </div>
-          <div class="relative flex items-center">
-            <span class="material-symbols-outlined absolute left-4 text-slate-400 dark:text-dark-border text-[18px]" style="left: 1rem;">key</span>
-            <input id="reg-password" name="password" class="w-full bg-slate-50/50 dark:bg-dark-bg/50 border border-slate-200 dark:border-dark-border rounded-xl py-3 pr-11 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-dark-border" style="padding-left: 2.75rem; padding-right: 2.75rem;" type="password" placeholder="Min. 6 characters" required minlength="6">
-            <button type="button" class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors p-1 toggle-password" style="right: 0.75rem;" data-target="reg-password" aria-label="Toggle password visibility">
+          <div style="position: relative; display: flex; align-items: center;">
+            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; pointer-events: none; z-index: 1;">key</span>
+            <input id="reg-password" name="password" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white reg-input" style="background: rgba(248,250,252,0.5); padding: 0.75rem 3rem 0.75rem 2.75rem; width: 100%; border-radius: 0.75rem;" type="password" placeholder="Min. 6 characters" required minlength="6">
+            <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors toggle-password" style="position: absolute; right: 0.75rem; padding: 0.25rem; background: none; border: none; cursor: pointer;" data-target="reg-password" aria-label="Toggle password visibility">
               <span class="material-symbols-outlined text-[18px]">visibility</span>
             </button>
           </div>
@@ -60,10 +60,10 @@
 
         <div class="space-y-2 group">
           <label for="reg-confirm-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Confirm Password</label>
-          <div class="relative flex items-center">
-            <span class="material-symbols-outlined absolute left-4 text-slate-400 dark:text-dark-border text-[18px]" style="left: 1rem;">lock</span>
-            <input id="reg-confirm-password" name="confirm_password" class="w-full bg-slate-50/50 dark:bg-dark-bg/50 border border-slate-200 dark:border-dark-border rounded-xl py-3 pr-11 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-dark-border" style="padding-left: 2.75rem; padding-right: 2.75rem;" type="password" placeholder="Re-enter your password" required>
-            <button type="button" class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors p-1 toggle-password" style="right: 0.75rem;" data-target="reg-confirm-password" aria-label="Toggle password visibility">
+          <div style="position: relative; display: flex; align-items: center;">
+            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; pointer-events: none; z-index: 1;">lock</span>
+            <input id="reg-confirm-password" name="confirm_password" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white reg-input" style="background: rgba(248,250,252,0.5); padding: 0.75rem 3rem 0.75rem 2.75rem; width: 100%; border-radius: 0.75rem;" type="password" placeholder="Re-enter your password" required>
+            <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors toggle-password" style="position: absolute; right: 0.75rem; padding: 0.25rem; background: none; border: none; cursor: pointer;" data-target="reg-confirm-password" aria-label="Toggle password visibility">
               <span class="material-symbols-outlined text-[18px]">visibility</span>
             </button>
           </div>
@@ -93,4 +93,17 @@
     </p>
   </div>
 </section>
+
+<style>
+  /* Dark mode input backgrounds */
+  .dark .reg-input,
+  .dark #login-email,
+  .dark #login-password {
+    background: rgba(3, 7, 18, 0.5) !important;
+  }
+  /* Placeholder colors for dark mode */
+  .dark .reg-input::placeholder {
+    color: rgb(31, 41, 55);
+  }
+</style>
 {% endblock %}
