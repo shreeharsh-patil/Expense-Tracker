@@ -9,7 +9,7 @@ from datetime import datetime, date, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_from_directory, make_response, jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_wtf.csrf import CSRFProtect, generate_csrf
+from flask_wtf.csrf import CSRFProtect, generate_csrf, CSRFError
 from database.db import get_db, init_db
 from ocr_engine import process_receipt
 from email_alerts import send_budget_alert, send_weekly_summary
@@ -249,6 +249,11 @@ def _check_and_send_weekly_summary(user_id, user_email, user_name):
 # Error Handler                                                       #
 # ------------------------------------------------------------------ #
 
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    flash("Session expired. Please try again.", "danger")
+    return redirect(url_for("login"))
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     if isinstance(e, HTTPException):
@@ -323,10 +328,14 @@ def careers():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    if 'user_id' in session:
+        return redirect(url_for("dashboard"))
+
     if request.method == "POST":
         name = (request.form.get("name") or "").strip()
         email = (request.form.get("email") or "").strip().lower()
         password = request.form.get("password") or ""
+        confirm_password = request.form.get("confirm_password") or ""
 
         if not name or len(name) < 2:
             flash("Name must be at least 2 characters.", "danger")
@@ -338,6 +347,10 @@ def register():
 
         if len(password) < 6:
             flash("Password must be at least 6 characters.", "danger")
+            return render_template("register.html")
+
+        if password != confirm_password:
+            flash("Passwords do not match.", "danger")
             return render_template("register.html")
 
         db = get_db()
@@ -374,6 +387,9 @@ except Exception as e:
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if 'user_id' in session:
+        return redirect(url_for("dashboard"))
+
     if request.method == "POST":
         email = (request.form.get("email") or "").strip().lower()
         password = request.form.get("password") or ""

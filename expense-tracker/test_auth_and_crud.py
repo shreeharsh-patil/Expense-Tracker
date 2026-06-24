@@ -48,14 +48,14 @@ def client():
 class TestAuth:
     def test_register_creates_user(self, client):
         resp = client.post('/register', data={
-            'name': 'Test User', 'email': 'test@example.com', 'password': 'secret123'
+            'name': 'Test User', 'email': 'test@example.com', 'password': 'secret123', 'confirm_password': 'secret123'
         })
         # Should either redirect (302) or show form with success
         assert resp.status_code in (200, 302)
 
     def test_register_and_login(self, client):
         client.post('/register', data={
-            'name': 'Test User', 'email': 'test@example.com', 'password': 'secret123'
+            'name': 'Test User', 'email': 'test@example.com', 'password': 'secret123', 'confirm_password': 'secret123'
         })
         resp = client.post('/login', data={
             'email': 'test@example.com', 'password': 'secret123'
@@ -65,10 +65,10 @@ class TestAuth:
 
     def test_register_duplicate_email(self, client):
         client.post('/register', data={
-            'name': 'Alice', 'email': 'dup@test.com', 'password': 'secret123'
+            'name': 'Alice', 'email': 'dup@test.com', 'password': 'secret123', 'confirm_password': 'secret123'
         })
         resp = client.post('/register', data={
-            'name': 'Bob', 'email': 'dup@test.com', 'password': 'secret123'
+            'name': 'Bob', 'email': 'dup@test.com', 'password': 'secret123', 'confirm_password': 'secret123'
         }, follow_redirects=True)
         assert b'Email already exists' in resp.data
 
@@ -84,7 +84,7 @@ class TestAuth:
 
     def test_logout(self, client):
         client.post('/register', data={
-            'name': 'U', 'email': 'u@test.com', 'password': 'pass123'
+            'name': 'Test', 'email': 'u@test.com', 'password': 'pass123', 'confirm_password': 'pass123'
         })
         client.post('/login', data={'email': 'u@test.com', 'password': 'pass123'})
         resp = client.get('/logout', follow_redirects=True)
@@ -94,7 +94,7 @@ class TestAuth:
 class TestExpenseCRUD:
     def _login(self, client):
         client.post('/register', data={
-            'name': 'User', 'email': 'user@test.com', 'password': 'pass1234'
+            'name': 'User', 'email': 'user@test.com', 'password': 'pass1234', 'confirm_password': 'pass1234'
         }, follow_redirects=True)
         client.post('/login', data={
             'email': 'user@test.com', 'password': 'pass1234'
@@ -160,7 +160,7 @@ class TestExpenseCRUD:
     
         # User A adds an expense
         reg_a = client.post('/register', data={
-            'name': 'A', 'email': 'a@test.com', 'password': 'pppppp'
+            'name': 'Alice', 'email': 'a@test.com', 'password': 'pppppp', 'confirm_password': 'pppppp'
         })
         assert reg_a.status_code in (200, 302)
         log_a = client.post('/login', data={'email': 'a@test.com', 'password': 'pppppp'}, follow_redirects=True)
@@ -175,7 +175,7 @@ class TestExpenseCRUD:
 
         # User B tries to edit A's expense
         reg_b = client.post('/register', data={
-            'name': 'B', 'email': 'b@test.com', 'password': 'pppppp'
+            'name': 'Bob', 'email': 'b@test.com', 'password': 'pppppp', 'confirm_password': 'pppppp'
         })
         assert reg_b.status_code in (200, 302)
         log_b = client.post('/login', data={'email': 'b@test.com', 'password': 'pppppp'}, follow_redirects=True)
@@ -188,8 +188,9 @@ class TestExpenseCRUD:
 class TestBudget:
     def _login(self, client):
         client.post('/register', data={
-            'name': 'U', 'email': 'u@test.com', 'password': 'pass123'
-        }, follow_redirects=True)
+            'name': 'Test', 'email': 'u@test.com', 'password': 'pass123', 'confirm_password': 'pass123'
+        })
+        client.post('/login', data={'email': 'u@test.com', 'password': 'pass123'}, follow_redirects=True)
         client.post('/login', data={'email': 'u@test.com', 'password': 'pass123'}, follow_redirects=True)
 
     def test_update_budget(self, client):
@@ -211,8 +212,8 @@ class TestBudget:
 class TestRecurring:
     def _login(self, client):
         client.post('/register', data={
-            'name': 'U', 'email': 'u@test.com', 'password': 'pass123'
-        }, follow_redirects=True)
+            'name': 'Test', 'email': 'u@test.com', 'password': 'pass123', 'confirm_password': 'pass123'
+        })
         client.post('/login', data={'email': 'u@test.com', 'password': 'pass123'}, follow_redirects=True)
 
     def test_add_recurring(self, client):
@@ -256,8 +257,8 @@ class TestRecurring:
 class TestCSVExport:
     def _login(self, client):
         client.post('/register', data={
-            'name': 'U', 'email': 'u@test.com', 'password': 'pass123'
-        }, follow_redirects=True)
+            'name': 'Test', 'email': 'u@test.com', 'password': 'pass123', 'confirm_password': 'pass123'
+        })
         client.post('/login', data={'email': 'u@test.com', 'password': 'pass123'}, follow_redirects=True)
 
     def test_export(self, client):
