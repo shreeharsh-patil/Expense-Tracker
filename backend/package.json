@@ -1,0 +1,29 @@
+{
+  "name": "spendly",
+  "version": "1.0.0",
+  "description": "Spendly Personal Expense Tracker",
+  "scripts": {
+    "build:css": "tailwindcss -i ../frontend/static/css/tailwind-input.css -o ../frontend/static/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ../frontend/static/css/tailwind-input.css -o ../frontend/static/css/tailwind.css --watch",
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mongoose": "^8.4.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.13",
+    "nunjucks": "^3.2.4",
+    "tesseract.js": "^5.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "tailwindcss": "^3.4.1"
+  }
+}

@@ -1,0 +1,160 @@
+const express = require('express');
+const router = express.Router();
+const mongoose = require('mongoose');
+const { Account, Expense, Income, User } = require('../models');
+const { CURRENCY_CHOICES } = require('../src/helpers');
+
+const ACCOUNT_TYPES = ['bank', 'cash', 'credit_card', 'investment', 'wallet', 'other'];
+
+router.get('/accounts', async (req, res, next) => {
+    if (!req.session.user_id) {
+        return res.redirect('/login');
+    }
+    const user_id = req.session.user_id;
+
+    try {
+        const accounts = await Account.find({ user_id }).sort({ is_active: -1, name: 1 });
+        const accounts_data = [];
+
+        for (const acc of accounts) {
+            const spentRow = await Expense.aggregate([
+                { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: acc._id } },
+                { $group: { _id: null, total: { $sum: '$amount' } } }
+            ]);
+            const earnedRow = await Income.aggregate([
+                { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: acc._id } },
+                { $group: { _id: null, total: { $sum: '$amount' } } }
+            ]);
+
+            const spent = spentRow[0]?.total || 0;
+            const earned = earnedRow[0]?.total || 0;
+
+            const accObj = acc.toObject();
+            accObj.id = acc._id.toString();
+            accObj.calculated_balance = earned - spent;
+            accounts_data.push(accObj);
+        }
+
+        const user = await User.findById(user_id);
+        const preferred_currency = user?.preferred_currency || 'INR';
+
+        res.render('accounts.html', {
+            accounts: accounts_data,
+            account_types: ACCOUNT_TYPES,
+            currencies: CURRENCY_CHOICES,
+            preferred_currency
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post('/accounts/add', async (req, res, next) => {
+    if (!req.session.user_id) {
+        return res.redirect('/login');
+    }
+    const user_id = req.session.user_id;
+    const name = (req.body.name || '').trim();
+    let acc_type = req.body.type || 'bank';
+    const currency = req.body.currency || 'INR';
+
+    if (!name || name.length < 1) {
+        req.flash('danger', 'Account name is required.');
+        return res.redirect('/accounts');
+    }
+    if (!ACCOUNT_TYPES.includes(acc_type)) {
+        acc_type = 'bank';
+    }
+
+    try {
+        const newAcc = new Account({
+            user_id,
+            name,
+            type: acc_type,
+            currency
+        });
+        await newAcc.save();
+        req.flash('success', `Account "${name}" created!`);
+        res.redirect('/accounts');
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post('/accounts/:id/edit', async (req, res, next) => {
+    if (!req.session.user_id) {
+        return res.redirect('/login');
+    }
+    const user_id = req.session.user_id;
+    const account_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(account_id)) {
+        req.flash('danger', 'Account not found.');
+        return res.redirect('/accounts');
+    }
+
+    const name = (req.body.name || '').trim();
+    let acc_type = req.body.type || 'bank';
+    const currency = req.body.currency || 'INR';
+    const is_active = !!req.body.is_active;
+
+    if (!name) {
+        req.flash('danger', 'Account name is required.');
+        return res.redirect('/accounts');
+    }
+    if (!ACCOUNT_TYPES.includes(acc_type)) {
+        acc_type = 'bank';
+    }
+
+    try {
+        const account = await Account.findOne({ _id: account_id, user_id });
+        if (!account) {
+            req.flash('danger', 'Account not found.');
+            return res.redirect('/accounts');
+        }
+
+        account.name = name;
+        account.type = acc_type;
+        account.currency = currency;
+        account.is_active = is_active;
+
+        await account.save();
+        req.flash('success', 'Account updated!');
+        res.redirect('/accounts');
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post('/accounts/:id/delete', async (req, res, next) => {
+    if (!req.session.user_id) {
+        return res.redirect('/login');
+    }
+    const user_id = req.session.user_id;
+    const account_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(account_id)) {
+        req.flash('danger', 'Account not found.');
+        return res.redirect('/accounts');
+    }
+
+    try {
+        const account = await Account.findOne({ _id: account_id, user_id });
+        if (!account) {
+            req.flash('danger', 'Account not found.');
+            return res.redirect('/accounts');
+        }
+
+        // Unlink transactions
+        await Expense.updateMany({ account_id, user_id }, { account_id: null });
+        await Income.updateMany({ account_id, user_id }, { account_id: null });
+
+        await Account.deleteOne({ _id: account_id });
+        req.flash('info', `Account "${account.name}" deleted.`);
+        res.redirect('/accounts');
+    } catch (err) {
+        next(err);
+    }
+});
+
+module.exports = router;

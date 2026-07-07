@@ -26,3 +26,6 @@ expense-tracker/dashboard_dump.html
 # Local virtual environments
 .venv/
 venv/
+
+.vercel
+.env*

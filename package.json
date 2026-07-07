@@ -1,14 +1,14 @@
 {
-  "name": "spendly",
+  "name": "spendly-monorepo",
   "version": "1.0.0",
-  "description": "Spendly Personal Expense Tracker",
+  "description": "Spendly Personal Expense Tracker Monorepo",
   "scripts": {
-    "build:css": "tailwindcss -i ./expense-tracker/static/css/tailwind-input.css -o ./expense-tracker/static/css/tailwind.css --minify",
-    "watch:css": "tailwindcss -i ./expense-tracker/static/css/tailwind-input.css -o ./expense-tracker/static/css/tailwind.css --watch",
-    "dev": "python expense-tracker/app.py"
+    "install:backend": "npm install --prefix backend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:css": "npm run watch:css --prefix backend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:css\""
   },
-  "devDependencies": {
-    "tailwindcss": "^3.4.1",
-    "@tailwindcss/forms": "^0.5.7"
+  "dependencies": {
+    "concurrently": "^8.2.2"
   }
 }
