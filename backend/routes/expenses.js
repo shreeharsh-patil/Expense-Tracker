@@ -52,9 +52,9 @@ router.get('/expenses/add', async (req, res, next) => {
         const user = await mongoose.model('User').findById(user_id);
         const preferred_currency = user?.preferred_currency || 'INR';
 
-        const accounts = await Account.find({ user_id, is_active: true }).sort({ name: 1 });
-        const custom_cats = await CustomCategory.find({ user_id }).sort({ name: 1 });
-        const tags = await Tag.find({ user_id }).sort({ name: 1 });
+        const accounts = await Account.find({ user_id, is_active: true }).sort({ name: 1 }).lean();
+        const custom_cats = await CustomCategory.find({ user_id }).sort({ name: 1 }).lean();
+        const tags = await Tag.find({ user_id }).sort({ name: 1 }).lean();
 
         const custom_category_names = custom_cats.map(c => c.name);
 
@@ -62,14 +62,12 @@ router.get('/expenses/add', async (req, res, next) => {
             currencies: CURRENCY_CHOICES,
             preferred_currency,
             accounts: accounts.map(a => {
-                const o = a.toObject();
-                o.id = o._id.toString();
-                return o;
+                a.id = a._id.toString();
+                return a;
             }),
             tags: tags.map(t => {
-                const o = t.toObject();
-                o.id = o._id.toString();
-                return o;
+                t.id = t._id.toString();
+                return t;
             }),
             custom_categories: custom_category_names
         });
@@ -148,9 +146,9 @@ router.get('/expenses/:id/edit', async (req, res, next) => {
             return res.redirect('/dashboard');
         }
 
-        const accounts = await Account.find({ user_id, is_active: true }).sort({ name: 1 });
-        const tags = await Tag.find({ user_id }).sort({ name: 1 });
-        const custom_cats = await CustomCategory.find({ user_id }).sort({ name: 1 });
+        const accounts = await Account.find({ user_id, is_active: true }).sort({ name: 1 }).lean();
+        const tags = await Tag.find({ user_id }).sort({ name: 1 }).lean();
+        const custom_cats = await CustomCategory.find({ user_id }).sort({ name: 1 }).lean();
 
         const selected_tag_ids = new Set(expense.tags.map(t => t.toString()));
         const custom_category_names = custom_cats.map(c => c.name);
@@ -163,14 +161,12 @@ router.get('/expenses/:id/edit', async (req, res, next) => {
             expense: expObj,
             currencies: CURRENCY_CHOICES,
             accounts: accounts.map(a => {
-                const o = a.toObject();
-                o.id = o._id.toString();
-                return o;
+                a.id = a._id.toString();
+                return a;
             }),
             tags: tags.map(t => {
-                const o = t.toObject();
-                o.id = o._id.toString();
-                return o;
+                t.id = t._id.toString();
+                return t;
             }),
             selected_tag_ids,
             custom_categories: custom_category_names
@@ -272,14 +268,13 @@ router.get('/recurring', async (req, res, next) => {
     const user_id = req.session.user_id;
 
     try {
-        const recurring = await RecurringExpense.find({ user_id });
+        const recurring = await RecurringExpense.find({ user_id }).lean();
         const user = await mongoose.model('User').findById(user_id);
         const preferred_currency = user?.preferred_currency || 'INR';
 
         const plainRecurring = recurring.map(r => {
-            const o = r.toObject();
-            o.id = o._id.toString();
-            return o;
+            r.id = r._id.toString();
+            return r;
         });
 
         res.render('recurring.html', {
@@ -446,27 +441,28 @@ router.get('/receipts/gallery', async (req, res, next) => {
             .sort({ created_at: -1 })
             .skip(offset)
             .limit(per_page)
-            .populate('expense_id');
+            .populate('expense_id')
+            .lean();
 
         const user = await mongoose.model('User').findById(user_id);
         const preferred_currency = user?.preferred_currency || 'INR';
 
         const plainReceipts = receipts.map(r => {
-            const o = r.toObject();
-            o.id = o._id.toString();
-            if (o.expense_id) {
-                o.expense_id.id = o.expense_id._id.toString();
-                o.expense_desc = o.expense_id.description;
-                o.expense_amount = o.expense_id.amount;
-                o.expense_date = o.expense_id.date;
+            r.id = r._id.toString();
+            if (r.expense_id) {
+                r.expense_id.id = r.expense_id._id.toString();
+                r.expense_desc = r.expense_id.description;
+                r.expense_amount = r.expense_id.amount;
+                r.expense_date = r.expense_id.date;
             }
-            return o;
+            return r;
         });
 
         // Fetch recent 20 expenses for linking dropdown
         const recentExpenses = await Expense.find({ user_id })
             .sort({ date: -1 })
-            .limit(20);
+            .limit(20)
+            .lean();
 
         res.render('receipt_gallery.html', {
             receipts: plainReceipts,
@@ -475,9 +471,8 @@ router.get('/receipts/gallery', async (req, res, next) => {
             total_receipts: count,
             preferred_currency,
             recent_expenses: recentExpenses.map(e => {
-                const o = e.toObject();
-                o.id = o._id.toString();
-                return o;
+                e.id = e._id.toString();
+                return e;
             })
         });
     } catch (err) {

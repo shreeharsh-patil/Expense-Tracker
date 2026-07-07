@@ -102,13 +102,13 @@ router.get('/dashboard', async (req, res, next) => {
             .sort({ date: -1, _id: -1 })
             .skip(offset)
             .limit(per_page)
-            .populate('tags');
+            .populate('tags')
+            .lean();
 
         // Format expenses for UI template consumption
         const plainExpenses = all_expenses.map(e => {
-            const obj = e.toObject();
-            obj.id = obj._id.toString();
-            return obj;
+            e.id = e._id.toString();
+            return e;
         });
 
         // Set up expense_tags object compatible with jinja2 template
@@ -303,7 +303,7 @@ router.get('/dashboard', async (req, res, next) => {
         }
 
         // 11b. Account balances
-        const accounts = await Account.find({ user_id, is_active: true }).sort({ name: 1 });
+        const accounts = await Account.find({ user_id, is_active: true }).sort({ name: 1 }).lean();
         
         const spentByAccount = await Expense.aggregate([
             { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
@@ -327,24 +327,20 @@ router.get('/dashboard', async (req, res, next) => {
 
         const accounts_data = accounts.map(acc => {
             const accIdStr = acc._id.toString();
-            const spent = spentMap[accIdStr] || 0;
-            const earned = earnedMap[accIdStr] || 0;
-            const accObj = acc.toObject();
-            accObj.id = accIdStr;
-            accObj.balance = earned - spent;
-            return accObj;
+            acc.id = accIdStr;
+            acc.balance = (earnedMap[accIdStr] || 0) - (spentMap[accIdStr] || 0);
+            return acc;
         });
 
         // 12a. Tags for chip filters
-        const tags = await Tag.find({ user_id }).sort({ name: 1 });
+        const tags = await Tag.find({ user_id }).sort({ name: 1 }).lean();
         const all_tags = tags.map(t => {
-            const obj = t.toObject();
-            obj.id = obj._id.toString();
-            return obj;
+            t.id = t._id.toString();
+            return t;
         });
 
         // 12b. Receipt lookup
-        const receipts = await Receipt.find({ user_id, expense_id: { $ne: null } });
+        const receipts = await Receipt.find({ user_id, expense_id: { $ne: null } }).lean();
         const receipt_expense_ids = receipts.map(r => r.expense_id.toString());
 
         res.render('dashboard.html', {
