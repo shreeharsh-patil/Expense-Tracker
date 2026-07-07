@@ -11,23 +11,23 @@
         <h3 class="font-bold text-xl mb-2">Hobbyist</h3>
         <div class="text-4xl font-bold mb-6">Free</div>
         <ul class="space-y-4 text-sm text-slate-600 dark:text-slate-400 mb-8">
-          <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-green-500">check_circle</span> Unlimited manual expenses</li>
-          <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-green-500">check_circle</span> Basic dashboard analytics</li>
-          <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-green-500">check_circle</span> 1 recurring expense rule</li>
+          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-green-500') }} Unlimited manual expenses</li>
+          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-green-500') }} Basic dashboard analytics</li>
+          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-green-500') }} 1 recurring expense rule</li>
         </ul>
-        <a href="{{ url_for('register') }}" class="btn-secondary w-full block text-center rounded-full">Get Started</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-secondary w-full block text-center rounded-full">Get Started</a>
       </div>
       <div class="card-apple p-8 rounded-3xl border-2 border-primary relative shadow-2xl shadow-primary/10">
         <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary-light text-white text-[10px] font-bold px-4 py-1 rounded-full uppercase tracking-widest">Recommended</div>
         <h3 class="font-bold text-xl mb-2">Pro</h3>
         <div class="text-4xl font-bold mb-6">₹199<span class="text-sm font-normal text-slate-500">/mo</span></div>
         <ul class="space-y-4 text-sm text-slate-600 dark:text-slate-400 mb-8">
-          <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-primary">check_circle</span> Everything in Free</li>
-          <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-primary">check_circle</span> Unlimited AI Receipt Scans</li>
-          <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-primary">check_circle</span> Unlimited recurring rules</li>
-          <li class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-primary">check_circle</span> CSV Data Exports</li>
+          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-primary') }} Everything in Free</li>
+          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-primary') }} Unlimited AI Receipt Scans</li>
+          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-primary') }} Unlimited recurring rules</li>
+          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-primary') }} CSV Data Exports</li>
         </ul>
-        <a href="{{ url_for('register') }}" class="btn-primary w-full block text-center rounded-full">Start 14-Day Trial</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-primary w-full block text-center rounded-full">Start 14-Day Trial</a>
       </div>
     </div>
   </div>

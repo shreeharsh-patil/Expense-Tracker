@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Edit Income | Spendly{% endblock %}
+
+{% block content %}
+<section class="min-h-[calc(100vh-64px)] py-12 px-4 sm:px-6 lg:px-8 flex justify-center animate-fade-in">
+  <div class="w-full max-w-xl px-0 md:px-0">
+    <div class="mb-6 md:mb-8 text-center sm:text-left px-4 md:px-0">
+      <h1 class="text-2xl md:text-3xl text-slate-900 dark:text-white mb-2 font-bold tracking-tight">Edit Income</h1>
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute">Update this income entry.</p>
+    </div>
+
+    <div class="card-apple p-6 md:p-8 shadow-lg shadow-slate-200/30 dark:shadow-none border-white/60 dark:border-white/5 mx-4 md:mx-0">
+      <form method="POST" action="{{ url_for('income.edit_income', id=income.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="space-y-6">
+          <div>
+            <label for="amount" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Amount ({{ currency_symbol(income.currency or 'INR') }})</label>
+            <input id="amount" name="amount" type="number" step="0.01" min="0.01" value="{{ '%.2f'|format(income.amount) }}" required
+                   class="input-apple w-full text-lg font-mono font-bold mobile-input-lg">
+          </div>
+
+          <div>
+            <label for="currency" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Currency</label>
+            <select id="currency" name="currency" class="input-apple w-full mobile-input-lg">
+              {% for c in currencies %}
+              <option value="{{ c }}" {% if c == (income.currency or 'INR') %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="source" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Source</label>
+            <select id="source" name="source" required class="input-apple w-full mobile-input-lg">
+              {% for src in sources %}
+              <option value="{{ src }}" {% if income.source == src %}selected{% endif %}>{{ src }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="description" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Description</label>
+            <input id="description" name="description" type="text" value="{{ income.description or '' }}"
+                   class="input-apple w-full mobile-input-lg">
+          </div>
+
+          <div>
+            <label for="date" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Date</label>
+            <input id="date" name="date" type="date" required value="{{ income.date }}"
+                   class="input-apple w-full mobile-input-lg">
+          </div>
+
+          <div class="flex items-center gap-3 md:gap-4 pt-4">
+            <button type="submit" class="btn-primary flex-1 justify-center py-3.5 md:py-3 !rounded-xl">
+              {{ icon('save', 'text-[18px]') }}
+              Update Income
+            </button>
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn-secondary flex-1 justify-center py-3.5 md:py-3 !rounded-xl">Cancel</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

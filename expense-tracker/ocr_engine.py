@@ -15,14 +15,27 @@ try:
     from PIL import Image
     TESSERACT_AVAILABLE = True
     
-    # Common Tesseract install paths on Windows
-    for path in [
+    # Cross-platform Tesseract binary discovery
+    _tesseract_candidates = [
+        # Windows
         r'C:\Program Files\Tesseract-OCR\tesseract.exe',
         r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe',
         r'C:\Users\shree\AppData\Local\Tesseract-OCR\tesseract.exe',
-    ]:
-        if os.path.exists(path):
-            pytesseract.pytesseract.tesseract_cmd = path
+        # macOS (Homebrew)
+        '/opt/homebrew/bin/tesseract',
+        '/usr/local/bin/tesseract',
+        # Linux
+        '/usr/bin/tesseract',
+        '/usr/local/bin/tesseract',
+    ]
+    # Also check PATH
+    import shutil
+    path_from_path = shutil.which('tesseract')
+    if path_from_path:
+        _tesseract_candidates.insert(0, path_from_path)
+    for _path in _tesseract_candidates:
+        if _path and os.path.exists(_path):
+            pytesseract.pytesseract.tesseract_cmd = _path
             break
 except ImportError:
     TESSERACT_AVAILABLE = False
@@ -110,14 +123,15 @@ def process_receipt(image_path):
         # Dynamically resolve tesseract_cmd if not set (handles installations post-server start)
         current_cmd = getattr(pytesseract.pytesseract, 'tesseract_cmd', None)
         if not current_cmd or not os.path.exists(current_cmd):
-            for path in [
-                r'C:\Program Files\Tesseract-OCR\tesseract.exe',
-                r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe',
-                r'C:\Users\shree\AppData\Local\Tesseract-OCR\tesseract.exe',
-            ]:
-                if os.path.exists(path):
-                    pytesseract.pytesseract.tesseract_cmd = path
-                    break
+            import shutil as _shutil
+            _path_from_path = _shutil.which('tesseract')
+            if _path_from_path and os.path.exists(_path_from_path):
+                pytesseract.pytesseract.tesseract_cmd = _path_from_path
+            else:
+                for _p in _tesseract_candidates:
+                    if _p and os.path.exists(_p):
+                        pytesseract.pytesseract.tesseract_cmd = _p
+                        break
 
         try:
             img = Image.open(image_path)

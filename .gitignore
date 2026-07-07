@@ -18,13 +18,10 @@ node_modules/
 *.db
 expense-tracker/database/*.db
 
-# Scratch and Figma design files
-Untitled (1).fig
-dump_user_input.py
-html-published-jun-17-2026-8-06-pm-utc-body.html
-styles.css
-user_code.tsx
-images/
+# Scratch, test, and generated files
+/images/
+expense-tracker/test_*.py
+expense-tracker/dashboard_dump.html
 
 # Local virtual environments
 .venv/

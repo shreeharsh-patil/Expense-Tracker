@@ -5,6 +5,19 @@ from flask import g
 from werkzeug.security import generate_password_hash
 
 
+class DBRow(dict):
+    """A dict subclass that also supports attribute-style access (like sqlite3.Row)
+    and the .get() method (like regular dict). Compatible with both SQLite and Postgres."""
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name)
+
+    def __setattr__(self, name, value):
+        self[name] = value
+
+
 class PostgresDBWrapper:
     """A wrapper around psycopg2 connection to mimic sqlite3 connection API
     used by the Spendly Flask application, so we don't have to rewrite app.py."""
@@ -15,9 +28,64 @@ class PostgresDBWrapper:
         # Expose IntegrityError so app.py can catch db.IntegrityError
         self.IntegrityError = psycopg2_module.IntegrityError
         
+    def _convert_placeholders(self, query):
+        """Safely convert SQLite ? placeholders to Postgres %s placeholders.
+        Only converts ? that are not inside string literals or comments."""
+        result = []
+        in_single_quote = False
+        in_double_quote = False
+        in_comment = False
+        i = 0
+        while i < len(query):
+            char = query[i]
+            if in_comment:
+                result.append(char)
+                if char == '\n':
+                    in_comment = False
+                i += 1
+                continue
+            
+            if char == "'" and not in_double_quote:
+                in_single_quote = not in_single_quote
+                result.append(char)
+            elif char == '"' and not in_single_quote:
+                in_double_quote = not in_double_quote
+                result.append(char)
+            elif char == '-' and i + 1 < len(query) and query[i + 1] == '-' and not in_single_quote and not in_double_quote:
+                in_comment = True
+                result.append(char)
+                result.append(query[i + 1])
+                i += 1
+            elif char == '?' and not in_single_quote and not in_double_quote and not in_comment:
+                result.append('%s')
+            else:
+                result.append(char)
+            i += 1
+        return ''.join(result)
+        
+    def _translate_to_postgres(self, query):
+        q = query
+        # Translate SQLite strftime to Postgres TO_CHAR
+        q = re.sub(
+            r"strftime\('%Y-%m',\s*([\w.]+)\)",
+            r"TO_CHAR(\1::date, 'YYYY-MM')",
+            q
+        )
+        q = re.sub(
+            r"strftime\('%Y',\s*([\w.]+)\)",
+            r"TO_CHAR(\1::date, 'YYYY')",
+            q
+        )
+        q = re.sub(
+            r"strftime\('%m',\s*([\w.]+)\)",
+            r"TO_CHAR(\1::date, 'MM')",
+            q
+        )
+        return q
+
     def execute(self, query, params=None):
-        # Automatically replace ? with %s for Postgres compatibility
-        q_converted = query.replace('?', '%s')
+        q_converted = self._translate_to_postgres(query)
+        q_converted = self._convert_placeholders(q_converted)
         cursor = self.conn.cursor(cursor_factory=self._psycopg2.extras.RealDictCursor)
         if params is not None:
             cursor.execute(q_converted, params)
@@ -26,7 +94,8 @@ class PostgresDBWrapper:
         return cursor
 
     def executemany(self, query, params_list):
-        q_converted = query.replace('?', '%s')
+        q_converted = self._translate_to_postgres(query)
+        q_converted = self._convert_placeholders(q_converted)
         cursor = self.conn.cursor(cursor_factory=self._psycopg2.extras.RealDictCursor)
         cursor.executemany(q_converted, params_list)
         return cursor
@@ -47,8 +116,45 @@ class SQLiteDBWrapper:
         # Expose IntegrityError so app.py can catch db.IntegrityError
         self.IntegrityError = sqlite3.IntegrityError
         
+    def _convert_placeholders(self, query):
+        """Convert Postgres %s placeholders to SQLite ? placeholders.
+        Only converts %s that are not inside string literals or comments."""
+        result = []
+        in_single_quote = False
+        in_double_quote = False
+        in_comment = False
+        i = 0
+        while i < len(query):
+            char = query[i]
+            if in_comment:
+                result.append(char)
+                if char == '\n':
+                    in_comment = False
+                i += 1
+                continue
+            
+            if char == "'" and not in_double_quote:
+                in_single_quote = not in_single_quote
+                result.append(char)
+            elif char == '"' and not in_single_quote:
+                in_double_quote = not in_double_quote
+                result.append(char)
+            elif char == '-' and i + 1 < len(query) and query[i + 1] == '-' and not in_single_quote and not in_double_quote:
+                in_comment = True
+                result.append(char)
+                result.append(query[i + 1])
+                i += 1
+            elif char == '%' and i + 1 < len(query) and query[i + 1] == 's' and not in_single_quote and not in_double_quote and not in_comment:
+                result.append('?')
+                i += 1
+            else:
+                result.append(char)
+            i += 1
+        return ''.join(result)
+
     def execute(self, query, params=None):
         translated_query = self._translate_query(query)
+        translated_query = self._convert_placeholders(translated_query)
         cursor = self.conn.cursor()
         if params is not None:
             cursor.execute(translated_query, params)
@@ -58,6 +164,7 @@ class SQLiteDBWrapper:
 
     def executemany(self, query, params_list):
         translated_query = self._translate_query(query)
+        translated_query = self._convert_placeholders(translated_query)
         cursor = self.conn.cursor()
         cursor.executemany(translated_query, params_list)
         return cursor
@@ -71,9 +178,9 @@ class SQLiteDBWrapper:
     def _translate_query(self, query):
         q = query
         # Translate Postgres-specific TO_CHAR to SQLite strftime
-        q = re.sub(r"TO_CHAR\(\s*(\w+)::date\s*,\s*'YYYY-MM'\s*\)", r"strftime('%Y-%m', \1)", q, flags=re.IGNORECASE)
-        q = re.sub(r"TO_CHAR\(\s*(\w+)::date\s*,\s*'YYYY'\s*\)", r"strftime('%Y', \1)", q, flags=re.IGNORECASE)
-        q = re.sub(r"TO_CHAR\(\s*(\w+)::date\s*,\s*'MM'\s*\)", r"strftime('%m', \1)", q, flags=re.IGNORECASE)
+        q = re.sub(r"TO_CHAR\(\s*([\w.]+)(?:::date)?\s*,\s*'YYYY-MM'\s*\)", r"strftime('%Y-%m', \1)", q, flags=re.IGNORECASE)
+        q = re.sub(r"TO_CHAR\(\s*([\w.]+)(?:::date)?\s*,\s*'YYYY'\s*\)", r"strftime('%Y', \1)", q, flags=re.IGNORECASE)
+        q = re.sub(r"TO_CHAR\(\s*([\w.]+)(?:::date)?\s*,\s*'MM'\s*\)", r"strftime('%m', \1)", q, flags=re.IGNORECASE)
         return q
 
 
@@ -96,10 +203,18 @@ def get_db():
             db_path = os.path.join(db_dir, 'spendly.db')
             os.makedirs(db_dir, exist_ok=True)
             conn = sqlite3.connect(db_path)
-            conn.row_factory = sqlite3.Row
+            conn.row_factory = dict_factory
             conn.execute("PRAGMA foreign_keys = ON")
             g.db = SQLiteDBWrapper(conn)
     return g.db
+
+
+def dict_factory(cursor, row):
+    """Row factory that returns DBRow dicts (supports .get() and attribute access)."""
+    d = DBRow()
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 
 def init_db():
@@ -113,10 +228,11 @@ def init_db():
                 id             SERIAL PRIMARY KEY,
                 name           TEXT    NOT NULL,
                 email          TEXT    UNIQUE NOT NULL,
-                password_hash  TEXT    NOT NULL,
+                password_hash  TEXT,
                 monthly_budget REAL    DEFAULT 10000.0,
                 phone          TEXT,
                 avatar_url     TEXT,
+                preferred_currency TEXT DEFAULT 'INR',
                 created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
@@ -131,6 +247,7 @@ def init_db():
                 payment_method TEXT DEFAULT 'Cash',
                 date        TEXT    NOT NULL,
                 description TEXT,
+                currency    TEXT DEFAULT 'INR',
                 created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
@@ -147,6 +264,7 @@ def init_db():
                 description TEXT,
                 day_of_month INTEGER NOT NULL,
                 last_processed_month TEXT,
+                currency    TEXT DEFAULT 'INR',
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         """)
@@ -172,10 +290,11 @@ def init_db():
                 id             INTEGER PRIMARY KEY AUTOINCREMENT,
                 name           TEXT    NOT NULL,
                 email          TEXT    UNIQUE NOT NULL,
-                password_hash  TEXT    NOT NULL,
+                password_hash  TEXT,
                 monthly_budget REAL    DEFAULT 10000.0,
                 phone          TEXT,
                 avatar_url     TEXT,
+                preferred_currency TEXT DEFAULT 'INR',
                 created_at     TEXT    DEFAULT (datetime('now'))
             )
         """)
@@ -189,6 +308,7 @@ def init_db():
                 payment_method TEXT DEFAULT 'Cash',
                 date        TEXT    NOT NULL,
                 description TEXT,
+                currency    TEXT DEFAULT 'INR',
                 created_at  TEXT    DEFAULT (datetime('now')),
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
@@ -204,6 +324,7 @@ def init_db():
                 description TEXT,
                 day_of_month INTEGER NOT NULL,
                 last_processed_month TEXT,
+                currency    TEXT DEFAULT 'INR',
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         """)
@@ -220,6 +341,97 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         """)
+
+        # Income table
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS income (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     INTEGER NOT NULL,
+                amount      REAL    NOT NULL,
+                source      TEXT    NOT NULL,
+                description TEXT,
+                date        TEXT    NOT NULL,
+                currency    TEXT DEFAULT 'INR',
+                created_at  TEXT    DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+
+    # --- Migration: Add currency columns to existing tables if missing ---
+    # Note: For Postgres, ALTER TABLE ... ADD COLUMN IF NOT EXISTS is not standard.
+    # We use try/except which works for both Postgres and SQLite.
+    for alter_sql in [
+        "ALTER TABLE users ADD COLUMN preferred_currency TEXT DEFAULT 'INR'",
+        "ALTER TABLE expenses ADD COLUMN currency TEXT DEFAULT 'INR'",
+        "ALTER TABLE income ADD COLUMN currency TEXT DEFAULT 'INR'",
+        "ALTER TABLE recurring_expenses ADD COLUMN currency TEXT DEFAULT 'INR'",
+    ]:
+        try:
+            db.execute(alter_sql)
+        except Exception:
+            pass  # Column already exists or table doesn't exist yet
+
+    # For Postgres, also ensure income table exists (it's only created in the SQLite branch above)
+    if isinstance(db, PostgresDBWrapper):
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS income (
+                id          SERIAL PRIMARY KEY,
+                user_id     INTEGER NOT NULL,
+                amount      REAL    NOT NULL,
+                source      TEXT    NOT NULL,
+                description TEXT,
+                date        TEXT    NOT NULL,
+                currency    TEXT DEFAULT 'INR',
+                created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+
+    # --- OAuth / Email-OTP migrations ---
+    for alter_sql in [
+        "ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN oauth_provider TEXT",
+        "ALTER TABLE users ADD COLUMN oauth_id TEXT",
+    ]:
+        try:
+            db.execute(alter_sql)
+        except Exception:
+            pass
+
+    # Create email_otps table for registration OTP codes
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS email_otps (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            email       TEXT    NOT NULL,
+            otp         TEXT    NOT NULL,
+            name        TEXT,
+            password_hash TEXT,
+            expires_at  TEXT    NOT NULL,
+            used        INTEGER DEFAULT 0,
+            created_at  TEXT    DEFAULT (datetime('now'))
+        )
+    """)
+
+    # For Postgres, create the email_otps table
+    if isinstance(db, PostgresDBWrapper):
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS email_otps (
+                id           SERIAL PRIMARY KEY,
+                email        TEXT    NOT NULL,
+                otp          TEXT    NOT NULL,
+                name         TEXT,
+                password_hash TEXT,
+                expires_at   TIMESTAMP NOT NULL,
+                used         INTEGER DEFAULT 0,
+                created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+    # --- Performance indexes: speed up dashboard queries, filters, and reports ---
+    db.execute("CREATE INDEX IF NOT EXISTS idx_expenses_user_date ON expenses(user_id, date)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(user_id, category)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_income_user_date ON income(user_id, date)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_recurring_user ON recurring_expenses(user_id)")
 
     db.commit()
 

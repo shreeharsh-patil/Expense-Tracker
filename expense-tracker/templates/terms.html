@@ -24,7 +24,7 @@
     <section class="space-y-4">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined text-[18px]">gavel</span>
+                {{ icon('gavel', 'text-[18px]') }}
             </div>
             <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">1. Acceptance of Protocol</h3>
         </div>
@@ -34,7 +34,7 @@
     <section class="space-y-4">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined text-[18px]">verified_user</span>
+                {{ icon('verified-user', 'text-[18px]') }}
             </div>
             <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">2. User Responsibility</h3>
         </div>
@@ -44,7 +44,7 @@
     <section class="space-y-4">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined text-[18px]">block</span>
+                {{ icon('block', 'text-[18px]') }}
             </div>
             <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">3. Prohibited Activity</h3>
         </div>
@@ -54,7 +54,7 @@
     <section class="space-y-4">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                <span class="material-symbols-outlined text-[18px]">release_alert</span>
+                {{ icon('release-alert', 'text-[18px]') }}
             </div>
             <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">4. Service Limitations</h3>
         </div>
@@ -63,9 +63,9 @@
 
     <div class="pt-10 border-t border-slate-100 dark:border-dark-border/40 flex flex-col md:flex-row items-center justify-between gap-6">
         <p class="text-[10px] text-slate-400 dark:text-dark-mute max-w-[320px]">Spendly is a product of Editorial Finance Labs. All rights reserved. &copy; {{ now_year }}</p>
-        <a href="{{ url_for('landing') }}" class="btn-primary px-8 py-2.5 text-xs font-bold shadow-lg shadow-primary/20 flex items-center gap-2">
+        <a href="{{ url_for('main.landing') }}" class="btn-primary px-8 py-2.5 text-xs font-bold shadow-lg shadow-primary/20 flex items-center gap-2">
             Return to Terminal
-            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            {{ icon('arrow-forward', 'text-[16px]') }}
         </a>
     </div>
 

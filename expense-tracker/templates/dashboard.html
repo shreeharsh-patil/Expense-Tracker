@@ -1,69 +1,112 @@
 {% extends "base.html" %}
 {% block title %}Ledger Terminal | Spendly{% endblock %}
+{% block head_scripts %}{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
 
   <!-- 1. Top Insights Bar (Bento Stats) -->
-  <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-    
+  <section class="mobile-stats-grid mb-6 md:mb-10">
+
     <!-- User Greeting Card -->
-    <div class="md:col-span-2 card-apple p-8 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-white to-slate-50/50 dark:from-dark-card dark:to-dark-card/60">
+    <div class="stat-full card-apple p-6 md:p-8 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-white to-slate-50/50 dark:from-dark-card dark:to-dark-card/60">
       <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none"></div>
       <div>
         <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-[0.2em] mb-2">OPERATIONAL CONSOLE</p>
-        <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Welcome, {{ session.user_name }}</h1>
-        <p class="text-sm text-slate-500 dark:text-dark-mute mt-2 max-w-[320px]">Your financial ledger is synchronized and active for the current fiscal period.</p>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Welcome, {{ session.user_name }}</h1>
+        <p class="text-xs md:text-sm text-slate-500 dark:text-dark-mute mt-2 max-w-[320px]">Your financial ledger is synchronized and active for the current fiscal period.</p>
       </div>
-      <div class="mt-8 flex gap-3">
-        <a href="{{ url_for('add_expense') }}" class="btn-primary px-6 py-2.5 text-xs font-bold shadow-lg shadow-primary/20 flex items-center gap-2 group">
-          <span class="material-symbols-outlined text-[18px]">add</span>
-          Record Entry
+      <div class="mt-6 md:mt-8 flex gap-2 md:gap-3">
+        <a href="{{ url_for('expenses.add_expense') }}" data-shortcut="new-expense" class="flex-1 md:flex-none btn-primary px-3 md:px-6 py-3 md:py-2.5 text-xs font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group !rounded-xl">
+          {{ icon('add', 'text-[18px]') }}
+          <span class="hidden sm:inline">Record</span> Entry
         </a>
-        <a href="{{ url_for('scan_receipt') }}" class="btn-secondary px-6 py-2.5 text-xs font-bold flex items-center gap-2">
-          <span class="material-symbols-outlined text-[18px]">center_focus_strong</span>
+        <a href="{{ url_for('income.add_income') }}" class="flex-1 md:flex-none btn-secondary px-3 md:px-6 py-3 md:py-2.5 text-xs font-bold flex items-center justify-center gap-2 !rounded-xl border-signature-mint/20 text-signature-forest dark:text-signature-mint">
+          {{ icon('savings', 'text-[18px]') }}
+          <span class="hidden sm:inline">Record</span> Income
+        </a>
+        <a href="{{ url_for('expenses.scan_receipt') }}" class="hidden sm:flex btn-secondary px-6 py-2.5 text-xs font-bold items-center gap-2">
+          {{ icon('center-focus-strong', 'text-[18px]') }}
           Digitize
         </a>
       </div>
     </div>
 
-    <!-- Monthly Burn Card -->
-    <div class="card-apple p-8 flex flex-col justify-between hover-lift">
-        <div class="flex justify-between items-start">
-            <div>
-                <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Monthly Burn</p>
-                <p class="text-3xl font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.0f"|format(current_month_spent) }}</p>
-            </div>
-            <div class="w-10 h-10 rounded-xl bg-accent-blue/10 text-accent-blue flex items-center justify-center">
-                <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
-            </div>
+    <!-- Net Savings Card (with skeleton loading) -->
+    <div class="card-apple p-6 md:p-8 flex flex-col justify-between hover-lift stat-skeleton" data-stat="savings">
+        <div class="stat-content">
+          <div class="flex justify-between items-start">
+              <div>
+                  <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Net Savings</p>
+                  <p class="text-2xl md:text-3xl font-mono font-bold {% if net_savings >= 0 %}text-signature-forest dark:text-signature-mint{% else %}text-accent-red{% endif %}">{{ currency_symbol(preferred_currency) }}{{ "%.0f"|format(net_savings) }}</p>
+              </div>
+              <div class="w-10 h-10 rounded-xl {% if net_savings >= 0 %}bg-signature-mint/10 text-signature-mint{% else %}bg-accent-red/10 text-accent-red{% endif %} flex items-center justify-center shrink-0">
+                  {{ icon('trending-up' if net_savings >= 0 else 'trending-down', 'text-[20px]') }}
+              </div>
+          </div>
+          <div class="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-slate-100 dark:border-dark-border/40">
+              <div class="flex justify-between text-[10px]">
+                  <span class="text-slate-400 dark:text-dark-mute">Income</span>
+                  <span class="font-mono font-bold text-signature-forest dark:text-signature-mint">{{ currency_symbol(preferred_currency) }}{{ "%.0f"|format(current_month_income) }}</span>
+              </div>
+              <div class="flex justify-between text-[10px] mt-1">
+                  <span class="text-slate-400 dark:text-dark-mute">Spent</span>
+                  <span class="font-mono font-bold text-accent-red">{{ currency_symbol(preferred_currency) }}{{ "%.0f"|format(current_month_spent) }}</span>
+              </div>
+          </div>
         </div>
-        <div class="mt-6 pt-4 border-t border-slate-100 dark:border-dark-border/40">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-[10px] font-bold text-slate-400 dark:text-dark-mute uppercase tracking-tighter">Budget Progress</span>
-                <span class="text-[10px] font-mono font-bold text-slate-900 dark:text-white">
-                    {% if monthly_budget > 0 %}{{ (current_month_spent / monthly_budget * 100)|int }}%{% else %}0%{% endif %}
-                </span>
+        <div class="stat-skeleton-bars">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="skel-bar-title"></div>
+              <div class="skel-bar-value"></div>
             </div>
-            <div class="h-1.5 w-full bg-slate-100 dark:bg-dark-border rounded-full overflow-hidden">
-                <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: {% if monthly_budget > 0 %}{{ [(current_month_spent / monthly_budget * 100)|int, 100]|min }}{% else %}0{% endif %}%"></div>
-            </div>
+            <div class="skel-bar-icon"></div>
+          </div>
+          <div class="flex justify-between mt-auto pt-4" style="border-top: 1px solid transparent; margin-top: auto;">
+            <div class="skel-bar-sub" style="width: 60px;"></div>
+            <div class="skel-bar-sub" style="width: 60px;"></div>
+          </div>
         </div>
     </div>
 
-    <!-- Projected Total Card -->
-    <div class="card-apple p-8 flex flex-col justify-between hover-lift">
-        <div class="flex justify-between items-start">
-            <div>
-                <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Forecast</p>
-                <p class="text-3xl font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.0f"|format(projected_total) }}</p>
-            </div>
-            <div class="w-10 h-10 rounded-xl bg-signature-peach/10 text-signature-peach flex items-center justify-center">
-                <span class="material-symbols-outlined text-[20px]">batch_prediction</span>
-            </div>
+    <!-- Monthly Burn Card (with skeleton loading) -->
+    <div class="card-apple p-6 md:p-8 flex flex-col justify-between hover-lift stat-skeleton" data-stat="burn">
+        <div class="stat-content">
+          <div class="flex justify-between items-start">
+              <div>
+                  <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Monthly Burn</p>
+                  <p class="text-2xl md:text-3xl font-mono font-bold text-slate-900 dark:text-white">{{ currency_symbol(preferred_currency) }}{{ "%.0f"|format(current_month_spent) }}</p>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-accent-blue/10 text-accent-blue flex items-center justify-center shrink-0">
+                  {{ icon('account-balance-wallet', 'text-[20px]') }}
+              </div>
+          </div>
+          <div class="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-slate-100 dark:border-dark-border/40">
+              <div class="flex justify-between items-center mb-2">
+                  <span class="text-[10px] font-bold text-slate-400 dark:text-dark-mute uppercase tracking-tighter">Budget</span>
+                  <span class="text-[10px] font-mono font-bold text-slate-900 dark:text-white">
+                      {% if monthly_budget > 0 %}{{ (current_month_spent / monthly_budget * 100)|int }}%{% else %}0%{% endif %}
+                  </span>
+              </div>
+              <div class="h-1.5 w-full bg-slate-100 dark:bg-dark-border rounded-full overflow-hidden">
+                  <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: {% if monthly_budget > 0 %}{{ [(current_month_spent / monthly_budget * 100)|int, 100]|min }}{% else %}0{% endif %}%"></div>
+              </div>
+          </div>
         </div>
-        <div class="mt-6 pt-4 border-t border-slate-100 dark:border-dark-border/40">
-            <p class="text-[10px] text-slate-400 dark:text-dark-mute leading-tight">Estimated total based on current daily average burn rate.</p>
+        <div class="stat-skeleton-bars">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="skel-bar-title"></div>
+              <div class="skel-bar-value" style="width: 120px;"></div>
+            </div>
+            <div class="skel-bar-icon"></div>
+          </div>
+          <div class="flex justify-between items-center mb-2 mt-4">
+            <div class="skel-bar-budget-label"></div>
+            <div class="skel-bar-budget-pct"></div>
+          </div>
+          <div class="skel-bar-progress"></div>
         </div>
     </div>
 
@@ -71,26 +114,24 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
 
-    <!-- 2. Transaction Stream (Left Column) -->
+    <!-- Transaction Stream (Left Column) -->
     <div class="lg:col-span-8 space-y-6">
-      
+
       <!-- Filter Controls -->
       <div class="card-apple p-4 flex flex-wrap items-center gap-4 bg-white/60 dark:bg-dark-card/60 backdrop-blur-md border-white/60 dark:border-white/5">
-        <form action="{{ url_for('dashboard') }}" method="GET" class="flex flex-1 items-center gap-3" id="filter-form">
+        <form action="{{ url_for('dashboard.dashboard') }}" method="GET" class="flex flex-1 items-center gap-3" id="filter-form">
           <div class="relative flex-1 max-w-sm group">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] group-focus-within:text-primary transition-colors">search</span>
+            {{ icon('search', 'absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] group-focus-within:text-primary transition-colors') }}
             <input type="text" name="q" value="{{ request.args.get('q', '') }}" placeholder="Search ledger..." class="w-full bg-slate-100/50 dark:bg-white/5 border-none py-2.5 pl-10 pr-4 rounded-xl text-xs font-medium focus:ring-2 focus:ring-primary/20 transition-all outline-none">
           </div>
-          
           <input type="hidden" name="category" id="hidden-category" value="{{ request.args.get('category', '') }}">
-          
           <div class="flex gap-2 items-center">
             <button type="submit" class="p-2.5 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
-                <span class="material-symbols-outlined text-[18px]">filter_list</span>
+                {{ icon('filter-list', 'text-[18px]') }}
             </button>
             {% if request.args.get('q') or request.args.get('category') %}
-            <a href="{{ url_for('dashboard') }}" class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-accent-red transition-all">
-                <span class="material-symbols-outlined text-[18px]">close</span>
+            <a href="{{ url_for('dashboard.dashboard') }}" class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-accent-red transition-all">
+                {{ icon('close', 'text-[18px]') }}
             </a>
             {% endif %}
           </div>
@@ -109,9 +150,9 @@
         </div>
       </div>
 
-      <!-- Transaction Table -->
+      <!-- Transaction Table (Desktop) / Cards (Mobile) -->
       <div class="card-apple p-0 overflow-hidden shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
-        <div class="overflow-x-auto">
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-[0.2em] border-b border-slate-100 dark:border-dark-border/40">
@@ -131,9 +172,8 @@
                 <td class="px-6 py-5">
                   <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-dark-mute transition-colors group-hover:bg-primary/10 group-hover:text-primary">
-                        <span class="material-symbols-outlined text-[20px]">
-                            {% if exp.category == 'Food' %}restaurant{% elif exp.category == 'Transport' %}directions_car{% elif exp.category == 'Shopping' %}shopping_bag{% elif exp.category == 'Bills' %}receipt_long{% elif exp.category == 'Entertainment' %}movie{% elif exp.category == 'Health' %}medical_services{% else %}category{% endif %}
-                        </span>
+                        {% set cat_icon = 'restaurant' if exp.category == 'Food' else 'directions_car' if exp.category == 'Transport' else 'shopping_bag' if exp.category == 'Shopping' else 'receipt_long' if exp.category == 'Bills' else 'movie' if exp.category == 'Entertainment' else 'medical_services' if exp.category == 'Health' else 'category' %}
+                        {{ icon(cat_icon, 'text-[20px]') }}
                     </div>
                     <div>
                       <p class="text-sm font-bold text-slate-800 dark:text-white">{{ exp.description or exp.category }}</p>
@@ -142,20 +182,20 @@
                   </div>
                 </td>
                 <td class="px-6 py-5 text-right">
-                  <span class="text-sm font-mono font-bold text-slate-900 dark:text-white tracking-tighter">&#8377;{{ "%.2f"|format(exp.amount) }}</span>
+                  <span class="text-sm font-mono font-bold text-slate-900 dark:text-white tracking-tighter">{{ currency_symbol(exp.currency if exp.currency else preferred_currency) }}{{ "%.2f"|format(exp.amount) }}</span>
                 </td>
                 <td class="px-6 py-5 text-right">
                   <span class="px-2 py-1 rounded bg-slate-100 dark:bg-white/5 text-[9px] font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest border border-slate-200/50 dark:border-white/5">{{ exp.payment_method }}</span>
                 </td>
                 <td class="px-6 py-5 text-right">
                   <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <a href="{{ url_for('edit_expense', id=exp.id) }}" class="p-1.5 rounded-lg text-slate-300 hover:text-primary hover:bg-primary/10 transition-all">
-                      <span class="material-symbols-outlined text-[18px]">edit</span>
+                    <a href="{{ url_for('expenses.edit_expense', id=exp.id) }}" class="p-1.5 rounded-lg text-slate-300 hover:text-primary hover:bg-primary/10 transition-all">
+                      {{ icon('edit', 'text-[18px]') }}
                     </a>
-                    <form method="POST" action="{{ url_for('delete_expense', id=exp.id) }}" class="inline" onsubmit="return confirm('Confirm permanent deletion of this ledger entry?')">
+                    <form method="POST" action="{{ url_for('expenses.delete_expense', id=exp.id) }}" class="inline">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                      <button type="submit" class="p-1.5 rounded-lg text-slate-300 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                      <button type="button" data-confirm-delete="Confirm permanent deletion of this ledger entry?" class="p-1.5 rounded-lg text-slate-300 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer">
+                        {{ icon('delete', 'text-[18px]') }}
                       </button>
                     </form>
                   </div>
@@ -165,7 +205,7 @@
               <tr>
                 <td colspan="5" class="px-6 py-24 text-center">
                   <div class="flex flex-col items-center opacity-40">
-                    <span class="material-symbols-outlined text-6xl mb-4">history_edu</span>
+                    {{ icon('history-edu', 'text-6xl mb-4') }}
                     <p class="text-sm font-bold uppercase tracking-[0.2em]">No Ledger Entries Found</p>
                     <p class="text-[10px] mt-2 max-w-[240px] mx-auto">Initialize your ledger by recording a new transaction or digitizing a voucher.</p>
                   </div>
@@ -175,67 +215,155 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Mobile Card View (visible only on mobile) -->
+        <div class="md:hidden divide-y divide-slate-100 dark:divide-dark-border/10">
+          {% for exp in expenses %}
+          <div class="p-4 space-y-3 hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-dark-mute shrink-0">
+                  {% set cat_icon = 'restaurant' if exp.category == 'Food' else 'directions_car' if exp.category == 'Transport' else 'shopping_bag' if exp.category == 'Shopping' else 'receipt_long' if exp.category == 'Bills' else 'movie' if exp.category == 'Entertainment' else 'medical_services' if exp.category == 'Health' else 'category' %}
+                  {{ icon(cat_icon, 'text-[20px]') }}
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-bold text-slate-800 dark:text-white truncate">{{ exp.description or exp.category }}</p>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-[10px] text-slate-400 dark:text-dark-mute font-medium">{{ exp.category }}</span>
+                    <span class="text-[10px] text-slate-300 dark:text-dark-border">&middot;</span>
+                    <span class="text-[10px] text-slate-400 dark:text-dark-mute">{{ exp.date }}</span>
+                  </div>
+                </div>
+              </div>
+              <span class="text-sm font-mono font-bold text-slate-900 dark:text-white shrink-0">{{ currency_symbol(exp.currency if exp.currency else preferred_currency) }}{{ "%.2f"|format(exp.amount) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-white/5 text-[9px] font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest border border-slate-200/50 dark:border-white/5">{{ exp.payment_method }}</span>
+              <div class="flex items-center gap-2">
+                <a href="{{ url_for('expenses.edit_expense', id=exp.id) }}" class="touch-target w-9 h-9 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all">
+                  {{ icon('edit', 'text-[20px]') }}
+                </a>
+                <form method="POST" action="{{ url_for('expenses.delete_expense', id=exp.id) }}" class="inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="button" data-confirm-delete="Delete this expense?" class="touch-target w-9 h-9 rounded-lg text-slate-400 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer">
+                    {{ icon('delete', 'text-[20px]') }}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="px-4 py-16 text-center">
+            <div class="flex flex-col items-center opacity-40">
+              {{ icon('history-edu', 'text-5xl mb-4') }}
+              <p class="text-sm font-bold uppercase tracking-[0.2em]">No Entries Found</p>
+              <p class="text-[10px] mt-2 max-w-[200px] mx-auto">Record a transaction or digitize a receipt to get started.</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if total_pages > 1 %}
+        <div class="px-6 py-4 border-t border-slate-100 dark:border-dark-border/40 flex items-center justify-between">
+          <span class="text-[10px] text-slate-400 dark:text-dark-mute font-medium">{{ total_expenses }} total entries</span>
+          <div class="flex items-center gap-2">
+            {% if page > 1 %}
+            <a href="{{ url_for('dashboard.dashboard', page=page-1, q=request.args.get('q', ''), category=request.args.get('category', '')) }}" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-primary hover:bg-primary/10 border border-slate-200 dark:border-white/10 transition-all">
+              {{ icon('chevron-left', 'text-[14px]') }}
+            </a>
+            {% endif %}
+            {% for p in range(1, total_pages + 1) %}
+              {% if p == page %}
+              <span class="w-7 h-7 rounded-lg bg-primary text-white text-[10px] font-bold flex items-center justify-center">{{ p }}</span>
+              {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
+              <a href="{{ url_for('dashboard.dashboard', page=p, q=request.args.get('q', ''), category=request.args.get('category', '')) }}" class="w-7 h-7 rounded-lg text-[10px] font-bold text-slate-500 hover:text-primary hover:bg-primary/10 flex items-center justify-center transition-all">{{ p }}</a>
+              {% elif p == 4 and page > 5 %}
+              <span class="text-slate-300">...</span>
+              {% endif %}
+            {% endfor %}
+            {% if page < total_pages %}
+            <a href="{{ url_for('dashboard.dashboard', page=page+1, q=request.args.get('q', ''), category=request.args.get('category', '')) }}" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-primary hover:bg-primary/10 border border-slate-200 dark:border-white/10 transition-all">
+              {{ icon('chevron-right', 'text-[14px]') }}
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
       </div>
 
       <!-- PAYMENT METHODS Card -->
-      <div class="card-apple p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
-        <div class="flex items-center gap-2 mb-6">
-            <span class="material-symbols-outlined text-primary text-[20px]">credit_card</span>
+      <div class="card-apple p-5 md:p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="flex items-center gap-2 mb-4 md:mb-6">
+            {{ icon('credit-card', 'text-primary text-[20px]') }}
             <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest">PAYMENT METHODS</h3>
         </div>
-        <div class="h-[180px] w-full relative">
+        <div class="h-[150px] md:h-[180px] w-full relative">
+            <div class="chart-skeleton">
+              <div class="skeleton-icon"></div>
+              <div class="skeleton-bar"></div>
+              <div class="skeleton-bar"></div>
+              <div class="skeleton-bar"></div>
+            </div>
             <canvas id="methodChart"></canvas>
         </div>
       </div>
 
     </div>
 
-    <!-- 3. Visual Analytics (Right Column) -->
-    <div class="lg:col-span-4 space-y-6">
-      
+    <!-- Visual Analytics (Right Column) -->
+    <div class="lg:col-span-4 space-y-4 md:space-y-6">
+
       <!-- THIS MONTH Card -->
-      <div class="card-apple p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
-        <div class="flex items-center gap-2 mb-6">
-            <span class="material-symbols-outlined text-primary text-[20px]">calendar_today</span>
+      <div class="card-apple p-5 md:p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="flex items-center gap-2 mb-4 md:mb-6">
+            {{ icon('calendar-today', 'text-primary text-[20px]') }}
             <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest">THIS MONTH</h3>
         </div>
-        
-        <div class="space-y-4">
-            <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-dark-border/40">
-                <span class="text-xs font-medium text-slate-500 dark:text-dark-mute">Spent so far</span>
-                <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.2f"|format(current_month_spent) }}</span>
+        <div class="space-y-3 md:space-y-4">
+            <div class="flex justify-between items-center pb-3 md:pb-4 border-b border-slate-100 dark:border-dark-border/40">
+                <span class="text-xs font-medium text-slate-500 dark:text-dark-mute">Income</span>
+                <span class="text-sm font-mono font-bold text-signature-forest dark:text-signature-mint">{{ currency_symbol(preferred_currency) }}{{ "%.2f"|format(current_month_income) }}</span>
             </div>
-            <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-dark-border/40">
-                <span class="text-xs font-medium text-slate-500 dark:text-dark-mute">Monthly budget limit</span>
-                <form action="{{ url_for('update_budget') }}" method="POST" class="flex items-center gap-2">
+            <div class="flex justify-between items-center pb-3 md:pb-4 border-b border-slate-100 dark:border-dark-border/40">
+                <span class="text-xs font-medium text-slate-500 dark:text-dark-mute">Spent so far</span>
+                <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">{{ currency_symbol(preferred_currency) }}{{ "%.2f"|format(current_month_spent) }}</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 md:pb-4 border-b border-slate-100 dark:border-dark-border/40">
+                <span class="text-xs font-medium text-slate-500 dark:text-dark-mute">Net Savings</span>
+                <span class="text-sm font-mono font-bold {% if net_savings >= 0 %}text-signature-forest dark:text-signature-mint{% else %}text-accent-red{% endif %}">{{ currency_symbol(preferred_currency) }}{{ "%.2f"|format(net_savings) }}</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 md:pb-4 border-b border-slate-100 dark:border-dark-border/40">
+                <span class="text-xs font-medium text-slate-500 dark:text-dark-mute">Monthly budget</span>
+                <form action="{{ url_for('dashboard.update_budget') }}" method="POST" class="flex items-center gap-2">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">&#8377;</span>
-                    <input type="number" step="any" name="budget" value="{{ '%.0f'|format(monthly_budget) }}" class="w-24 px-2 py-1 text-xs text-right font-mono border rounded-lg bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" required>
-                    <button type="submit" class="p-1.5 rounded-lg text-primary hover:bg-primary/10 active:scale-95 transition-all" title="Update Budget">
-                        <span class="material-symbols-outlined text-[16px]">save</span>
+                    <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">{{ currency_symbol(preferred_currency) }}</span>
+                    <input type="number" step="any" name="budget" value="{{ '%.0f'|format(monthly_budget) }}" class="w-20 md:w-24 px-2 py-1.5 text-xs text-right font-mono border rounded-lg bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary mobile-input-lg" required>
+                    <button type="submit" class="touch-target w-9 h-9 rounded-lg text-primary hover:bg-primary/10 active:scale-95 transition-all" title="Update Budget">
+                        {{ icon('save', 'text-[20px]') }}
                     </button>
                 </form>
             </div>
-            <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-dark-border/40">
+            <div class="flex justify-between items-center">
                 <span class="text-xs font-medium text-slate-500 dark:text-dark-mute">Projected total</span>
-                <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">&#8377;{{ "%.2f"|format(projected_total) }}</span>
+                <span class="text-sm font-mono font-bold text-slate-900 dark:text-white">{{ currency_symbol(preferred_currency) }}{{ "%.2f"|format(projected_total) }}</span>
             </div>
         </div>
 
-        <div class="mt-6">
+        <div class="mt-4 md:mt-6">
             {% if projected_total <= monthly_budget %}
             <div class="bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl p-4 flex gap-3 items-start">
-                <span class="material-symbols-outlined text-signature-mint text-[18px] mt-0.5">check_circle</span>
+                {{ icon('check-circle', 'text-signature-mint text-[18px] mt-0.5 shrink-0') }}
                 <div>
-                    <p class="text-xs font-bold text-slate-900 dark:text-white mb-1">Status Compliant:</p>
+                    <p class="text-xs font-bold text-slate-900 dark:text-white mb-1">On Track</p>
                     <p class="text-[10px] text-slate-500 dark:text-dark-mute leading-tight">Expense trajectory is within safety limits.</p>
                 </div>
             </div>
             {% else %}
             <div class="bg-accent-red/5 border border-accent-red/20 rounded-xl p-4 flex gap-3 items-start">
-                <span class="material-symbols-outlined text-accent-red text-[18px] mt-0.5">warning</span>
+                {{ icon('warning', 'text-accent-red text-[18px] mt-0.5 shrink-0') }}
                 <div>
-                    <p class="text-xs font-bold text-accent-red mb-1">Status Critical:</p>
+                    <p class="text-xs font-bold text-accent-red mb-1">Over Budget</p>
                     <p class="text-[10px] text-slate-500 dark:text-dark-mute leading-tight">Projected spending will exceed the monthly budget.</p>
                 </div>
             </div>
@@ -243,18 +371,22 @@
         </div>
       </div>
 
-      <!-- MONTHLY SPENDING TREND Card -->
-      <div class="card-apple p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
-        <div class="flex items-center gap-2 mb-6">
-            <span class="material-symbols-outlined text-primary text-[20px]">show_chart</span>
-            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest">MONTHLY SPENDING TREND</h3>
+      <!-- MONTHLY SPENDING & INCOME TREND Card -->
+      <div class="card-apple p-5 md:p-6 shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="flex items-center gap-2 mb-4 md:mb-6">
+            {{ icon('show-chart', 'text-primary text-[20px]') }}
+            <h3 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest">MONTHLY TREND</h3>
         </div>
-        <div class="h-[180px] w-full relative">
-            <canvas id="trendChart"></canvas>
+        <div class="h-[180px] md:h-[200px] w-full relative">
+            <div class="chart-skeleton">
+              <div class="skeleton-icon"></div>
+              <div class="skeleton-bar"></div>
+              <div class="skeleton-bar"></div>
+              <div class="skeleton-bar"></div>
+            </div>
+            <canvas id="incomeTrendChart"></canvas>
         </div>
       </div>
-
-      <!-- Removed PAYMENT METHODS Card from right column -->
 
     </div>
 
@@ -267,100 +399,13 @@
     document.getElementById('filter-form').submit();
   }
 
-  // Declared for testing and unified visualization logic
-  const chartData = {
+  window.chartData = {
     trendLabels: {{ trend_labels | tojson }},
     trendValues: {{ trend_values | tojson }},
+    incomeTrendValues: {{ income_trend_values | tojson }},
     methodsLabels: {{ methods_labels | tojson }},
-    methodsValues: {{ methods_values | tojson }}
+    methodsValues: {{ methods_values | tojson }},
+    currencySymbol: '{{ currency_symbol(preferred_currency) }}'
   };
-
-  const ctxTrend = document.getElementById('trendChart').getContext('2d');
-  const ctxMethod = document.getElementById('methodChart').getContext('2d');
-  let trendChart, methodChart;
-
-  function renderDashboardCharts() {
-    const colors = window.getChartThemeColors();
-
-    if (trendChart) trendChart.destroy();
-    if (methodChart) methodChart.destroy();
-
-    // 1. Monthly Trend Chart (Line)
-    trendChart = new Chart(ctxTrend, {
-      type: 'line',
-      data: {
-        labels: chartData.trendLabels,
-        datasets: [{
-          label: 'Spending',
-          data: chartData.trendValues,
-          borderColor: colors.primaryColor,
-          backgroundColor: 'rgba(79, 70, 229, 0.1)',
-          borderWidth: 2,
-          tension: 0.4,
-          fill: true,
-          pointBackgroundColor: colors.cardColor,
-          pointBorderColor: colors.primaryColor,
-          pointRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: colors.tooltipBg,
-            titleColor: colors.tooltipText,
-            bodyColor: colors.tooltipText,
-            padding: 10,
-            callbacks: { label: ctx => ` Rs. ${ctx.raw}` }
-          }
-        },
-        scales: {
-          y: { display: false, min: 0 },
-          x: { grid: { display: false }, ticks: { color: colors.tickColor, font: { size: 10, family: 'Inter' } } }
-        }
-      }
-    });
-
-    // 2. Payment Methods Chart (Bar)
-    methodChart = new Chart(ctxMethod, {
-      type: 'bar',
-      data: {
-        labels: chartData.methodsLabels,
-        datasets: [{
-          label: 'Amount',
-          data: chartData.methodsValues,
-          backgroundColor: colors.palette,
-          borderRadius: 4
-        }]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: colors.tooltipBg,
-            titleColor: colors.tooltipText,
-            bodyColor: colors.tooltipText,
-            padding: 10,
-            callbacks: { label: ctx => ` Rs. ${ctx.raw}` }
-          }
-        },
-        scales: {
-          x: { display: false, min: 0, beginAtZero: true },
-          y: { grid: { display: false }, ticks: { color: colors.tickColor, font: { size: 10, family: 'Inter', weight: 'bold' } } }
-        }
-      }
-    });
-  }
-
-  // Initial draw
-  renderDashboardCharts();
-
-  // Redraw when theme changes
-  window.addEventListener('theme-changed', renderDashboardCharts);
 </script>
 {% endblock %}

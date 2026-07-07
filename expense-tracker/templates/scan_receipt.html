@@ -5,21 +5,21 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
 
   <!-- Header Section -->
-  <section class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 relative">
+  <section class="mb-8 md:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 relative">
     <div class="glow-blob -top-10 -left-10 w-48 h-48 bg-primary/10"></div>
     <div class="relative z-10">
       <div class="flex items-center gap-2 mb-2">
         <span class="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest">Automated Ingest</span>
       </div>
-      <h1 class="heading-display-sm text-slate-900 dark:text-white font-extrabold tracking-tight mb-1">
+      <h1 class="text-2xl md:text-3xl text-slate-900 dark:text-white font-extrabold tracking-tight mb-1">
         Voucher Scanning
       </h1>
-      <p class="body-text text-slate-500 dark:text-dark-mute">Convert physical receipts into ledger entries using our optical processing engine.</p>
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute">Convert physical receipts into ledger entries using our optical processing engine.</p>
     </div>
     
     <div class="flex items-center gap-3 relative z-10">
         <div class="px-4 py-2 rounded-xl bg-signature-forest/5 dark:bg-signature-mint/5 border border-signature-forest/10 dark:border-signature-mint/10 flex items-center gap-2">
-            <span class="material-symbols-outlined text-signature-forest dark:text-signature-mint text-[18px]">verified</span>
+            {{ icon('verified', 'text-signature-forest dark:text-signature-mint text-[18px]') }}
             <span class="text-[10px] font-mono text-signature-forest dark:text-signature-mint uppercase tracking-widest font-bold text-center">OCR ENGINE ACTIVE</span>
         </div>
     </div>
@@ -30,7 +30,7 @@
     <!-- Upload Zone (Left Column) -->
     <div class="lg:col-span-7">
       <div class="card-apple p-1 shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5 overflow-hidden">
-        <form action="{{ url_for('scan_receipt') }}" method="POST" enctype="multipart/form-data" id="receiptForm">
+        <form action="{{ url_for('expenses.scan_receipt') }}" method="POST" enctype="multipart/form-data" id="receiptForm">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="file" name="receipt" id="receiptInput" class="hidden" accept="image/*" onchange="handleFileSelect(this)">
           
@@ -40,7 +40,7 @@
 
             <div class="relative z-10 flex flex-col items-center transition-transform duration-500 group-hover:scale-105" id="uploadPlaceholder">
               <div class="w-20 h-20 rounded-3xl bg-slate-50 dark:bg-white/5 flex items-center justify-center mb-8 border border-slate-100 dark:border-white/10 shadow-inner group-hover:shadow-lg group-hover:shadow-primary/10 transition-all group-hover:-rotate-3">
-                <span class="material-symbols-outlined text-primary dark:text-primary-light text-[40px]">cloud_upload</span>
+                {{ icon('cloud-upload', 'text-primary dark:text-primary-light text-[40px]') }}
               </div>
               <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Drop receipt here</h3>
               <p class="text-xs text-slate-500 dark:text-dark-mute max-w-[240px] leading-relaxed">Securely upload JPEG or PNG vouchers for automated parsing.</p>
@@ -65,7 +65,7 @@
                 </div>
                 <button type="submit" class="mt-10 btn-primary px-10 py-3 text-sm font-bold shadow-xl shadow-primary/30 flex items-center justify-center gap-3 mx-auto group">
                     Start Optical Analysis
-                    <span class="material-symbols-outlined text-[18px] animate-pulse">psychology</span>
+                    {{ icon('psychology', 'text-[18px] animate-pulse') }}
                 </button>
             </div>
 
@@ -81,19 +81,19 @@
         
         <div class="flex items-center gap-3 mb-8">
           <div class="w-8 h-8 rounded-lg bg-signature-coral/10 text-signature-coral flex items-center justify-center">
-            <span class="material-symbols-outlined text-[18px]">summarize</span>
+            {{ icon('summarize', 'text-[18px]') }}
           </div>
           <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Parser Extraction</h3>
         </div>
 
         {% if ocr_result %}
-        <form action="{{ url_for('add_expense') }}" method="POST" class="space-y-6 flex-1">
+        <form action="{{ url_for('expenses.add_expense') }}" method="POST" class="space-y-6 flex-1">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           
           <div class="space-y-2 group">
-            <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Detected Amount (&#8377;)</label>
+            <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Detected Amount</label>
             <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">payments</span>
+              {{ icon('payments', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
               <input type="number" step="0.01" name="amount" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-mono font-bold text-slate-900 dark:text-white" value="{{ ocr_result.amount or '' }}" placeholder="Enter amount" required>
             </div>
             <p class="text-[9px] text-primary/70 font-bold uppercase tracking-tight italic">Verified via optical pattern match</p>
@@ -102,7 +102,7 @@
           <div class="space-y-2 group">
             <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Classified Category</label>
             <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">category</span>
+              {{ icon('category', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
               <select name="category" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                 <option value="Food" {% if ocr_result.category == 'Food' %}selected{% endif %}>Food & Dining</option>
                 <option value="Transport" {% if ocr_result.category == 'Transport' %}selected{% endif %}>Transportation</option>
@@ -125,14 +125,14 @@
           <div class="pt-6 border-t border-slate-100 dark:border-dark-border/40 mt-auto">
             <button type="submit" class="btn-primary w-full py-3.5 text-xs font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group">
               Commit to Ledger
-              <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">save</span>
+              {{ icon('save', 'text-[18px] transition-transform group-hover:translate-x-1') }}
             </button>
           </div>
         </form>
         {% else %}
         <div class="flex-1 flex flex-col items-center justify-center text-center">
             <div class="w-16 h-16 rounded-full bg-slate-50 dark:bg-white/[0.02] flex items-center justify-center mb-4 border border-dashed border-slate-200 dark:border-white/10 opacity-50">
-                <span class="material-symbols-outlined text-slate-300 dark:text-dark-border text-[32px]">dataset</span>
+                {{ icon('dataset', 'text-slate-300 dark:text-dark-border text-[32px]') }}
             </div>
             <p class="text-xs font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Pending Acquisition</p>
             <p class="text-[10px] text-slate-400 dark:text-dark-mute mt-2 max-w-[200px]">Upload a voucher to initiate automated data extraction protocols.</p>

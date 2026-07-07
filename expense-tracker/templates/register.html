@@ -6,104 +6,146 @@
   <div class="glow-blob top-1/3 -right-20 w-80 h-80 bg-primary/10"></div>
   <div class="glow-blob bottom-1/3 -left-20 w-80 h-80 bg-signature-peach/10"></div>
 
-  <div class="w-full max-w-[440px] relative z-10 animate-fade-in-up">
-    <div class="mb-10 flex flex-col items-center text-center">
-      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary to-primary-light text-white flex items-center justify-center mb-6 shadow-lg shadow-primary/20">
-        <span class="material-symbols-outlined text-[32px]">person_add</span>
+  <div class="w-full max-w-[440px] relative z-10 animate-fade-in-up px-0 sm:px-0">
+    <div class="mb-8 md:mb-10 flex flex-col items-center text-center px-4 md:px-0">
+      <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-tr from-primary to-primary-light text-white flex items-center justify-center mb-4 md:mb-6 shadow-lg shadow-primary/20">
+        {{ icon('person_add', 'text-[28px] md:text-[32px]') }}
       </div>
-      <h1 class="heading-display-sm text-slate-900 dark:text-white mb-2 font-extrabold tracking-tight">Create your account</h1>
-      <p class="body-text text-slate-500 dark:text-dark-mute max-w-[320px]">Join Spendly to start tracking your expenses smarter and simpler.</p>
+      <h1 class="text-2xl md:text-3xl text-slate-900 dark:text-white mb-2 font-extrabold tracking-tight">Create your account</h1>
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute max-w-[320px]">Join Spendly to start tracking your expenses smarter and simpler.</p>
     </div>
 
-    <div class="card-apple p-8 sm:p-10 shadow-2xl shadow-slate-200/50 dark:shadow-none border-white/60 dark:border-white/5 !rounded-3xl">
-      <form id="register-form" method="POST" action="/register" class="space-y-5" novalidate>
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="card-apple p-6 md:p-8 sm:p-10 shadow-2xl shadow-slate-200/50 dark:shadow-none border-white/60 dark:border-white/5 !rounded-2xl md:!rounded-3xl mx-4 md:mx-0">
 
-        <div class="space-y-2 group">
-          <label for="name" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Full Name</label>
-          <div style="position: relative; display: flex; align-items: center;">
-            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 1;">person</span>
-            <input id="name" name="name" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white reg-input" style="background: rgba(248,250,252,0.5); padding: 0.75rem 1rem 0.75rem 2.75rem; width: 100%; border-radius: 0.75rem;" type="text" placeholder="Your full name" required autofocus>
-          </div>
-          <p class="text-[11px] text-accent-red hidden mt-1" id="name-error">Name must be at least 2 characters.</p>
-        </div>
+      <!-- Step 1: Registration Form (hidden when OTP is sent) -->
+      <div id="register-step-1" class="{{ 'hidden' if otp_sent else '' }}">
+        <form id="register-form" method="POST" action="/register" class="space-y-5" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <div class="space-y-2 group">
-          <label for="reg-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Email Address</label>
-          <div style="position: relative; display: flex; align-items: center;">
-            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 1;">alternate_email</span>
-            <input id="reg-email" name="email" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white reg-input" style="background: rgba(248,250,252,0.5); padding: 0.75rem 1rem 0.75rem 2.75rem; width: 100%; border-radius: 0.75rem;" type="email" placeholder="email@address.com" required>
+          <div class="space-y-2 group">
+            <label for="name" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Full Name</label>
+            <div style="position: relative; display: flex; align-items: center;">
+              {{ icon('person', 'text-slate-400 dark:text-dark-border text-[18px] auth-icon') }}
+              <input id="name" name="name" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white auth-input" type="text" placeholder="Your full name" required autofocus>
+            </div>
+            <p class="text-[11px] text-accent-red hidden mt-1" id="name-error">Name must be at least 2 characters.</p>
           </div>
-          <p class="text-[11px] text-accent-red hidden mt-1" id="reg-email-error">Please enter a valid email address.</p>
-        </div>
 
-        <div class="space-y-2 group">
-          <div class="flex justify-between items-end">
-            <label for="reg-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Password</label>
-            <span class="text-[10px] text-slate-400 dark:text-dark-mute font-medium" id="password-strength-label"></span>
+          <div class="space-y-2 group">
+            <label for="reg-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Email Address</label>
+            <div style="position: relative; display: flex; align-items: center;">
+              {{ icon('alternate_email', 'text-slate-400 dark:text-dark-border text-[18px] auth-icon') }}
+              <input id="reg-email" name="email" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white auth-input" type="email" placeholder="email@address.com" required>
+            </div>
+            <p class="text-[11px] text-accent-red hidden mt-1" id="reg-email-error">Please enter a valid email address.</p>
           </div>
-          <div style="position: relative; display: flex; align-items: center;">
-            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 1;">key</span>
-            <input id="reg-password" name="password" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white reg-input" style="background: rgba(248,250,252,0.5); padding: 0.75rem 3rem 0.75rem 2.75rem; width: 100%; border-radius: 0.75rem;" type="password" placeholder="Min. 6 characters" required minlength="6">
-            <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors toggle-password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; padding: 0.25rem; background: none; border: none; cursor: pointer; line-height: 1;" data-target="reg-password" aria-label="Toggle password visibility">
-              <span class="material-symbols-outlined" style="font-size: 18px; line-height: 1;">visibility</span>
+
+          <div class="space-y-2 group">
+            <div class="flex justify-between items-end">
+              <label for="reg-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Password</label>
+              <span class="text-[10px] text-slate-400 dark:text-dark-mute font-medium" id="password-strength-label"></span>
+            </div>
+            <div style="position: relative; display: flex; align-items: center;">
+              {{ icon('key', 'text-slate-400 dark:text-dark-border text-[18px] auth-icon') }}
+              <input id="reg-password" name="password" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white auth-input-password" type="password" placeholder="Min. 6 characters" required minlength="6">
+              <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors toggle-password auth-toggle-btn" data-target="reg-password" aria-label="Toggle password visibility">
+                <span class="toggle-password-icon">{{ icon('visibility', 'text-[18px]') }}</span>
+              </button>
+            </div>
+            <div class="flex gap-1 mt-1.5" id="password-strength-bar">
+              <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-dark-border transition-colors"></div>
+              <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-dark-border transition-colors"></div>
+              <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-dark-border transition-colors"></div>
+              <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-dark-border transition-colors"></div>
+            </div>
+            <p class="text-[11px] text-accent-red hidden mt-1" id="reg-password-error">Password must be at least 6 characters.</p>
+          </div>
+
+          <div class="space-y-2 group">
+            <label for="reg-confirm-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Confirm Password</label>
+            <div style="position: relative; display: flex; align-items: center;">
+              {{ icon('lock', 'text-slate-400 dark:text-dark-border text-[18px] auth-icon') }}
+              <input id="reg-confirm-password" name="confirm_password" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white auth-input-password" type="password" placeholder="Re-enter your password" required>
+              <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors toggle-password auth-toggle-btn" data-target="reg-confirm-password" aria-label="Toggle password visibility">
+                <span class="toggle-password-icon">{{ icon('visibility', 'text-[18px]') }}</span>
+              </button>
+            </div>
+            <p class="text-[11px] text-accent-red hidden mt-1" id="confirm-password-error">Passwords do not match.</p>
+          </div>
+
+          <div class="pt-4">
+            <button type="submit" class="btn-primary w-full py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group !rounded-full" id="register-submit">
+              <span class="btn-text">Create Account</span>
+              {{ icon('arrow_forward', 'text-[18px] transition-transform group-hover:translate-x-1 btn-icon') }}
+              <span class="hidden spinner w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             </button>
           </div>
-          <div class="flex gap-1 mt-1.5" id="password-strength-bar">
-            <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-dark-border transition-colors"></div>
-            <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-dark-border transition-colors"></div>
-            <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-dark-border transition-colors"></div>
-            <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-dark-border transition-colors"></div>
-          </div>
-          <p class="text-[11px] text-accent-red hidden mt-1" id="reg-password-error">Password must be at least 6 characters.</p>
-        </div>
+        </form>
+      </div>
 
-        <div class="space-y-2 group">
-          <label for="reg-confirm-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">Confirm Password</label>
-          <div style="position: relative; display: flex; align-items: center;">
-            <span class="material-symbols-outlined text-slate-400 dark:text-dark-border text-[18px]" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 1;">lock</span>
-            <input id="reg-confirm-password" name="confirm_password" class="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white reg-input" style="background: rgba(248,250,252,0.5); padding: 0.75rem 3rem 0.75rem 2.75rem; width: 100%; border-radius: 0.75rem;" type="password" placeholder="Re-enter your password" required>
-            <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors toggle-password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; padding: 0.25rem; background: none; border: none; cursor: pointer; line-height: 1;" data-target="reg-confirm-password" aria-label="Toggle password visibility">
-              <span class="material-symbols-outlined" style="font-size: 18px; line-height: 1;">visibility</span>
+      <!-- Step 2: OTP Verification (shown after email is sent) -->
+      <div id="register-step-2" class="{{ '' if otp_sent else 'hidden' }} text-center">
+        <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
+          {{ icon('mail_lock', 'text-[28px]') }}
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Check your email</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute mb-6">
+          We sent a verification code to <strong class="text-slate-700 dark:text-slate-300">{{ otp_email }}</strong>
+        </p>
+
+        <form id="otp-form" method="POST" action="/register" class="space-y-5" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="space-y-2">
+            <label for="otp-code" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Enter verification code</label>
+            <div class="flex justify-center gap-3" id="otp-inputs">
+              <input type="text" name="otp_code" id="otp-code-hidden" class="sr-only" maxlength="6" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*">
+              <input type="text" class="otp-digit peer" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="0" required>
+              <input type="text" class="otp-digit peer" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="1" required>
+              <input type="text" class="otp-digit peer" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="2" required>
+              <input type="text" class="otp-digit peer" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="3" required>
+              <input type="text" class="otp-digit peer" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="4" required>
+              <input type="text" class="otp-digit peer" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="5" required>
+            </div>
+            <p class="text-[11px] text-accent-red hidden mt-2" id="otp-error">Please enter a valid 6-digit code.</p>
+          </div>
+
+          <div class="pt-2">
+            <button type="submit" class="btn-primary w-full py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group !rounded-full" id="otp-submit">
+              <span class="btn-text">Verify & Create Account</span>
+              {{ icon('check_circle', 'text-[18px] transition-transform group-hover:translate-x-1 btn-icon') }}
+              <span class="hidden spinner w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             </button>
           </div>
-          <p class="text-[11px] text-accent-red hidden mt-1" id="confirm-password-error">Passwords do not match.</p>
-        </div>
+        </form>
 
-        <div class="pt-4">
-          <button type="submit" class="btn-primary w-full py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group !rounded-full" id="register-submit">
-            <span class="btn-text">Create Account</span>
-            <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1 btn-icon">arrow_forward</span>
-            <span class="hidden spinner w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-          </button>
+        <div class="mt-6 pt-4 border-t border-slate-100 dark:border-dark-border/40">
+          <p class="text-xs text-slate-400 dark:text-dark-mute mb-2">Didn't receive the code?</p>
+          <form id="resend-otp-form" method="POST" action="/resend-otp">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="text-sm font-bold text-primary hover:text-primary-light transition-colors" id="resend-otp-btn">
+              Resend code
+            </button>
+          </form>
+          <p class="text-[10px] text-slate-400 dark:text-dark-mute mt-3">
+            The code expires in 10 minutes. Check your spam folder if you don't see it.
+          </p>
         </div>
-      </form>
+      </div>
 
       <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40 text-center">
         <p class="text-sm text-slate-500 dark:text-dark-mute mb-2">Already have an account?</p>
-        <a href="{{ url_for('login') }}" class="text-sm font-bold text-primary hover:text-primary-light transition-colors flex items-center justify-center gap-1 group">
+        <a href="{{ url_for('auth.login') }}" class="text-sm font-bold text-primary hover:text-primary-light transition-colors flex items-center justify-center gap-1 group">
           Sign in here
-          <span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-0.5">arrow_forward</span>
+          {{ icon('arrow_forward', 'text-[16px] transition-transform group-hover:translate-x-0.5') }}
         </a>
       </div>
     </div>
 
     <p class="mt-8 text-xs text-center text-slate-500 dark:text-dark-mute leading-relaxed max-w-[320px] mx-auto">
-      By creating an account, you agree to our <a href="{{ url_for('terms') }}" class="font-medium text-slate-700 dark:text-slate-300 underline hover:text-primary transition-colors">Terms of Service</a> and <a href="{{ url_for('privacy') }}" class="font-medium text-slate-700 dark:text-slate-300 underline hover:text-primary transition-colors">Privacy Policy</a>.
+      By creating an account, you agree to our <a href="{{ url_for('main.terms') }}" class="font-medium text-slate-700 dark:text-slate-300 underline hover:text-primary transition-colors">Terms of Service</a> and <a href="{{ url_for('main.privacy') }}" class="font-medium text-slate-700 dark:text-slate-300 underline hover:text-primary transition-colors">Privacy Policy</a>.
     </p>
   </div>
 </section>
 
-<style>
-  /* Dark mode input backgrounds */
-  .dark .reg-input,
-  .dark #login-email,
-  .dark #login-password {
-    background: rgba(3, 7, 18, 0.5) !important;
-  }
-  /* Placeholder colors for dark mode */
-  .dark .reg-input::placeholder {
-    color: rgb(31, 41, 55);
-  }
-</style>
+
 {% endblock %}

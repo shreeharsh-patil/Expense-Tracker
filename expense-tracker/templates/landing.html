@@ -1,38 +1,37 @@
 {% extends "base.html" %}
 {% block title %}Spendly — Track Smarter. Spend Wiser.{% endblock %}
 
-{% block content %}
-<!-- Premium Landing Page Header & Hero Section -->
-<section class="relative min-h-[calc(100vh-64px)] flex items-center justify-center py-16 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-grid-pattern">
+{% block content %}  <!-- Premium Landing Page Header & Hero Section -->
+<section class="relative min-h-[calc(100vh-64px)] flex items-center justify-center py-12 md:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-grid-pattern">
   <!-- Glowing Background Blobs -->
-  <div class="glow-blob top-16 left-8 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-primary/10 dark:bg-primary/15"></div>
-  <div class="glow-blob bottom-16 right-8 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-signature-peach/10 dark:bg-signature-peach/15"></div>
+  <div class="glow-blob top-16 left-8 w-[250px] sm:w-[500px] h-[250px] sm:h-[500px] bg-primary/10 dark:bg-primary/15"></div>
+  <div class="glow-blob bottom-16 right-8 w-[250px] sm:w-[500px] h-[250px] sm:h-[500px] bg-signature-peach/10 dark:bg-signature-peach/15"></div>
 
-  <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center relative z-10">
+  <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 lg:gap-8 items-center relative z-10">
     
     <!-- Left Column: High Impact Headline & Action -->
-    <div class="lg:col-span-6 flex flex-col items-start text-left space-y-8 animate-fade-in-up">
+    <div class="lg:col-span-6 flex flex-col items-start text-left space-y-6 md:space-y-8 animate-fade-in-up">
       <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary dark:text-primary-light text-[10px] font-mono font-bold uppercase tracking-widest">
         <span class="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span>
         Personal Ledger Terminal
       </div>
 
-      <h1 class="heading-display text-slate-900 dark:text-white font-extrabold tracking-tight">
+      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-slate-900 dark:text-white font-extrabold tracking-tight leading-tight md:leading-[1.15]">
         Track Smarter.<br>
         <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-light">Spend Wiser.</span>
       </h1>
 
-      <p class="body-text text-slate-500 dark:text-dark-mute max-w-[500px] text-base leading-relaxed">
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute max-w-[500px] leading-relaxed">
         Meet Spendly — the minimalist, privacy-first personal expense tracker designed to sync with your financial ledger. Scan receipts, forecast monthly burn, track subscriptions, and visualize cash flow automatically.
       </p>
 
-      <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-        <a href="{{ url_for('register') }}" class="btn-primary w-full sm:w-auto py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group">
+      <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto">
+        <a href="{{ url_for('auth.register') }}" class="btn-primary w-full sm:w-auto py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group">
           Get Started (Free)
-          <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+          {{ icon('arrow-forward', 'text-[18px] transition-transform group-hover:translate-x-1') }}
         </a>
         <a href="#live-demo" class="btn-secondary w-full sm:w-auto py-3.5 text-sm font-bold flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined text-[18px]">terminal</span>
+          {{ icon('terminal', 'text-[18px]') }}
           Explore Live Simulator
         </a>
       </div>
@@ -63,94 +62,92 @@
         <div class="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
           <img src="{{ url_for('static', filename='images/spendly_hero_dashboard.png') }}"
                alt="Spendly expense tracking dashboard"
-               class="w-full h-auto object-contain">
+               class="w-full h-auto object-contain" loading="lazy">
         </div>
       </div>
     </div>
 
   </div>
-</section>
-
-<!-- Bento Grid Features Section -->
-<section class="py-24 bg-surface-soft dark:bg-dark-elevated transition-colors border-t border-slate-200/50 dark:border-dark-border/40 reveal">
+</section>  <!-- Bento Grid Features Section -->
+<section class="py-16 md:py-24 bg-surface-soft dark:bg-dark-elevated transition-colors border-t border-slate-200/50 dark:border-dark-border/40 reveal">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     
-    <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+    <div class="text-center max-w-2xl mx-auto mb-10 md:mb-16 space-y-4">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-primary dark:text-primary-light text-[9px] font-mono font-bold uppercase tracking-widest">
         Full Stack Engine
       </div>
-      <h2 class="heading-display-sm text-slate-900 dark:text-white font-extrabold tracking-tight">
+      <h2 class="text-2xl md:text-3xl lg:text-4xl text-slate-900 dark:text-white font-extrabold tracking-tight">
         Engineered for visual clarity and ultimate privacy.
       </h2>
-      <p class="body-text text-slate-500 dark:text-dark-mute">
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute">
         Spendly combines cutting-edge OCR ingestion with a lightweight transactional database to give you an uncompromised tracking system.
       </p>
     </div>
 
     <!-- Bento Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
       
       <!-- Feature 1: OCR Ingestion -->
-      <div class="card-apple p-8 flex flex-col justify-between hover-lift md:col-span-2">
+      <div class="card-apple p-6 md:p-8 flex flex-col justify-between hover-lift md:col-span-2">
         <div>
           <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary dark:text-primary-light flex items-center justify-center mb-6">
-            <span class="material-symbols-outlined text-[24px]">center_focus_strong</span>
+            {{ icon('center-focus-strong', 'text-[24px]') }}
           </div>
-          <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">OCR Ingestion Receipt Digitation</h3>
-          <p class="body-text text-slate-500 dark:text-dark-mute max-w-xl">
+          <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">OCR Ingestion Receipt Digitation</h3>
+          <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute max-w-xl">
             Stop manually recording entries. Snap or upload a photo of any bill or receipt, and let Spendly's local OCR scanner automatically extract the merchant name, transactional items, tax configurations, and total billing amounts in real time.
           </p>
         </div>
-        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40 flex items-center gap-3">
+        <div class="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-slate-100 dark:border-dark-border/40 flex items-center gap-3">
           <span class="tag-badge tag-health">AI-assisted</span>
           <span class="tag-badge tag-other">Zero API leaks</span>
         </div>
       </div>
 
       <!-- Feature 2: Dark/Light Mode -->
-      <div class="card-apple p-8 flex flex-col justify-between hover-lift">
+      <div class="card-apple p-6 md:p-8 flex flex-col justify-between hover-lift">
         <div>
           <div class="w-12 h-12 rounded-xl bg-signature-peach/10 text-signature-peach flex items-center justify-center mb-6">
-            <span class="material-symbols-outlined text-[24px]">brightness_4</span>
+            {{ icon('brightness-4', 'text-[24px]') }}
           </div>
-          <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Obsidian Dark Mode</h3>
-          <p class="body-text text-slate-500 dark:text-dark-mute">
+          <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Obsidian Dark Mode</h3>
+          <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute">
             A beautiful, low-contrast dark mode designed to ease your eyes. Seamless transitions match your system preferences or active console triggers.
           </p>
         </div>
-        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40">
+        <div class="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-slate-100 dark:border-dark-border/40">
           <span class="tag-badge tag-transport">Fluid theme sync</span>
         </div>
       </div>
 
       <!-- Feature 3: Smart Forecasting -->
-      <div class="card-apple p-8 flex flex-col justify-between hover-lift">
+      <div class="card-apple p-6 md:p-8 flex flex-col justify-between hover-lift">
         <div>
           <div class="w-12 h-12 rounded-xl bg-accent-blue/10 text-accent-blue flex items-center justify-center mb-6">
-            <span class="material-symbols-outlined text-[24px]">batch_prediction</span>
+            {{ icon('batch-prediction', 'text-[24px]') }}
           </div>
-          <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Burn Forecasts</h3>
-          <p class="body-text text-slate-500 dark:text-dark-mute">
+          <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Burn Forecasts</h3>
+          <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute">
             Project your total monthly burn based on real-time averages. Get early notifications when forecast trajectories exceed active budgets.
           </p>
         </div>
-        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40">
+        <div class="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-slate-100 dark:border-dark-border/40">
           <span class="tag-badge tag-food">Daily projections</span>
         </div>
       </div>
 
       <!-- Feature 4: Subscriptions & Recurring Manager -->
-      <div class="card-apple p-8 flex flex-col justify-between hover-lift md:col-span-2">
+      <div class="card-apple p-6 md:p-8 flex flex-col justify-between hover-lift md:col-span-2">
         <div>
           <div class="w-12 h-12 rounded-xl bg-accent-green/10 text-accent-green flex items-center justify-center mb-6">
-            <span class="material-symbols-outlined text-[24px]">autorenew</span>
+            {{ icon('autorenew', 'text-[24px]') }}
           </div>
-          <h3 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Subscription & Recurring Manager</h3>
-          <p class="body-text text-slate-500 dark:text-dark-mute max-w-xl">
+          <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Subscription & Recurring Manager</h3>
+          <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute max-w-xl">
             Keep track of monthly, quarterly, and annual SaaS recurring bills. Spendly automatically projects renewals into your active ledger timeline and reminds you when recurring payment channels are about to execute.
           </p>
         </div>
-        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40 flex items-center gap-3">
+        <div class="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-slate-100 dark:border-dark-border/40 flex items-center gap-3">
           <span class="tag-badge tag-bills">Auto renewals</span>
           <span class="tag-badge tag-shopping">Sub analytics</span>
         </div>
@@ -242,11 +239,11 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="card-apple p-6 flex flex-col gap-4">
         <div class="flex gap-1 text-amber-400">
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
         </div>
         <p class="text-sm text-slate-600 dark:text-dark-mute flex-1">"The receipt scanner is incredibly fast. I used to spend hours manually entering my expenses at the end of the month, now it takes seconds."</p>
         <div class="flex items-center gap-3 mt-4">
@@ -259,11 +256,11 @@
       </div>
       <div class="card-apple p-6 flex flex-col gap-4">
         <div class="flex gap-1 text-amber-400">
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
         </div>
         <p class="text-sm text-slate-600 dark:text-dark-mute flex-1">"Spendly's burn rate forecast actually stopped me from buying things I didn't need. The interactive charts make managing cashflow so much easier."</p>
         <div class="flex items-center gap-3 mt-4">
@@ -276,11 +273,11 @@
       </div>
       <div class="card-apple p-6 flex flex-col gap-4">
         <div class="flex gap-1 text-amber-400">
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
-          <span class="material-symbols-outlined text-[16px]">star</span>
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
+          {{ icon('star', 'text-[16px]') }}
         </div>
         <p class="text-sm text-slate-600 dark:text-dark-mute flex-1">"Finally, a privacy-first tracker that isn't trying to sell my data to credit card companies. The minimalist dark mode is absolutely beautiful."</p>
         <div class="flex items-center gap-3 mt-4">
@@ -313,11 +310,11 @@
         <p class="text-xs font-mono font-bold text-slate-500 uppercase tracking-widest mb-2">Hobbyist</p>
         <p class="text-4xl font-extrabold text-slate-900 dark:text-white mb-6">₹0 <span class="text-sm font-normal text-slate-400">/ forever</span></p>
         <ul class="space-y-4 mb-8 flex-1">
-          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-emerald-500">check_circle</span> Up to 50 manual entries/mo</li>
-          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-emerald-500">check_circle</span> 5 Receipt OCR scans/mo</li>
-          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-emerald-500">check_circle</span> Basic dashboard charts</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">{{ icon('check-circle', 'text-[18px] text-emerald-500') }} Up to 50 manual entries/mo</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">{{ icon('check-circle', 'text-[18px] text-emerald-500') }} 5 Receipt OCR scans/mo</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">{{ icon('check-circle', 'text-[18px] text-emerald-500') }} Basic dashboard charts</li>
         </ul>
-        <a href="{{ url_for('register') }}" class="btn-secondary text-center py-3 text-sm font-bold w-full">Start Free</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-secondary text-center py-3 text-sm font-bold w-full">Start Free</a>
       </div>
 
       <!-- Pro Tier -->
@@ -326,12 +323,12 @@
         <p class="text-xs font-mono font-bold text-primary uppercase tracking-widest mb-2 flex justify-between items-center">Pro <span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px]">Popular</span></p>
         <p class="text-4xl font-extrabold text-slate-900 dark:text-white mb-6">₹199 <span class="text-sm font-normal text-slate-400">/ month</span></p>
         <ul class="space-y-4 mb-8 flex-1">
-          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-primary">check_circle</span> Unlimited manual entries</li>
-          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-primary">check_circle</span> Unlimited Receipt OCR scans</li>
-          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-primary">check_circle</span> Custom budget alerts & forecasting</li>
-          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute"><span class="material-symbols-outlined text-[18px] text-primary">check_circle</span> CSV Data Export</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">{{ icon('check-circle', 'text-[18px] text-primary') }} Unlimited manual entries</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">{{ icon('check-circle', 'text-[18px] text-primary') }} Unlimited Receipt OCR scans</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">{{ icon('check-circle', 'text-[18px] text-primary') }} Custom budget alerts & forecasting</li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">{{ icon('check-circle', 'text-[18px] text-primary') }} CSV Data Export</li>
         </ul>
-        <a href="{{ url_for('register') }}" class="btn-primary text-center py-3 text-sm font-bold w-full shadow-lg shadow-primary/20">Upgrade to Pro</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-primary text-center py-3 text-sm font-bold w-full shadow-lg shadow-primary/20">Upgrade to Pro</a>
       </div>
     </div>
   </div>
@@ -350,11 +347,11 @@
       Spendly gives you the diagnostic visual telemetry you need to stay on budget. Fully customizable, responsive, and completely secure.
     </p>
     <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-      <a href="{{ url_for('register') }}" class="btn-primary w-full sm:w-auto py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center gap-2 group">
-        <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">rocket_launch</span>
+      <a href="{{ url_for('auth.register') }}" class="btn-primary w-full sm:w-auto py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center gap-2 group">
+        {{ icon('rocket-launch', 'text-[18px] transition-transform group-hover:translate-x-1') }}
         Get Started Free
       </a>
-      <a href="{{ url_for('login') }}" class="btn-secondary w-full sm:w-auto py-3.5 text-sm font-bold">
+      <a href="{{ url_for('auth.login') }}" class="btn-secondary w-full sm:w-auto py-3.5 text-sm font-bold">
         Sign In
       </a>
     </div>
@@ -363,7 +360,7 @@
     <div class="mt-14 max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
       <img src="{{ url_for('static', filename='images/spendly_receipt_scanner.png') }}"
            alt="Spendly AI receipt scanner feature"
-           class="w-full h-auto object-contain">
+           class="w-full h-auto object-contain" loading="lazy">
     </div>
   </div>
 </section>
@@ -422,7 +419,7 @@
           <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/40 dark:bg-white/[0.01] border border-slate-100/50 dark:border-white/[0.02] hover:scale-[1.01] transition-transform">
             <div class="flex items-center gap-2.5">
               <div class="w-8 h-8 rounded-lg ${categoryColorMap[t.color]} flex items-center justify-center">
-                <span class="material-symbols-outlined text-[18px]">${t.icon}</span>
+                <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="none"><use href="#icon-${t.icon.replace(/_/g, '-')}"/></svg>
               </div>
               <div>
                 <p class="text-xs font-bold text-slate-800 dark:text-white">${t.merchant}</p>

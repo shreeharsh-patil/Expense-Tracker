@@ -6,44 +6,56 @@
   <div class="glow-blob -top-10 -left-10 w-64 h-64 bg-primary/10"></div>
   <div class="glow-blob -bottom-10 -right-10 w-64 h-64 bg-signature-peach/10"></div>
 
-  <div class="w-full max-w-[520px] relative z-10 animate-fade-in-up">
+  <div class="w-full max-w-[520px] relative z-10 animate-fade-in-up px-4 md:px-0">
 
-    <div class="mb-8 flex flex-col items-center text-center">
+    <div class="mb-6 md:mb-8 flex flex-col items-center text-center">
       <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4 shadow-sm border border-primary/20">
-        <span class="material-symbols-outlined text-[28px]">add_task</span>
+        {{ icon('add_task', 'text-[28px]') }}
       </div>
-      <h1 class="heading-display-sm text-slate-900 dark:text-white mb-1 font-extrabold tracking-tight">Record Transaction</h1>
-      <p class="body-text text-slate-500 dark:text-dark-mute">Append a new line-item to your financial ledger.</p>
+      <h1 class="text-2xl md:text-3xl text-slate-900 dark:text-white mb-1 font-extrabold tracking-tight">Record Transaction</h1>
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute">Append a new line-item to your financial ledger.</p>
     </div>
 
-    <div class="card-apple p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none hover-lift border-white/60 dark:border-white/5">
+    <div class="card-apple p-6 md:p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none hover-lift border-white/60 dark:border-white/5">
       <form method="POST" class="space-y-6">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
           <div class="space-y-2 group">
-            <label for="amount" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Capital Amount (&#8377;)</label>
+            <label for="amount" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Amount (<span class="currency-label">{{ currency_symbol(preferred_currency) }}</span>)</label>
             <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">payments</span>
-              <input type="number" step="0.01" id="amount" name="amount" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-mono font-bold text-slate-900 dark:text-white" placeholder="0.00" required autofocus>
+              {{ icon('payments', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <input type="number" step="0.01" id="amount" name="amount" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-mono font-bold text-slate-900 dark:text-white" placeholder="0.00" required autofocus>
+            </div>
+          </div>
+
+          <div class="space-y-2 group">
+            <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
+            <div class="relative flex items-center">
+              {{ icon('currency_exchange', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <select name="currency" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+                {% for c in currencies %}
+                <option value="{{ c }}" {% if c == preferred_currency %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
+                {% endfor %}
+              </select>
             </div>
           </div>
 
           <div class="space-y-2 group">
             <label for="date" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Transaction Date</label>
             <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">calendar_today</span>
-              <input type="date" id="date" name="date" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" required>
+              {{ icon('calendar_today', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <input type="date" id="date" name="date" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" required>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
           <div class="space-y-2 group">
-            <label for="category" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation Category</label>
+            <label for="category" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
             <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">category</span>
-              <select id="category" name="category" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
+              {{ icon('category', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <select id="category" name="category" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
                 <option value="Food">Food & Dining</option>
                 <option value="Transport">Transportation</option>
                 <option value="Shopping">Shopping</option>
@@ -58,8 +70,8 @@
           <div class="space-y-2 group">
             <label for="payment_method" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Channel</label>
             <div class="relative flex items-center">
-              <span class="material-symbols-outlined absolute left-0 text-slate-300 dark:text-dark-border text-[18px]">credit_card</span>
-              <select id="payment_method" name="payment_method" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+              {{ icon('credit_card', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <select id="payment_method" name="payment_method" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                 <option value="Cash">Physical Cash</option>
                 <option value="Bank">Bank Transfer / UPI</option>
                 <option value="Credit Card">Credit Instrument</option>
@@ -69,19 +81,19 @@
         </div>
 
         <div class="space-y-2 group">
-          <label for="description" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Memo / Description (Optional)</label>
+          <label for="description" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Memo / Description</label>
           <div class="relative flex items-start">
-            <span class="material-symbols-outlined absolute left-0 top-3 text-slate-300 dark:text-dark-border text-[18px]">description</span>
-            <textarea id="description" name="description" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white min-h-[80px] resize-none" rows="3" placeholder="Enter transaction details..."></textarea>
+            {{ icon('description', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0 top-3') }}
+            <input type="text" id="description" name="description" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" placeholder="Enter transaction details...">
           </div>
         </div>
 
-        <div class="flex gap-4 pt-6 border-t border-slate-100 dark:border-dark-border/40">
-          <button type="submit" class="btn-primary flex-1 py-3 text-sm font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group">
+        <div class="flex gap-3 md:gap-4 pt-6 border-t border-slate-100 dark:border-dark-border/40">
+          <button type="submit" class="btn-primary flex-1 py-3.5 md:py-3 text-sm font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group !rounded-xl">
             Commit Entry
-            <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+            {{ icon('arrow_forward', 'text-[18px] transition-transform group-hover:translate-x-1') }}
           </button>
-          <a href="{{ url_for('dashboard') }}" class="btn-secondary flex-1 py-3 text-sm font-bold flex items-center justify-center no-underline">Abort</a>
+          <a href="{{ url_for('dashboard.dashboard') }}" class="btn-secondary flex-1 py-3.5 md:py-3 text-sm font-bold flex items-center justify-center no-underline !rounded-xl">Cancel</a>
         </div>
       </form>
     </div>
