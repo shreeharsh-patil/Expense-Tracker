@@ -71,12 +71,13 @@ export default function Home() {
               <div className="lg:col-span-6 animate-fade-in-up delay-200">
                 <div className="relative w-full">
                   <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-primary/20 to-violet-500/15 blur-2xl opacity-60"></div>
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10 bg-slate-900/20 aspect-[16/10] flex items-center justify-center">
-                    {/* Fallback mockup design inside Next.js */}
-                    <div className="p-8 text-center space-y-4">
-                      <Sparkles className="w-12 h-12 text-primary mx-auto animate-bounce" />
-                      <p className="font-mono text-xs text-slate-400">Ledger Visualizer Loading...</p>
-                    </div>
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
+                    <img 
+                      src="/images/spendly_hero_dashboard.png"
+                      alt="Spendly expense tracking dashboard"
+                      className="w-full h-auto object-contain"
+                      loading="lazy"
+                    />
                   </div>
                 </div>
               </div>
@@ -292,6 +293,16 @@ export default function Home() {
                 <Link href="/login" className="btn-secondary w-full sm:w-auto py-3.5 text-sm font-bold">
                   Sign In
                 </Link>
+              </div>
+              
+              {/* Receipt scanner image below CTA */}
+              <div className="mt-14 max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
+                <img 
+                  src="/images/spendly_receipt_scanner.png"
+                  alt="Spendly AI receipt scanner feature"
+                  className="w-full h-auto object-contain"
+                  loading="lazy"
+                />
               </div>
             </div>
           </section>
