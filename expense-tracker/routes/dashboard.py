@@ -2,6 +2,7 @@ import threading
 from datetime import datetime, date
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database.db import get_db
+import json
 from helpers import (
     cache_get, cache_set, cache_clear_user, validate_budget,
     should_process_recurring, process_recurring_expenses,
@@ -39,15 +40,32 @@ def dashboard():
     # 2. Expenses with pagination (25 per page)
     search_query = request.args.get('q', '')
     category_filter = request.args.get('category', '')
+    tag_filter = request.args.get('tag', '')
     date_from = request.args.get('date_from', '')
     date_to = request.args.get('date_to', '')
     page = request.args.get('page', 1, type=int)
     per_page = 25
 
-    query = "SELECT * FROM expenses WHERE user_id = ?"
-    count_query = "SELECT COUNT(*) as cnt FROM expenses WHERE user_id = ?"
-    params = [user_id]
-    count_params = [user_id]
+    # Build query based on filters
+    if tag_filter:
+        # Need to JOIN with expense_tags for tag filtering
+        base_query = "SELECT e.* FROM expenses e"
+        base_count = "SELECT COUNT(DISTINCT e.id) as cnt FROM expenses e"
+        join_clause = " INNER JOIN expense_tags et ON e.id = et.expense_id INNER JOIN tags t ON et.tag_id = t.id"
+        query = base_query + join_clause + " WHERE e.user_id = ?"
+        count_query = base_count + join_clause + " WHERE e.user_id = ?"
+        params = [user_id]
+        count_params = [user_id]
+        tag_cond = " AND (t.name = ? OR t.id = ?)"
+        query += tag_cond
+        count_query += tag_cond
+        params.extend([tag_filter, tag_filter])
+        count_params.extend([tag_filter, tag_filter])
+    else:
+        query = "SELECT * FROM expenses WHERE user_id = ?"
+        count_query = "SELECT COUNT(*) as cnt FROM expenses WHERE user_id = ?"
+        params = [user_id]
+        count_params = [user_id]
 
     if search_query:
         cond = " AND (description LIKE ? OR category LIKE ?)"
@@ -56,18 +74,18 @@ def dashboard():
         params.extend([f"%{search_query}%", f"%{search_query}%"])
         count_params.extend([f"%{search_query}%", f"%{search_query}%"])
     if category_filter:
-        query += " AND category = ?"
-        count_query += " AND category = ?"
+        query += " AND e.category = ?" if tag_filter else " AND category = ?"
+        count_query += " AND e.category = ?" if tag_filter else " AND category = ?"
         params.append(category_filter)
         count_params.append(category_filter)
     if date_from:
-        query += " AND date >= ?"
-        count_query += " AND date >= ?"
+        query += " AND e.date >= ?" if tag_filter else " AND date >= ?"
+        count_query += " AND e.date >= ?" if tag_filter else " AND date >= ?"
         params.append(date_from)
         count_params.append(date_from)
     if date_to:
-        query += " AND date <= ?"
-        count_query += " AND date <= ?"
+        query += " AND e.date <= ?" if tag_filter else " AND date <= ?"
+        count_query += " AND e.date <= ?" if tag_filter else " AND date <= ?"
         params.append(date_to)
         count_params.append(date_to)
 
@@ -77,19 +95,48 @@ def dashboard():
     page = max(1, min(page, total_pages))
     offset = (page - 1) * per_page
 
-    query += " ORDER BY date DESC LIMIT ? OFFSET ?"
+    query += " ORDER BY e.date DESC" if tag_filter else " ORDER BY date DESC"
+    query += " LIMIT ? OFFSET ?"
     params.extend([per_page, offset])
     all_expenses = db.execute(query, params).fetchall()
+    
+    # Fetch tags for each expense
+    expense_ids = [e['id'] for e in all_expenses]
+    expense_tags = {}  # expense_id -> list of tag dicts
+    if expense_ids:
+        for eid in expense_ids:
+            tag_rows = db.execute(
+                "SELECT t.id, t.name, t.color FROM tags t INNER JOIN expense_tags et ON t.id = et.tag_id WHERE et.expense_id = ?",
+                (eid,)
+            ).fetchall()
+            expense_tags[eid] = [dict(r) for r in tag_rows]
+    
     total_spent = 0
-    if search_query or category_filter or date_from or date_to:
-        total_row = db.execute(
-            "SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE user_id = ?" +
-            (" AND (description LIKE ? OR category LIKE ?)" if search_query else "") +
-            (" AND category = ?" if category_filter else "") +
-            (" AND date >= ?" if date_from else "") +
-            (" AND date <= ?" if date_to else ""),
-            count_params
-        ).fetchone()
+    if search_query or category_filter or date_from or date_to or tag_filter:
+        # Build total spent query matching the filters
+        if tag_filter:
+            total_query = "SELECT COALESCE(SUM(e.amount), 0) as total FROM expenses e INNER JOIN expense_tags et ON e.id = et.expense_id INNER JOIN tags t ON et.tag_id = t.id WHERE e.user_id = ?"
+            total_params = [user_id]
+            total_query += " AND (t.name = ? OR t.id = ?)"
+            total_params.extend([tag_filter, tag_filter])
+        else:
+            total_query = "SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE user_id = ?"
+            total_params = [user_id]
+            
+        if search_query:
+            cond = " AND (description LIKE ? OR category LIKE ?)"
+            total_query += cond
+            total_params.extend([f"%{search_query}%", f"%{search_query}%"])
+        if category_filter:
+            total_query += " AND e.category = ?" if tag_filter else " AND category = ?"
+            total_params.append(category_filter)
+        if date_from:
+            total_query += " AND e.date >= ?" if tag_filter else " AND date >= ?"
+            total_params.append(date_from)
+        if date_to:
+            total_query += " AND e.date <= ?" if tag_filter else " AND date <= ?"
+            total_params.append(date_to)
+        total_row = db.execute(total_query, total_params).fetchone()
         total_spent = total_row['total'] if total_row else 0
 
     # 3. Current-month spending
@@ -217,9 +264,41 @@ def dashboard():
     # Income trend values aligned with expense trend months
     income_trends_cached = cache_get((user_id, 'income_trends'))
     income_trend_values = income_trends_cached if income_trends_cached else [0] * len(trend_labels)
+    
+    # 11b. Account balances for sidebar
+    accounts_data = db.execute(
+        "SELECT id, name, type, currency FROM accounts WHERE user_id = ? AND is_active = 1 ORDER BY name",
+        (user_id,)
+    ).fetchall()
+    # Calculate actual balances from transactions
+    for acc in accounts_data:
+        spent = db.execute(
+            "SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE user_id = ? AND account_id = ?",
+            (user_id, acc['id'])
+        ).fetchone()['total'] or 0.0
+        earned = db.execute(
+            "SELECT COALESCE(SUM(amount), 0) as total FROM income WHERE user_id = ? AND account_id = ?",
+            (user_id, acc['id'])
+        ).fetchone()['total'] or 0.0
+        acc['balance'] = earned - spent
+
+    # 12a. Get all user tags for filter chips
+    all_tags = db.execute(
+        "SELECT id, name, color FROM tags WHERE user_id = ? ORDER BY name",
+        (user_id,)
+    ).fetchall()
+
+    # 12b. Receipt attachment lookup — map expense_id -> has_receipt
+    receipt_rows = db.execute(
+        "SELECT DISTINCT expense_id FROM receipts WHERE user_id = ? AND expense_id IS NOT NULL",
+        (user_id,)
+    ).fetchall()
+    receipt_expense_ids = {r['expense_id'] for r in receipt_rows}
 
     return render_template('dashboard.html',
+        receipt_expense_ids=receipt_expense_ids,
         expenses=all_expenses,
+        expense_tags=expense_tags,
         total_spent=total_spent,
         current_month_spent=current_month_spent,
         current_month_income=current_month_income,
@@ -233,13 +312,16 @@ def dashboard():
         insights=insights,
         date_from=date_from,
         date_to=date_to,
+        tag_filter=tag_filter,
+        all_tags=all_tags,
         projected_total=projected_total,
         methods_labels=methods_labels,
         methods_values=methods_values,
         page=page,
         total_pages=total_pages,
         total_expenses=total_count,
-        preferred_currency=preferred_currency
+        preferred_currency=preferred_currency,
+        accounts_data=accounts_data
     )
 
 

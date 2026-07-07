@@ -112,17 +112,6 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  if (e.target.closest('#shortcutsModal') && !e.target.closest('.modal-content')) {
-    closeShortcutsModal();
-    return;
-  }
-
-  // Shortcuts modal close button
-  if (e.target.closest('#shortcutsModalClose')) {
-    closeShortcutsModal();
-    return;
-  }
-
   // Scroll-to-top
   if (e.target.closest('#scrollToTopBtn')) {
     window.scrollTo({ top: 0, behavior: 'smooth' });

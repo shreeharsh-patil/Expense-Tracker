@@ -9,16 +9,14 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- CSS loaded first — blocking to prevent FOUC -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=11">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fragment+Mono&display=swap" rel="stylesheet">
 
-  <link rel="preload" href="{{ url_for('static', filename='css/tailwind.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}"></noscript>
-  <script src="{{ url_for('static', filename='js/charts.js') }}?v=1" defer></script>
-  <script src="{{ url_for('static', filename='js/main.js') }}?v=11" defer></script>
-  {% block head_scripts %}{% endblock %}
-
   <script>
-    // Initialize theme from localStorage or system preference to prevent flash of style
+    // Initialize theme before first paint to prevent dark mode flash
     if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
     } else {
@@ -26,8 +24,9 @@
     }
   </script>
 
-  <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}?v=10" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=10"></noscript>
+  <script src="{{ url_for('static', filename='js/charts.js') }}?v=2" defer></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}?v=13" defer></script>
+  {% block head_scripts %}{% endblock %}
   {% block head %}{% endblock %}
 </head>
 <body class="bg-canvas dark:bg-dark-bg text-slate-700 dark:text-dark-text font-sans antialiased min-h-screen pb-20 md:pb-0 transition-colors duration-200 bg-grid-pattern">
@@ -52,7 +51,12 @@
           <a href="{{ url_for('dashboard.dashboard') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('dashboard.dashboard') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Dashboard</a>
           <a href="{{ url_for('dashboard.reports') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('dashboard.reports') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Reports</a>
           <a href="{{ url_for('expenses.scan_receipt') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('expenses.scan_receipt') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Scan</a>
+          <a href="{{ url_for('expenses.receipt_gallery') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('expenses.receipt_gallery') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Receipts</a>
           <a href="{{ url_for('expenses.recurring_list') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('expenses.recurring_list') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Recurring</a>
+          <a href="{{ url_for('accounts.list_accounts') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('accounts.list_accounts') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Accounts</a>
+          <a href="{{ url_for('rules.list_rules') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('rules.list_rules') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Rules</a>
+          <a href="{{ url_for('tags.manage_tags') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('tags.manage_tags') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Tags</a>
+          <a href="{{ url_for('categories.list_categories') }}" class="px-3 py-2 text-xs font-semibold rounded-lg transition-colors {% if request.path == url_for('categories.list_categories') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% else %}text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5{% endif %}">Categories</a>
 
           {% else %}
           <a href="{{ url_for('main.features') }}" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">Features</a>
@@ -95,8 +99,20 @@
         <a href="{{ url_for('expenses.scan_receipt') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('expenses.scan_receipt') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
           <span class="flex items-center gap-3">{{ icon('center_focus_strong', 'text-[20px]') }} Scan Receipt</span>
         </a>
+        <a href="{{ url_for('expenses.receipt_gallery') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('expenses.receipt_gallery') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
+          <span class="flex items-center gap-3">{{ icon('image', 'text-[20px]') }} Receipt Gallery</span>
+        </a>
         <a href="{{ url_for('expenses.recurring_list') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('expenses.recurring_list') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
           <span class="flex items-center gap-3">{{ icon('event_repeat', 'text-[20px]') }} Recurring</span>
+        </a>
+        <a href="{{ url_for('accounts.list_accounts') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('accounts.list_accounts') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
+          <span class="flex items-center gap-3">{{ icon('account-balance-wallet', 'text-[20px]') }} Accounts</span>
+        </a>
+        <a href="{{ url_for('tags.manage_tags') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('tags.manage_tags') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
+          <span class="flex items-center gap-3">{{ icon('category', 'text-[20px]') }} Tags</span>
+        </a>
+        <a href="{{ url_for('categories.list_categories') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('categories.list_categories') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
+          <span class="flex items-center gap-3">{{ icon('category', 'text-[20px]') }} Categories</span>
         </a>
         <hr class="border-slate-200/50 dark:border-dark-border/40 my-2">
         <a href="{{ url_for('profile.profile') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('profile.profile') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
@@ -280,6 +296,10 @@
       <span class="font-sans text-[9px] font-semibold mt-0.5">Profile</span>
     </a>
     <!-- Plus button to open quick-add sheet -->
+    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('expenses.receipt_gallery') %}text-primary mobile-nav-active{% else %}text-slate-400 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('expenses.receipt_gallery') }}">
+      {{ icon('photo-camera', 'text-[22px]') }}
+      <span class="font-sans text-[9px] font-semibold mt-0.5">Receipts</span>
+    </a>
     <button class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 text-slate-400 dark:text-dark-mute hover:text-primary dark:hover:text-primary-light" id="nav-plus-btn" aria-label="Quick add">
       {{ icon('add_circle', 'text-[26px]') }}
       <span class="font-sans text-[9px] font-semibold mt-0.5">Add</span>

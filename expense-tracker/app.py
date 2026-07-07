@@ -114,6 +114,11 @@ from routes.expenses import expenses_bp
 from routes.income import income_bp
 from routes.profile import profile_bp
 from routes.main import main_bp
+from routes.accounts import accounts_bp
+from routes.tags import tags_bp
+from routes.rules import rules_bp
+from routes.webhooks import webhooks_bp
+from routes.categories import categories_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(dashboard_bp)
@@ -121,6 +126,11 @@ app.register_blueprint(expenses_bp)
 app.register_blueprint(income_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(main_bp)
+app.register_blueprint(accounts_bp)
+app.register_blueprint(tags_bp)
+app.register_blueprint(rules_bp)
+app.register_blueprint(webhooks_bp)
+app.register_blueprint(categories_bp)
 
 # Initialize OAuth (Google + GitHub)
 _oauth = init_oauth(app)

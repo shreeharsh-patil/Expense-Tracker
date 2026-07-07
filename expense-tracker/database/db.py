@@ -103,6 +103,12 @@ class PostgresDBWrapper:
     def commit(self):
         self.conn.commit()
         
+    @property
+    def last_insert_id(self):
+        """Return the last inserted row ID (Postgres-compatible)."""
+        cur = self.execute("SELECT LASTVAL() as id")
+        return cur.fetchone()['id']
+
     def close(self):
         self.conn.close()
 
@@ -172,6 +178,11 @@ class SQLiteDBWrapper:
     def commit(self):
         self.conn.commit()
         
+    @property
+    def last_insert_id(self):
+        """Return the last inserted row ID."""
+        return self.conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+
     def close(self):
         self.conn.close()
 
@@ -365,6 +376,8 @@ def init_db():
         "ALTER TABLE expenses ADD COLUMN currency TEXT DEFAULT 'INR'",
         "ALTER TABLE income ADD COLUMN currency TEXT DEFAULT 'INR'",
         "ALTER TABLE recurring_expenses ADD COLUMN currency TEXT DEFAULT 'INR'",
+        "ALTER TABLE expenses ADD COLUMN account_id INTEGER DEFAULT NULL REFERENCES accounts(id)",
+        "ALTER TABLE income ADD COLUMN account_id INTEGER DEFAULT NULL REFERENCES accounts(id)",
     ]:
         try:
             db.execute(alter_sql)
@@ -427,11 +440,286 @@ def init_db():
             )
         """)
 
-    # --- Performance indexes: speed up dashboard queries, filters, and reports ---
+    # --- Budget Periods table ---
+    if isinstance(db, PostgresDBWrapper):
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS budget_periods (
+                id          SERIAL PRIMARY KEY,
+                user_id     INTEGER NOT NULL,
+                name        TEXT    NOT NULL,
+                amount      REAL    NOT NULL,
+                period_type TEXT    NOT NULL DEFAULT 'monthly',
+                start_date  TEXT    NOT NULL,
+                end_date    TEXT,
+                rollover    INTEGER DEFAULT 0,
+                created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+    else:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS budget_periods (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     INTEGER NOT NULL,
+                name        TEXT    NOT NULL,
+                amount      REAL    NOT NULL,
+                period_type TEXT    NOT NULL DEFAULT 'monthly',
+                start_date  TEXT    NOT NULL,
+                end_date    TEXT,
+                rollover    INTEGER DEFAULT 0,
+                created_at  TEXT    DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+
+    # --- Bill Splits table ---
+    if isinstance(db, PostgresDBWrapper):
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS bill_splits (
+                id          SERIAL PRIMARY KEY,
+                expense_id  INTEGER NOT NULL,
+                user_id     INTEGER NOT NULL,
+                friend_name TEXT    NOT NULL,
+                amount      REAL    NOT NULL,
+                settled     INTEGER DEFAULT 0,
+                created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (expense_id) REFERENCES expenses(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+    else:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS bill_splits (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                expense_id  INTEGER NOT NULL,
+                user_id     INTEGER NOT NULL,
+                friend_name TEXT    NOT NULL,
+                amount      REAL    NOT NULL,
+                settled     INTEGER DEFAULT 0,
+                created_at  TEXT    DEFAULT (datetime('now')),
+                FOREIGN KEY (expense_id) REFERENCES expenses(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+
+    # --- Webhooks table ---
+    if isinstance(db, PostgresDBWrapper):
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS webhooks (
+                id          SERIAL PRIMARY KEY,
+                user_id     INTEGER NOT NULL,
+                name        TEXT    NOT NULL,
+                url         TEXT    NOT NULL,
+                events      TEXT    NOT NULL DEFAULT 'expense.created',
+                is_active   INTEGER DEFAULT 1,
+                created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+    else:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS webhooks (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     INTEGER NOT NULL,
+                name        TEXT    NOT NULL,
+                url         TEXT    NOT NULL,
+                events      TEXT    NOT NULL DEFAULT 'expense.created',
+                is_active   INTEGER DEFAULT 1,
+                created_at  TEXT    DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+
+    # --- Smart Rules table ---
+    if isinstance(db, PostgresDBWrapper):
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS smart_rules (
+                id          SERIAL PRIMARY KEY,
+                user_id     INTEGER NOT NULL,
+                name        TEXT    NOT NULL,
+                pattern     TEXT    NOT NULL,
+                category    TEXT,
+                tags        TEXT,
+                is_active   INTEGER DEFAULT 1,
+                priority    INTEGER DEFAULT 0,
+                created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+    else:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS smart_rules (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     INTEGER NOT NULL,
+                name        TEXT    NOT NULL,
+                pattern     TEXT    NOT NULL,
+                category    TEXT,
+                tags        TEXT,
+                is_active   INTEGER DEFAULT 1,
+                priority    INTEGER DEFAULT 0,
+                created_at  TEXT    DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+
+    # --- Tags table ---
+    if isinstance(db, PostgresDBWrapper):
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS tags (
+                id      SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                name    TEXT    NOT NULL,
+                color   TEXT    DEFAULT '#6366f1',
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(user_id, name)
+            )
+        """)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS expense_tags (
+                expense_id INTEGER NOT NULL,
+                tag_id     INTEGER NOT NULL,
+                PRIMARY KEY (expense_id, tag_id),
+                FOREIGN KEY (expense_id) REFERENCES expenses(id) ON DELETE CASCADE,
+                FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+            )
+        """)
+    else:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS tags (
+                id      INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                name    TEXT    NOT NULL,
+                color   TEXT    DEFAULT '#6366f1',
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(user_id, name)
+            )
+        """)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS expense_tags (
+                expense_id INTEGER NOT NULL,
+                tag_id     INTEGER NOT NULL,
+                PRIMARY KEY (expense_id, tag_id),
+                FOREIGN KEY (expense_id) REFERENCES expenses(id) ON DELETE CASCADE,
+                FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+            )
+        """)
+
+    # --- Accounts table for multi-wallet support ---
+    if isinstance(db, PostgresDBWrapper):
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS accounts (
+                id          SERIAL PRIMARY KEY,
+                user_id     INTEGER NOT NULL,
+                name        TEXT    NOT NULL,
+                type        TEXT    DEFAULT 'bank',
+                balance     REAL    DEFAULT 0.0,
+                currency    TEXT    DEFAULT 'INR',
+                is_active   INTEGER DEFAULT 1,
+                created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+    else:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS accounts (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     INTEGER NOT NULL,
+                name        TEXT    NOT NULL,
+                type        TEXT    DEFAULT 'bank',
+                balance     REAL    DEFAULT 0.0,
+                currency    TEXT    DEFAULT 'INR',
+                is_active   INTEGER DEFAULT 1,
+                created_at  TEXT    DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+
+    # --- Receipts table for gallery feature ---
+    if isinstance(db, PostgresDBWrapper):
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS receipts (
+                id          SERIAL PRIMARY KEY,
+                user_id     INTEGER NOT NULL,
+                expense_id  INTEGER,
+                filename    TEXT    NOT NULL,
+                original_name TEXT   NOT NULL,
+                filepath    TEXT    NOT NULL,
+                amount      REAL,
+                category    TEXT,
+                raw_text    TEXT,
+                created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (expense_id) REFERENCES expenses(id) ON DELETE SET NULL
+            )
+        """)
+    else:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS receipts (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id       INTEGER NOT NULL,
+                expense_id    INTEGER,
+                filename      TEXT    NOT NULL,
+                original_name TEXT    NOT NULL,
+                filepath      TEXT    NOT NULL,
+                amount        REAL,
+                category      TEXT,
+                raw_text      TEXT,
+                created_at    TEXT    DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (expense_id) REFERENCES expenses(id) ON DELETE SET NULL
+            )
+        """)
+
+    # --- Performance indexes ---
     db.execute("CREATE INDEX IF NOT EXISTS idx_expenses_user_date ON expenses(user_id, date)")
     db.execute("CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(user_id, category)")
     db.execute("CREATE INDEX IF NOT EXISTS idx_income_user_date ON income(user_id, date)")
     db.execute("CREATE INDEX IF NOT EXISTS idx_recurring_user ON recurring_expenses(user_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_receipts_user ON receipts(user_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_receipts_expense ON receipts(expense_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_tags_user ON tags(user_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_expense_tags_expense ON expense_tags(expense_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_expense_tags_tag ON expense_tags(tag_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_accounts_user ON accounts(user_id)")
+    # --- Custom Categories table ---
+    if isinstance(db, PostgresDBWrapper):
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS custom_categories (
+                id      SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                name    TEXT    NOT NULL,
+                icon    TEXT    DEFAULT 'category',
+                color   TEXT    DEFAULT '#6366f1',
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(user_id, name)
+            )
+        """)
+    else:
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS custom_categories (
+                id      INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                name    TEXT    NOT NULL,
+                icon    TEXT    DEFAULT 'category',
+                color   TEXT    DEFAULT '#6366f1',
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(user_id, name)
+            )
+        """)
+
+    # --- Performance indexes ---
+    db.execute("CREATE INDEX IF NOT EXISTS idx_expenses_user_date ON expenses(user_id, date)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(user_id, category)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_income_user_date ON income(user_id, date)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_recurring_user ON recurring_expenses(user_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_receipts_user ON receipts(user_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_receipts_expense ON receipts(expense_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_tags_user ON tags(user_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_expense_tags_expense ON expense_tags(expense_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_expense_tags_tag ON expense_tags(tag_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_accounts_user ON accounts(user_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_smart_rules_user ON smart_rules(user_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_custom_categories_user ON custom_categories(user_id)")
 
     db.commit()
 

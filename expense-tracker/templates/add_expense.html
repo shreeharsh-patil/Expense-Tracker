@@ -56,13 +56,22 @@
             <div class="relative flex items-center">
               {{ icon('category', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
               <select id="category" name="category" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
-                <option value="Food">Food & Dining</option>
-                <option value="Transport">Transportation</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Bills">Bills & Rent</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Health">Health</option>
-                <option value="Other">Other</option>
+                <optgroup label="Default">
+                  <option value="Food">Food & Dining</option>
+                  <option value="Transport">Transportation</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Bills">Bills & Rent</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Health">Health</option>
+                  <option value="Other">Other</option>
+                </optgroup>
+                {% if custom_categories %}
+                <optgroup label="Custom">
+                  {% for cc in custom_categories %}
+                  <option value="{{ cc }}">{{ cc }}</option>
+                  {% endfor %}
+                </optgroup>
+                {% endif %}
               </select>
             </div>
           </div>
@@ -78,6 +87,19 @@
               </select>
             </div>
           </div>
+
+          <div class="space-y-2 group">
+            <label for="account_id" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Account</label>
+            <div class="relative flex items-center">
+              {{ icon('account_balance', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <select id="account_id" name="account_id" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+                <option value="">No account</option>
+                {% for acc in accounts %}
+                <option value="{{ acc.id }}">{{ acc.name }} ({{ acc.type|replace('_', ' ')|title }})</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="space-y-2 group">
@@ -86,6 +108,21 @@
             {{ icon('description', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0 top-3') }}
             <input type="text" id="description" name="description" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" placeholder="Enter transaction details...">
           </div>
+        </div>
+
+        <!-- Tags Selector -->
+        <div class="space-y-2 group">
+          <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors">Tags</label>
+          <div class="flex flex-wrap gap-2 tag-pills" id="tag-selector">
+            {% for tag in tags %}
+            <label class="tag-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 text-[10px] font-bold cursor-pointer transition-all hover:border-primary/50" data-tag-id="{{ tag.id }}">
+              <input type="checkbox" name="tag_ids" value="{{ tag.id }}" class="hidden tag-checkbox">
+              <span class="w-2 h-2 rounded-full" style="background-color: {{ tag.color }}"></span>
+              {{ tag.name }}
+            </label>
+            {% endfor %}
+          </div>
+          <a href="{{ url_for('tags.manage_tags') }}" class="text-[9px] text-primary hover:text-primary-light font-bold">Manage tags →</a>
         </div>
 
         <div class="flex gap-3 md:gap-4 pt-6 border-t border-slate-100 dark:border-dark-border/40">
@@ -106,5 +143,17 @@
   if (!dateInput.value) {
     dateInput.valueAsDate = new Date();
   }
+
+  // Tag pill visual feedback
+  document.querySelectorAll('.tag-pill').forEach(pill => {
+    const checkbox = pill.querySelector('.tag-checkbox');
+    function updatePill() {
+      pill.classList.toggle('!border-primary', checkbox.checked);
+      pill.classList.toggle('!bg-primary/10', checkbox.checked);
+      pill.classList.toggle('!text-primary', checkbox.checked);
+    }
+    checkbox.addEventListener('change', updatePill);
+    updatePill();
+  });
 </script>
 {% endblock %}

@@ -56,13 +56,22 @@
             <div class="relative flex items-center">
               {{ icon('category', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
               <select id="category" name="category" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
-                <option value="Food" {% if expense.category == 'Food' %}selected{% endif %}>Food & Dining</option>
-                <option value="Transport" {% if expense.category == 'Transport' %}selected{% endif %}>Transportation</option>
-                <option value="Shopping" {% if expense.category == 'Shopping' %}selected{% endif %}>Shopping</option>
-                <option value="Bills" {% if expense.category == 'Bills' %}selected{% endif %}>Bills & Rent</option>
-                <option value="Entertainment" {% if expense.category == 'Entertainment' %}selected{% endif %}>Entertainment</option>
-                <option value="Health" {% if expense.category == 'Health' %}selected{% endif %}>Health</option>
-                <option value="Other" {% if expense.category == 'Other' %}selected{% endif %}>Other</option>
+                <optgroup label="Default">
+                  <option value="Food" {% if expense.category == 'Food' %}selected{% endif %}>Food & Dining</option>
+                  <option value="Transport" {% if expense.category == 'Transport' %}selected{% endif %}>Transportation</option>
+                  <option value="Shopping" {% if expense.category == 'Shopping' %}selected{% endif %}>Shopping</option>
+                  <option value="Bills" {% if expense.category == 'Bills' %}selected{% endif %}>Bills & Rent</option>
+                  <option value="Entertainment" {% if expense.category == 'Entertainment' %}selected{% endif %}>Entertainment</option>
+                  <option value="Health" {% if expense.category == 'Health' %}selected{% endif %}>Health</option>
+                  <option value="Other" {% if expense.category == 'Other' %}selected{% endif %}>Other</option>
+                </optgroup>
+                {% if custom_categories %}
+                <optgroup label="Custom">
+                  {% for cc in custom_categories %}
+                  <option value="{{ cc }}" {% if expense.category == cc %}selected{% endif %}>{{ cc }}</option>
+                  {% endfor %}
+                </optgroup>
+                {% endif %}
               </select>
             </div>
           </div>
@@ -78,6 +87,19 @@
               </select>
             </div>
           </div>
+
+          <div class="space-y-2 group">
+            <label for="account_id" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Account</label>
+            <div class="relative flex items-center">
+              {{ icon('account_balance_wallet', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
+              <select id="account_id" name="account_id" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+                <option value="">No account</option>
+                {% for acc in accounts %}
+                <option value="{{ acc.id }}" {% if expense.account_id == acc.id %}selected{% endif %}>{{ acc.name }} ({{ acc.type|replace('_', ' ')|title }})</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="space-y-2 group">
@@ -85,6 +107,20 @@
           <div class="relative flex items-center">
             {{ icon('description', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
             <input type="text" id="description" name="description" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" value="{{ expense.description }}" placeholder="Enter transaction details...">
+          </div>
+        </div>
+
+        <!-- Tags Selector -->
+        <div class="space-y-2 group">
+          <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors">Tags</label>
+          <div class="flex flex-wrap gap-2 tag-pills" id="tag-selector">
+            {% for tag in tags %}
+            <label class="tag-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 text-[10px] font-bold cursor-pointer transition-all hover:border-primary/50" data-tag-id="{{ tag.id }}">
+              <input type="checkbox" name="tag_ids" value="{{ tag.id }}" class="hidden tag-checkbox" {% if tag.id in selected_tag_ids %}checked{% endif %}>
+              <span class="w-2 h-2 rounded-full" style="background-color: {{ tag.color }}"></span>
+              {{ tag.name }}
+            </label>
+            {% endfor %}
           </div>
         </div>
 
@@ -99,4 +135,7 @@
     </div>
   </div>
 </section>
+<script>
+document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.tag-pill').forEach(function(p){var c=p.querySelector('.tag-checkbox');if(!c)return;function u(){p.classList.toggle('!border-primary',c.checked);p.classList.toggle('!bg-primary/10',c.checked);p.classList.toggle('!text-primary',c.checked)}c.addEventListener('change',u);u()})});
+</script>
 {% endblock %}
