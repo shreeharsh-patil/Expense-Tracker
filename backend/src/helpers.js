@@ -59,6 +59,13 @@ function cache_clear_user(user_id) {
 }
 
 // ------------------------------------------------------------------ //
+// Validation                                                          //
+// ------------------------------------------------------------------ //
+function is_valid_hex_color(color) {
+    return /^#[0-9a-fA-F]{6}$/.test(color);
+}
+
+// ------------------------------------------------------------------ //
 // Token Management                                                   //
 // ------------------------------------------------------------------ //
 function generate_reset_token(email) {
@@ -302,5 +309,6 @@ module.exports = {
     validate_amount,
     validate_budget,
     should_process_recurring,
-    process_recurring_expenses
+    process_recurring_expenses,
+    is_valid_hex_color
 };

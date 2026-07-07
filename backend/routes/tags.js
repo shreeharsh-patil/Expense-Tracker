@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const { Tag, Expense } = require('../models');
+const { is_valid_hex_color } = require('../src/helpers');
 
 router.get('/tags', async (req, res, next) => {
     if (!req.session.user_id) {
@@ -48,6 +49,11 @@ router.post('/tags/add', async (req, res, next) => {
 
     if (!name) {
         req.flash('danger', 'Tag name is required.');
+        return res.redirect('/tags');
+    }
+
+    if (!is_valid_hex_color(color)) {
+        req.flash('danger', 'Invalid tag color.');
         return res.redirect('/tags');
     }
 

@@ -160,7 +160,8 @@ document.addEventListener('keydown', (e) => {
       break;
     case 'd':
       e.preventDefault();
-      const dashLink = document.querySelector('a[href*="dashboard.dashboard"]');
+      const dashLink = document.querySelector('[data-shortcut="dashboard"]') ||
+                          document.querySelector('a[href*="dashboard"][href*="/dashboard"]');
       if (dashLink) window.location.href = dashLink.getAttribute('href');
       break;
     case 'Escape':

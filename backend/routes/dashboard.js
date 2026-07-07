@@ -7,6 +7,10 @@ const {
     should_process_recurring, process_recurring_expenses
 } = require('../src/helpers');
 
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function getWeekNumber(d) {
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -51,9 +55,10 @@ router.get('/dashboard', async (req, res, next) => {
         const filter = { user_id: new mongoose.Types.ObjectId(user_id) };
 
         if (search_query) {
+            const safeQuery = escapeRegex(search_query);
             filter.$or = [
-                { description: new RegExp(search_query, 'i') },
-                { category: new RegExp(search_query, 'i') }
+                { description: new RegExp(safeQuery, 'i') },
+                { category: new RegExp(safeQuery, 'i') }
             ];
         }
 

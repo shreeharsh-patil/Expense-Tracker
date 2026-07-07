@@ -319,7 +319,7 @@ router.post('/register', async (req, res) => {
         };
 
         // Send OTP email
-        await send_otp_email(email, otp, name);
+        await send_otp_email(email, name, otp);
 
         req.flash('info', 'A verification code has been sent to your email.');
         return res.render('register.html', {
@@ -360,7 +360,7 @@ router.post('/resend-otp', async (req, res) => {
     });
     await emailOtp.save();
 
-    await send_otp_email(email, otp, name);
+    await send_otp_email(email, name, otp);
     req.flash('info', 'A new verification code has been sent.');
     return res.redirect('/register');
 });

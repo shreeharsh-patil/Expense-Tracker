@@ -115,7 +115,9 @@ function renderReportCharts() {
   if (!canvas) return; // Not on reports page
 
   const ctxAnnual = canvas.getContext('2d');
-  const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+  const categoryCanvas = document.getElementById('categoryChart');
+  if (!categoryCanvas) return;
+  const ctxCategory = categoryCanvas.getContext('2d');
   const data = window.reportData;
   if (!data) return;
 

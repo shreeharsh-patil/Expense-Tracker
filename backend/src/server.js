@@ -80,7 +80,9 @@ app.use(session({
         ttl: 14 * 24 * 60 * 60 // 14 days
     }),
     cookie: {
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
         maxAge: 14 * 24 * 60 * 60 * 1000
     }
 }));
@@ -126,11 +128,6 @@ app.use((req, res, next) => {
         return next();
     }
 
-    // Bypass CSRF for REST API calls
-    if (req.path.startsWith('/api/')) {
-        return next();
-    }
-
     const clientToken = req.body?.csrf_token || req.headers['x-csrf-token'] || req.headers['x-xsrf-token'];
     if (!clientToken || clientToken !== req.session.csrfToken) {
         req.flash('danger', 'Session expired. Please try again.');
@@ -144,8 +141,6 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-
     if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
         res.setHeader('Content-Security-Policy',
             "default-src 'self'; " +
@@ -366,9 +361,6 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    if (process.env.NODE_ENV !== 'production') {
-        return res.status(500).send(`<pre>${err.stack}</pre>`);
-    }
     res.status(500).render('500.html');
 });
 

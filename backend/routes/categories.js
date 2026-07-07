@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const { CustomCategory, Expense } = require('../models');
+const { is_valid_hex_color } = require('../src/helpers');
 
 router.get('/categories', async (req, res, next) => {
     if (!req.session.user_id) {
@@ -44,6 +45,11 @@ router.post('/categories/add', async (req, res, next) => {
         return res.redirect('/categories');
     }
 
+    if (!is_valid_hex_color(color)) {
+        req.flash('danger', 'Invalid category color.');
+        return res.redirect('/categories');
+    }
+
     try {
         const newCat = new CustomCategory({
             user_id,
@@ -81,6 +87,11 @@ router.post('/categories/:id/edit', async (req, res, next) => {
 
     if (!name || name.length < 2) {
         req.flash('danger', 'Category name must be at least 2 characters.');
+        return res.redirect('/categories');
+    }
+
+    if (!is_valid_hex_color(color)) {
+        req.flash('danger', 'Invalid category color.');
         return res.redirect('/categories');
     }
 

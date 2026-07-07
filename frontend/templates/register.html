@@ -190,7 +190,7 @@
           <form id="otp-form" method="POST" action="/register" class="space-y-5" novalidate>
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="space-y-2">
-              <label for="otp-code" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Enter verification code</label>
+              <label for="otp-code-hidden" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Enter verification code</label>
               <div class="flex justify-center gap-3" id="otp-inputs">
                 <input type="text" name="otp_code" id="otp-code-hidden" class="sr-only" maxlength="6" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*">
                 <input type="text" class="otp-digit peer" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="0" required>

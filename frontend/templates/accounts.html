@@ -35,7 +35,7 @@
             <p class="text-[9px] text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">{{ acc.type.replace('_', ' ') }}</p>
           </div>
         </div>
-        <button onclick="openEditModal({{ acc.id }}, '{{ acc.name|e }}', '{{ acc.type }}', '{{ acc.currency }}', {{ acc.is_active }})" class="text-slate-300 hover:text-primary transition-colors p-1 cursor-pointer">
+        <button onclick="openEditModal({{ acc.id }}, '{{ acc.name|e }}', '{{ acc.type|e }}', '{{ acc.currency|e }}', {{ acc.is_active }})" class="text-slate-300 hover:text-primary transition-colors p-1 cursor-pointer">
           {{ icon('edit', 'text-[16px]') }}
         </button>
       </div>
