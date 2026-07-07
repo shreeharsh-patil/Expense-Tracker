@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const { Income, Account, User } = require('../models');
-const { validate_amount, cache_clear_user, CURRENCY_CHOICES } = require('../src/helpers');
+const { validate_amount, is_valid_date, cache_clear_user, CURRENCY_CHOICES } = require('../src/helpers');
 
 const INCOME_SOURCES = ['Salary', 'Freelance', 'Business', 'Investments', 'Rent', 'Refund', 'Gift', 'Other'];
 
@@ -50,6 +50,11 @@ router.post('/income/add', async (req, res, next) => {
     const date = req.body.date;
     const currency = req.body.currency;
     const account_id = req.body.account_id && mongoose.isValidObjectId(req.body.account_id) ? req.body.account_id : null;
+
+    if (!is_valid_date(date)) {
+        req.flash('danger', 'Invalid date format. Use YYYY-MM-DD.');
+        return res.redirect('/income/add');
+    }
 
     try {
         const newIncome = new Income({

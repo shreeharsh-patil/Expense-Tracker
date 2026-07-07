@@ -396,7 +396,7 @@ app.use('/', webhooksRouter);
 // Error Handlers                                                     //
 // ------------------------------------------------------------------ //
 app.use((req, res, next) => {
-    res.status(404).render('500.html'); // fallback
+    res.status(404).render('500.html');
 });
 
 app.use((err, req, res, next) => {

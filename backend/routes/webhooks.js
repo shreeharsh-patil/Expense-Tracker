@@ -5,6 +5,24 @@ const axios = require('axios');
 const { Webhook, Expense } = require('../models');
 const { validate_amount } = require('../src/helpers');
 
+function is_valid_webhook_url(url) {
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === 'https:' && (
+            parsed.hostname !== 'localhost' &&
+            parsed.hostname !== '127.0.0.1' &&
+            parsed.hostname !== '0.0.0.0' &&
+            !parsed.hostname.startsWith('10.') &&
+            !parsed.hostname.startsWith('172.16.') &&
+            !parsed.hostname.startsWith('192.168.') &&
+            !parsed.hostname.endsWith('.local') &&
+            !parsed.hostname.endsWith('.internal')
+        );
+    } catch {
+        return false;
+    }
+}
+
 async function dispatch_webhooks(user_id, event, payload) {
     try {
         const hooks = await Webhook.find({ user_id, is_active: true });
@@ -51,6 +69,11 @@ router.post('/webhooks/add', async (req, res, next) => {
 
     if (!name || !url) {
         req.flash('danger', 'Webhook name and URL are required.');
+        return res.redirect('/webhooks');
+    }
+
+    if (!is_valid_webhook_url(url)) {
+        req.flash('danger', 'Invalid webhook URL. Must be a public HTTPS URL.');
         return res.redirect('/webhooks');
     }
 

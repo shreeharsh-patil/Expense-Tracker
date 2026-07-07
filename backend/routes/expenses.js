@@ -5,7 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { Expense, RecurringExpense, Account, Tag, CustomCategory, Receipt } = require('../models');
-const { validate_amount, cache_clear_user, CURRENCY_CHOICES } = require('../src/helpers');
+const { validate_amount, is_valid_date, cache_clear_user, CURRENCY_CHOICES } = require('../src/helpers');
 const { process_receipt } = require('../src/ocr_engine');
 const { apply_smart_rules } = require('./rules');
 
@@ -36,7 +36,8 @@ const receiptUpload = multer({
         } else {
             cb(null, false);
         }
-    }
+    },
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 // ------------------------------------------------------------------ //
@@ -95,6 +96,12 @@ router.post('/expenses/add', async (req, res, next) => {
     const date = req.body.date;
     const currency = req.body.currency;
     const account_id = req.body.account_id && mongoose.isValidObjectId(req.body.account_id) ? req.body.account_id : null;
+
+    if (!is_valid_date(date)) {
+        req.flash('danger', 'Invalid date format. Use YYYY-MM-DD.');
+        return res.redirect('/expenses/add');
+    }
+
     let tag_ids = req.body.tag_ids || [];
     if (!Array.isArray(tag_ids)) {
         tag_ids = [tag_ids];
@@ -365,7 +372,7 @@ router.get('/expenses/export', async (req, res, next) => {
         for (const r of rows) {
             const date = r.date || '';
             const category = r.category || '';
-            const description = (r.description || '').replace(/"/g, '""');
+            const description = (r.description || '').replace(/"/g, '""').replace(/^[=+\-@]/g, "'$&");
             const amount = Number(r.amount).toFixed(2);
             const currency = r.currency || 'INR';
             csvContent += `${date},${category},"${description}",${amount},${currency}\r\n`;

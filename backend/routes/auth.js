@@ -372,9 +372,7 @@ router.post('/resend-otp', async (req, res) => {
 
     const emailResult = await send_otp_email(email, name, otp);
     if (!emailResult.success) {
-        console.log(`\n==================================================`);
-        console.log(`[DEV ONLY] Failed to send email. Verification OTP: ${otp}`);
-        console.log(`==================================================\n`);
+        console.error(`[DEV] OTP email delivery failed for ${email}`);
     }
     req.flash('info', 'A new verification code has been sent.');
     return res.redirect('/register');

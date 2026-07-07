@@ -26,6 +26,7 @@ const profileStorage = multer.diskStorage({
 
 const profileUpload = multer({
     storage: profileStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const ext = path.extname(file.originalname).toLowerCase();
         if (['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp'].includes(ext)) {

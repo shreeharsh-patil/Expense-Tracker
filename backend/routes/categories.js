@@ -149,7 +149,7 @@ router.post('/categories/:id/delete', async (req, res, next) => {
             { category: 'Other' }
         );
 
-        await CustomCategory.deleteOne({ _id: cat_id });
+        await CustomCategory.deleteOne({ _id: cat_id, user_id: new mongoose.Types.ObjectId(user_id) });
         req.flash('info', `Category "${cat.name}" deleted. Expenses reassigned to Other.`);
     } catch (err) {
         return next(err);

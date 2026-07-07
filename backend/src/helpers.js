@@ -155,10 +155,15 @@ function currency_symbol(code) {
     return SUPPORTED_CURRENCIES[code]?.symbol || '₹';
 }
 
+function currency_locale(code) {
+    return SUPPORTED_CURRENCIES[code]?.locale || 'en-US';
+}
+
 function format_amount(amount, currency = 'INR') {
     const sym = currency_symbol(currency);
+    const locale = currency_locale(currency);
     if (amount === null || amount === undefined) amount = 0;
-    const formatted = Number(amount).toLocaleString('en-US', {
+    const formatted = Number(amount).toLocaleString(locale, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
@@ -167,8 +172,9 @@ function format_amount(amount, currency = 'INR') {
 
 function format_amount_no_decimal(amount, currency = 'INR') {
     const sym = currency_symbol(currency);
+    const locale = currency_locale(currency);
     if (amount === null || amount === undefined) amount = 0;
-    const formatted = Number(amount).toLocaleString('en-US', {
+    const formatted = Number(amount).toLocaleString(locale, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     });
@@ -200,6 +206,12 @@ function validate_budget(val) {
     return [true, v];
 }
 
+function is_valid_date(date_str) {
+    if (!date_str) return false;
+    if (typeof date_str !== 'string') return false;
+    return /^\d{4}-\d{2}-\d{2}$/.test(date_str) && !isNaN(Date.parse(date_str));
+}
+
 // ------------------------------------------------------------------ //
 // Recurring Expense Processing                                       //
 // ------------------------------------------------------------------ //
@@ -226,6 +238,7 @@ async function process_recurring_expenses(user_id) {
 
     for (const rec of recurring) {
         const last_processed = rec.last_processed_month;
+        let latest_processed = last_processed;
 
         if (!last_processed) {
             if (rec.day_of_month <= today.getDate()) {
@@ -240,49 +253,51 @@ async function process_recurring_expenses(user_id) {
                     currency: rec.currency
                 }).save();
 
-                rec.last_processed_month = currentMonthStr;
-                await rec.save();
+                latest_processed = currentMonthStr;
                 processed_count++;
             }
-            continue;
+        } else {
+            // Process missed months
+            try {
+                const [lastYear, lastMonth] = last_processed.split('-').map(Number);
+                let tempDate = new Date(lastYear, lastMonth - 1, 1);
+
+                while (true) {
+                    tempDate.setMonth(tempDate.getMonth() + 1);
+                    const tempYear = tempDate.getFullYear();
+                    const tempMonth = tempDate.getMonth() + 1;
+
+                    if (tempYear > currentYear || (tempYear === currentYear && tempMonth > currentMonth)) {
+                        break;
+                    }
+
+                    const tempMonthStr = `${tempYear}-${String(tempMonth).padStart(2, '0')}`;
+                    const isCurrentMonth = (tempYear === currentYear && tempMonth === currentMonth);
+
+                    if (!isCurrentMonth || rec.day_of_month <= today.getDate()) {
+                        const expenseDate = `${tempMonthStr}-${String(rec.day_of_month).padStart(2, '0')}`;
+                        await new Expense({
+                            user_id,
+                            amount: rec.amount,
+                            category: rec.category,
+                            payment_method: rec.payment_method,
+                            description: (rec.description || '') + " (Auto)",
+                            date: expenseDate,
+                            currency: rec.currency
+                        }).save();
+
+                        latest_processed = tempMonthStr;
+                        processed_count++;
+                    }
+                }
+            } catch (e) {
+                console.error('Error processing recurring months:', e);
+            }
         }
 
-        // Process missed months
-        try {
-            const [lastYear, lastMonth] = last_processed.split('-').map(Number);
-            let tempDate = new Date(lastYear, lastMonth - 1, 1);
-
-            while (true) {
-                tempDate.setMonth(tempDate.getMonth() + 1);
-                const tempYear = tempDate.getFullYear();
-                const tempMonth = tempDate.getMonth() + 1;
-
-                if (tempYear > currentYear || (tempYear === currentYear && tempMonth > currentMonth)) {
-                    break;
-                }
-
-                const tempMonthStr = `${tempYear}-${String(tempMonth).padStart(2, '0')}`;
-                const isCurrentMonth = (tempYear === currentYear && tempMonth === currentMonth);
-
-                if (!isCurrentMonth || rec.day_of_month <= today.getDate()) {
-                    const expenseDate = `${tempMonthStr}-${String(rec.day_of_month).padStart(2, '0')}`;
-                    await new Expense({
-                        user_id,
-                        amount: rec.amount,
-                        category: rec.category,
-                        payment_method: rec.payment_method,
-                        description: (rec.description || '') + " (Auto)",
-                        date: expenseDate,
-                        currency: rec.currency
-                    }).save();
-
-                    rec.last_processed_month = tempMonthStr;
-                    await rec.save();
-                    processed_count++;
-                }
-            }
-        } catch (e) {
-            console.error('Error processing recurring months:', e);
+        if (latest_processed !== last_processed) {
+            rec.last_processed_month = latest_processed;
+            await rec.save();
         }
     }
 
@@ -308,6 +323,7 @@ module.exports = {
     format_amount_no_decimal,
     validate_amount,
     validate_budget,
+    is_valid_date,
     should_process_recurring,
     process_recurring_expenses,
     is_valid_hex_color

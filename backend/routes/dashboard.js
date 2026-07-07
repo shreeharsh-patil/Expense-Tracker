@@ -6,6 +6,7 @@ const {
     cache_get, cache_set, cache_clear_user, validate_budget,
     should_process_recurring, process_recurring_expenses
 } = require('../src/helpers');
+const { send_budget_alert, send_weekly_summary } = require('../src/email_alerts');
 
 function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -269,10 +270,8 @@ router.get('/dashboard', async (req, res, next) => {
         // 11. Email alerts (async)
         const alert_key = `${user_id}_${current_month_str}`;
         if (user_email && monthly_budget > 0 && current_month_spent > monthly_budget * 0.8) {
-            const { _budget_alerts_sent } = require('../src/helpers');
             if (!_budget_alerts_sent.get(alert_key)) {
                 _budget_alerts_sent.set(alert_key, true);
-                const { send_budget_alert } = require('../src/email_alerts');
                 send_budget_alert(user.email, user.name, current_month_spent, monthly_budget, projected_total, insights.top_category, insights.top_category_amt)
                     .catch(err => console.error("Async budget alert error:", err));
             }
@@ -280,7 +279,6 @@ router.get('/dashboard', async (req, res, next) => {
 
         if (user_email && now.getDay() === 1) { // Monday
             const week_key = `${user_id}_${now.getFullYear()}_${getWeekNumber(now)}`;
-            const { _weekly_summary_sent } = require('../src/helpers');
             if (!_weekly_summary_sent.get(week_key)) {
                 _weekly_summary_sent.set(week_key, true);
                 const weekAgoDateStr = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString().split('T')[0];
@@ -294,7 +292,6 @@ router.get('/dashboard', async (req, res, next) => {
                                 category: e.category,
                                 amount: e.amount
                             }));
-                            const { send_weekly_summary } = require('../src/email_alerts');
                             send_weekly_summary(user.email, user.name, week_total, daily_avg, week_expenses.length, top_expenses)
                                 .catch(err => console.error("Async weekly summary error:", err));
                         }

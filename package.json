@@ -4,13 +4,12 @@
   "description": "Spendly Personal Expense Tracker Monorepo",
   "scripts": {
     "install:backend": "npm install --prefix backend",
-    "install:frontend": "npm install --prefix frontend",
-    "install:all": "npm run install:backend && npm run install:frontend",
     "dev:backend": "npm run dev --prefix backend",
-    "dev:frontend": "npm run dev --prefix frontend",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "build:frontend": "npm run build --prefix frontend",
-    "build": "npm run build:frontend"
+    "dev:css": "npm run watch:css",
+    "watch:css": "tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static/css/tailwind.css --watch",
+    "build:css": "tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static/css/tailwind.css --minify",
+    "build": "npm run build:css",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:css\""
   },
   "dependencies": {
     "axios": "^1.7.2",

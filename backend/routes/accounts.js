@@ -159,7 +159,7 @@ router.post('/accounts/:id/delete', async (req, res, next) => {
         await Expense.updateMany({ account_id, user_id }, { account_id: null });
         await Income.updateMany({ account_id, user_id }, { account_id: null });
 
-        await Account.deleteOne({ _id: account_id });
+        await Account.deleteOne({ _id: account_id, user_id });
         req.flash('info', `Account "${account.name}" deleted.`);
         res.redirect('/accounts');
     } catch (err) {

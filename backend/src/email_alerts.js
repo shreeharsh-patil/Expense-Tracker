@@ -14,6 +14,13 @@ const BRAND_GREEN_DARK = '#1a472a';
 const BRAND_GREEN_MID = '#2e7d32';
 const BRAND_GREEN_LIGHT = '#4caf50';
 
+const _transporter = SMTP_EMAIL && SMTP_PASSWORD ? nodemailer.createTransport({
+    host: SMTP_SERVER,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465,
+    auth: { user: SMTP_EMAIL, pass: SMTP_PASSWORD }
+}) : null;
+
 function escape(text) {
     if (!text) return '';
     return text.toString()
@@ -243,23 +250,13 @@ function _build_password_reset_html(reset_url) {
 }
 
 async function send_email(to_email, subject, html_body) {
-    if (!SMTP_EMAIL || !SMTP_PASSWORD) {
-        console.error('SMTP credentials not configured. Set SPENDLY_SMTP_EMAIL and SPENDLY_SMTP_PASSWORD.');
+    if (!_transporter) {
+        console.warn("SMTP not configured. Email not sent.");
         return { success: false, error: 'SMTP not configured' };
     }
 
     try {
-        const transporter = nodemailer.createTransport({
-            host: SMTP_SERVER,
-            port: SMTP_PORT,
-            secure: SMTP_PORT === 465, // true for 465, false for other ports (like 587)
-            auth: {
-                user: SMTP_EMAIL,
-                pass: SMTP_PASSWORD
-            }
-        });
-
-        const info = await transporter.sendMail({
+        const info = await _transporter.sendMail({
             from: `Spendly <${SMTP_EMAIL}>`,
             to: to_email,
             subject: subject,
