@@ -62,7 +62,7 @@
               <label for="preferred_currency" class="block text-xs font-medium text-slate-600 dark:text-slate-300">Preferred Currency</label>
               <select id="preferred_currency" name="preferred_currency" class="input-apple w-full max-w-sm mobile-input-lg">
                 {% for c in currencies %}
-                <option value="{{ c }}" {% if user.get('preferred_currency', 'INR') == c %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
+                <option value="{{ c }}" {% if (user.preferred_currency or 'INR') == c %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
                 {% endfor %}
               </select>
               <p class="text-[10px] text-slate-400 dark:text-dark-mute mt-1">Default currency for new transactions and dashboard display.</p>

@@ -1,35 +1,132 @@
 {% extends "base.html" %}
 {% block title %}Pricing | Spendly{% endblock %}
 {% block content %}
-<section class="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 sm:px-6 py-24 relative overflow-hidden">
-  <div class="glow-blob top-1/4 -right-20 w-72 h-72 bg-signature-peach/10"></div>
-  <div class="max-w-4xl w-full relative z-10 text-center animate-fade-in-up">
-    <h1 class="heading-display-sm text-slate-900 dark:text-white mb-6">Simple, transparent pricing</h1>
-    <p class="body-text text-slate-500 dark:text-dark-mute mb-12 text-lg">Start for free, upgrade when you need more power.</p>
-    <div class="grid sm:grid-cols-2 gap-8 max-w-3xl mx-auto text-left">
-      <div class="card-apple p-8 rounded-3xl border border-slate-200 dark:border-white/5">
-        <h3 class="font-bold text-xl mb-2">Hobbyist</h3>
-        <div class="text-4xl font-bold mb-6">Free</div>
-        <ul class="space-y-4 text-sm text-slate-600 dark:text-slate-400 mb-8">
-          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-green-500') }} Unlimited manual expenses</li>
-          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-green-500') }} Basic dashboard analytics</li>
-          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-green-500') }} 1 recurring expense rule</li>
-        </ul>
-        <a href="{{ url_for('auth.register') }}" class="btn-secondary w-full block text-center rounded-full">Get Started</a>
+<section class="py-20 md:py-28 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-canvas dark:bg-dark-bg transition-colors">
+  <!-- Decorative Background Blobs -->
+  <div class="glow-blob -top-20 left-1/3 w-[500px] h-[500px] bg-primary/10 dark:bg-primary/15"></div>
+  <div class="glow-blob -bottom-20 right-1/3 w-[500px] h-[500px] bg-signature-peach/10 dark:bg-signature-peach/15"></div>
+
+  <div class="max-w-7xl mx-auto relative z-10">
+
+    <!-- Header -->
+    <div class="text-center max-w-3xl mx-auto mb-16 md:mb-20 space-y-4 animate-fade-in-up">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-green/10 border border-accent-green/20 text-accent-green text-[10px] font-mono font-bold uppercase tracking-widest">
+        Transparent Pricing
       </div>
-      <div class="card-apple p-8 rounded-3xl border-2 border-primary relative shadow-2xl shadow-primary/10">
-        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary-light text-white text-[10px] font-bold px-4 py-1 rounded-full uppercase tracking-widest">Recommended</div>
-        <h3 class="font-bold text-xl mb-2">Pro</h3>
-        <div class="text-4xl font-bold mb-6">₹199<span class="text-sm font-normal text-slate-500">/mo</span></div>
-        <ul class="space-y-4 text-sm text-slate-600 dark:text-slate-400 mb-8">
-          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-primary') }} Everything in Free</li>
-          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-primary') }} Unlimited AI Receipt Scans</li>
-          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-primary') }} Unlimited recurring rules</li>
-          <li class="flex items-center gap-2">{{ icon('check-circle', 'text-[16px] text-primary') }} CSV Data Exports</li>
+      <h1 class="text-3xl md:text-4xl lg:text-5xl text-slate-900 dark:text-white font-extrabold tracking-tight">
+        Simple, <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-light">transparent pricing</span>.
+      </h1>
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute max-w-2xl mx-auto leading-relaxed">
+        Start for free, upgrade when you need more power. No hidden fees, no surprise charges.
+      </p>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto animate-fade-in-up delay-150">
+
+      <!-- Free Tier -->
+      <div class="card-apple p-8 flex flex-col hover-lift border-white/60 dark:border-white/5 relative">
+        <p class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mb-2">Hobbyist</p>
+        <p class="text-4xl font-extrabold text-slate-900 dark:text-white mb-1">₹0</p>
+        <p class="text-xs text-slate-400 dark:text-dark-mute mb-8">Free forever</p>
+        <ul class="space-y-4 mb-8 flex-1">
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-emerald-500 shrink-0') }} Up to 50 entries/month
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-emerald-500 shrink-0') }} 5 OCR scans/month
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-emerald-500 shrink-0') }} Basic dashboard analytics
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-emerald-500 shrink-0') }} 1 recurring rule
+          </li>
         </ul>
-        <a href="{{ url_for('auth.register') }}" class="btn-primary w-full block text-center rounded-full">Start 14-Day Trial</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-secondary w-full text-center py-3 text-sm font-bold">Get Started Free</a>
+      </div>
+
+      <!-- Pro Tier (Featured) -->
+      <div class="card-apple p-8 flex flex-col hover-lift relative overflow-hidden border-2 border-primary/30 dark:border-primary/50 shadow-xl shadow-primary/10 scale-105 md:scale-110 z-10">
+        <!-- Top accent bar -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary-light"></div>
+        <div class="absolute -top-3 right-6 bg-gradient-to-r from-primary to-primary-light text-white text-[9px] font-bold px-4 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-primary/20">
+          Most Popular
+        </div>
+        
+        <p class="text-[10px] font-mono font-bold text-primary uppercase tracking-widest mb-2">Pro Ledger</p>
+        <p class="text-4xl font-extrabold text-slate-900 dark:text-white mb-1">₹199</p>
+        <p class="text-xs text-slate-400 dark:text-dark-mute mb-8">per month</p>
+        <ul class="space-y-4 mb-8 flex-1">
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} Unlimited entries
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} Unlimited OCR scans
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} Advanced analytics & forecasts
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} Unlimited recurring rules
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} CSV data export
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} Priority support
+          </li>
+        </ul>
+        <a href="{{ url_for('auth.register') }}" class="btn-primary w-full text-center py-3 text-sm font-bold shadow-xl shadow-primary/20">Start 14-Day Free Trial</a>
+      </div>
+
+      <!-- Enterprise Tier -->
+      <div class="card-apple p-8 flex flex-col hover-lift border-white/60 dark:border-white/5 relative">
+        <p class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest mb-2">Enterprise</p>
+        <p class="text-4xl font-extrabold text-slate-900 dark:text-white mb-1">Custom</p>
+        <p class="text-xs text-slate-400 dark:text-dark-mute mb-8">Contact us</p>
+        <ul class="space-y-4 mb-8 flex-1">
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} Everything in Pro
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} Team accounts
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} Custom integrations
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} Dedicated support
+          </li>
+          <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
+            {{ icon('check-circle', 'text-[18px] text-primary shrink-0') }} SLA guarantee
+          </li>
+        </ul>
+        <a href="mailto:sales@spendly.app" class="btn-secondary w-full text-center py-3 text-sm font-bold">Contact Sales</a>
+      </div>
+
+    </div>
+
+    <!-- FAQ / Guarantee -->
+    <div class="mt-16 md:mt-20 text-center animate-fade-in-up delay-300">
+      <div class="card-apple p-10 max-w-2xl mx-auto shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
+          {{ icon('verified-user', 'text-[28px]') }}
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">14-Day Money-Back Guarantee</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute max-w-md mx-auto leading-relaxed">
+          Not satisfied with Pro? Contact us within 14 days for a full refund. No questions asked.
+        </p>
+        <div class="mt-6 pt-6 border-t border-slate-100 dark:border-dark-border/40 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-slate-400 dark:text-dark-mute">
+          <span>Free cancellation anytime</span>
+          <span class="hidden sm:inline">&bull;</span>
+          <span>No long-term contracts</span>
+          <span class="hidden sm:inline">&bull;</span>
+          <span>Secure payment</span>
+        </div>
       </div>
     </div>
+
   </div>
 </section>
 {% endblock %}

@@ -51,7 +51,7 @@
 
   <!-- Categories List -->
   <div class="card-apple overflow-hidden border-white/60 dark:border-white/5">
-    {% if categories %}
+    {% if categories.length > 0 %}
     <div class="divide-y divide-slate-100 dark:divide-dark-border/10">
       {% for cat in categories %}
       <div class="p-4 flex items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors">

@@ -5,6 +5,7 @@
   "scripts": {
     "build:css": "tailwindcss -i ../frontend/static/css/tailwind-input.css -o ../frontend/static/css/tailwind.css --minify",
     "watch:css": "tailwindcss -i ../frontend/static/css/tailwind-input.css -o ../frontend/static/css/tailwind.css --watch",
+    "test": "jest --forceExit --detectOpenHandles",
     "dev": "node src/server.js",
     "start": "node src/server.js"
   },
@@ -22,8 +23,14 @@
     "nunjucks": "^3.2.4",
     "tesseract.js": "^5.1.0"
   },
+  "jest": {
+    "testTimeout": 120000
+  },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
+    "jest": "^30.4.2",
+    "mongodb-memory-server": "^11.2.0",
+    "supertest": "^7.2.2",
     "tailwindcss": "^3.4.1"
   }
 }

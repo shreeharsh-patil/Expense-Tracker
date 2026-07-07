@@ -1,5 +1,4 @@
-@import "tailwindcss";
-@import "./style-legacy.css";
+/* Spendly — Next.js Global Styles */
 
 :root {
   --background: #f8fafc;
@@ -11,4 +10,13 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
+}
+
+/* Re-export Tailwind classes from the static CSS */
+@import "../static/css/tailwind.css";
+@import "../static/css/style.css";
+
+/* Prevent navigation highlight on mobile tap */
+* {
+  -webkit-tap-highlight-color: transparent;
 }

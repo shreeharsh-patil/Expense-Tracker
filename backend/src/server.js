@@ -291,7 +291,30 @@ env.addGlobal('currency_symbol', currency_symbol);
 env.addGlobal('format_amount', format_amount);
 env.addGlobal('format_amount_no_decimal', format_amount_no_decimal);
 env.addGlobal('currencies', CURRENCY_CHOICES);
-env.addFilter('tojson', (obj) => JSON.stringify(obj));
+env.addFilter('format', function(formatStr, value) {
+    const match = formatStr.match(/%\.?(\d+)?([fds])/);
+    if (match) {
+      const decimalPlaces = match[1] ? parseInt(match[1]) : undefined;
+      const type = match[2];
+      if (type === 'f') {
+        const num = Number(value);
+        if (!isNaN(num)) {
+          const formatted = decimalPlaces !== undefined ? num.toFixed(decimalPlaces) : num.toString();
+          return formatStr.replace(match[0], formatted);
+        }
+      } else if (type === 'd') {
+        return formatStr.replace(match[0], Math.floor(Number(value)).toString());
+      } else if (type === 's') {
+        return formatStr.replace(match[0], String(value));
+      }
+    }
+    return formatStr;
+  });
+  env.addFilter('tojson', (obj) => JSON.stringify(obj));
+env.addFilter('substring', (str, start, end) => {
+    if (!str) return '';
+    return str.substring(start, end);
+});
 
 // Flask url_for replacement
 env.addGlobal('url_for', (dest, options = {}) => {

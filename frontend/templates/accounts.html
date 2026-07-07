@@ -19,7 +19,7 @@
     </button>
   </section>
 
-  {% if accounts %}
+  {% if accounts and accounts.length > 0 %}
   <!-- Accounts Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
     {% for acc in accounts %}
@@ -27,8 +27,19 @@
       <div class="flex items-start justify-between mb-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl {% if acc.type == 'bank' %}bg-accent-blue/10 text-accent-blue{% elif acc.type == 'cash' %}bg-signature-mint/10 text-signature-mint{% elif acc.type == 'credit_card' %}bg-accent-red/10 text-accent-red{% elif acc.type == 'investment' %}bg-signature-peach/10 text-signature-peach{% else %}bg-slate-100 dark:bg-white/5 text-slate-400{% endif %} flex items-center justify-center">
-            {% set acc_icon = 'account-balance-wallet' if acc.type == 'bank' else 'payments' if acc.type == 'cash' else 'credit-card' if acc.type == 'credit_card' else 'trending-up' if acc.type == 'investment' else 'payments' if acc.type == 'wallet' else 'category' %}
-            {{ icon(acc_icon, 'text-[22px]') }}
+            {% if acc.type == 'bank' %}
+            {{ icon('account-balance-wallet', 'text-[22px]') }}
+            {% elif acc.type == 'cash' %}
+            {{ icon('payments', 'text-[22px]') }}
+            {% elif acc.type == 'credit_card' %}
+            {{ icon('credit-card', 'text-[22px]') }}
+            {% elif acc.type == 'investment' %}
+            {{ icon('trending-up', 'text-[22px]') }}
+            {% elif acc.type == 'wallet' %}
+            {{ icon('payments', 'text-[22px]') }}
+            {% else %}
+            {{ icon('category', 'text-[22px]') }}
+            {% endif %}
           </div>
           <div>
             <p class="text-sm font-bold text-slate-900 dark:text-white">{{ acc.name }}</p>

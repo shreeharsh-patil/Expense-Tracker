@@ -120,7 +120,11 @@
         
         <div class="space-y-3 md:space-y-4 pt-6 border-t border-slate-100 dark:border-dark-border/40">
           {% for label, val in zip(labels, values) %}
-          {% set pct = (val / total_year * 100) if total_year > 0 else 0 %}
+          {% if total_year > 0 %}
+          {% set pct = (val / total_year * 100) %}
+          {% else %}
+          {% set pct = 0 %}
+          {% endif %}
           <div class="space-y-1.5 group">
             <div class="flex items-center justify-between text-xs">
               <div class="flex items-center gap-2 min-w-0">

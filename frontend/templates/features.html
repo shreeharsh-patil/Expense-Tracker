@@ -1,33 +1,134 @@
 {% extends "base.html" %}
 {% block title %}Features | Spendly{% endblock %}
 {% block content %}
-<section class="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 sm:px-6 py-24 relative overflow-hidden">
-  <div class="glow-blob top-1/4 -left-20 w-72 h-72 bg-primary/10"></div>
-  <div class="max-w-3xl w-full relative z-10 text-center animate-fade-in-up">
-    <h1 class="heading-display-sm text-slate-900 dark:text-white mb-6">Spendly Features</h1>
-    <p class="body-text text-slate-500 dark:text-dark-mute mb-12 text-lg">Everything you need to track, manage, and optimize your finances.</p>
-    <div class="grid sm:grid-cols-2 gap-6 text-left">
-      <div class="card-apple p-8 rounded-3xl">
-        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">{{ icon('dashboard', '') }}</div>
-        <h3 class="font-bold text-lg mb-2">Smart Dashboard</h3>
-        <p class="text-sm text-slate-500 dark:text-dark-mute">Visualize your spending with beautiful, real-time charts.</p>
+<section class="py-20 md:py-28 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-canvas dark:bg-dark-bg transition-colors">
+  <!-- Decorative Background Blobs -->
+  <div class="glow-blob -top-20 -left-20 w-[500px] h-[500px] bg-primary/10 dark:bg-primary/15"></div>
+  <div class="glow-blob -bottom-20 -right-20 w-[500px] h-[500px] bg-signature-peach/10 dark:bg-signature-peach/15"></div>
+
+  <div class="max-w-7xl mx-auto relative z-10">
+    
+    <!-- Header -->
+    <div class="text-center max-w-3xl mx-auto mb-16 md:mb-20 space-y-4 animate-fade-in-up">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary dark:text-primary-light text-[10px] font-mono font-bold uppercase tracking-widest">
+        Full Stack Engine
       </div>
-      <div class="card-apple p-8 rounded-3xl">
-        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">{{ icon('event-repeat', '') }}</div>
-        <h3 class="font-bold text-lg mb-2">Automated Tracking</h3>
-        <p class="text-sm text-slate-500 dark:text-dark-mute">Set recurring expenses and never miss a payment.</p>
+      <h1 class="text-3xl md:text-4xl lg:text-5xl text-slate-900 dark:text-white font-extrabold tracking-tight">
+        Everything you need to <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-light">master your finances</span>.
+      </h1>
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute max-w-2xl mx-auto leading-relaxed">
+        Spendly combines cutting-edge OCR ingestion with a lightweight transactional database to give you an uncompromised tracking system.
+      </p>
+    </div>
+
+    <!-- Bento Grid Features -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 animate-fade-in-up delay-150">
+      
+      <!-- Feature 1: Dashboard -->
+      <div class="card-apple p-6 md:p-8 flex flex-col hover-lift md:col-span-2 lg:col-span-1">
+        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary dark:text-primary-light flex items-center justify-center mb-5">
+          {{ icon('dashboard', 'text-[24px]') }}
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Smart Dashboard</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute flex-1 leading-relaxed">
+          Visualize your spending with beautiful, real-time charts. Track income vs expenses, monitor budgets, and get instant insights into your financial health.
+        </p>
+        <div class="mt-5 pt-4 border-t border-slate-100 dark:border-dark-border/40 flex items-center gap-2">
+          <span class="tag-badge tag-health">Real-time</span>
+          <span class="tag-badge tag-other">Interactive</span>
+        </div>
       </div>
-      <div class="card-apple p-8 rounded-3xl">
-        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">{{ icon('document-scanner', '') }}</div>
-        <h3 class="font-bold text-lg mb-2">AI Receipt Scanner</h3>
-        <p class="text-sm text-slate-500 dark:text-dark-mute">Extract data instantly from your receipts using OCR.</p>
+
+      <!-- Feature 2: Automated Tracking -->
+      <div class="card-apple p-6 md:p-8 flex flex-col hover-lift">
+        <div class="w-12 h-12 rounded-xl bg-accent-green/10 text-accent-green flex items-center justify-center mb-5">
+          {{ icon('autorenew', 'text-[24px]') }}
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Automated Tracking</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute flex-1 leading-relaxed">
+          Set recurring expenses and never miss a payment. Automatic monthly entries for subscriptions, rent, and regular bills.
+        </p>
+        <div class="mt-5 pt-4 border-t border-slate-100 dark:border-dark-border/40">
+          <span class="tag-badge tag-bills">Auto renewals</span>
+        </div>
       </div>
-      <div class="card-apple p-8 rounded-3xl">
-        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">{{ icon('download', '') }}</div>
-        <h3 class="font-bold text-lg mb-2">Custom Exports</h3>
-        <p class="text-sm text-slate-500 dark:text-dark-mute">Download your data in CSV format for accounting.</p>
+
+      <!-- Feature 3: AI Receipt Scanner -->
+      <div class="card-apple p-6 md:p-8 flex flex-col hover-lift">
+        <div class="w-12 h-12 rounded-xl bg-signature-peach/10 text-signature-peach flex items-center justify-center mb-5">
+          {{ icon('document-scanner', 'text-[24px]') }}
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">AI Receipt Scanner</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute flex-1 leading-relaxed">
+          Extract data instantly from your receipts using OCR technology. Snap a photo and let Spendly digitize it automatically.
+        </p>
+        <div class="mt-5 pt-4 border-t border-slate-100 dark:border-dark-border/40">
+          <span class="tag-badge tag-health">AI-assisted</span>
+        </div>
+      </div>
+
+      <!-- Feature 4: Budget Forecasting -->
+      <div class="card-apple p-6 md:p-8 flex flex-col hover-lift">
+        <div class="w-12 h-12 rounded-xl bg-accent-blue/10 text-accent-blue flex items-center justify-center mb-5">
+          {{ icon('batch-prediction', 'text-[24px]') }}
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Budget Forecasting</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute flex-1 leading-relaxed">
+          Project your monthly burn rate and get early alerts when you're approaching budget limits. Stay in control.
+        </p>
+        <div class="mt-5 pt-4 border-t border-slate-100 dark:border-dark-border/40">
+          <span class="tag-badge tag-food">Daily projections</span>
+        </div>
+      </div>
+
+      <!-- Feature 5: Custom Exports -->
+      <div class="card-apple p-6 md:p-8 flex flex-col hover-lift md:col-span-2">
+        <div class="w-12 h-12 rounded-xl bg-signature-mint/10 text-signature-mint flex items-center justify-center mb-5">
+          {{ icon('download', 'text-[24px]') }}
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Custom Exports & Reports</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute flex-1 leading-relaxed max-w-xl">
+          Download your data in CSV format for accounting. Generate detailed annual reports with category breakdowns, payment method analysis, and income vs spending trends.
+        </p>
+        <div class="mt-5 pt-4 border-t border-slate-100 dark:border-dark-border/40 flex items-center gap-2">
+          <span class="tag-badge tag-transport">CSV Export</span>
+          <span class="tag-badge tag-shopping">Analytics</span>
+        </div>
+      </div>
+
+      <!-- Feature 6: Dark Mode -->
+      <div class="card-apple p-6 md:p-8 flex flex-col hover-lift">
+        <div class="w-12 h-12 rounded-xl bg-signature-coral/10 text-signature-coral flex items-center justify-center mb-5">
+          {{ icon('brightness-4', 'text-[24px]') }}
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Obsidian Dark Mode</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute flex-1 leading-relaxed">
+          A beautiful, low-contrast dark mode designed to ease your eyes. Seamless transitions match your system preferences.
+        </p>
+        <div class="mt-5 pt-4 border-t border-slate-100 dark:border-dark-border/40">
+          <span class="tag-badge tag-transport">Fluid theme sync</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-16 md:mt-20 text-center animate-fade-in-up delay-300">
+      <div class="card-apple p-10 md:p-12 max-w-2xl mx-auto shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">Ready to take control?</h2>
+        <p class="text-sm text-slate-500 dark:text-dark-mute mb-8 max-w-md mx-auto">Start tracking your expenses today with our free plan. No credit card required.</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="{{ url_for('auth.register') }}" class="btn-primary px-8 py-3 text-sm font-bold shadow-xl shadow-primary/20 inline-flex items-center justify-center gap-2 group">
+            Get Started Free
+            {{ icon('arrow-forward', 'text-[18px] transition-transform group-hover:translate-x-1') }}
+          </a>
+          <a href="{{ url_for('auth.login') }}" class="btn-secondary px-8 py-3 text-sm font-bold inline-flex items-center justify-center">
+            Sign In
+          </a>
+        </div>
       </div>
     </div>
+
   </div>
 </section>
 {% endblock %}

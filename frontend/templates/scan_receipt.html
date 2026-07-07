@@ -118,7 +118,7 @@
           <div class="space-y-2 group">
             <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Confidence Log</label>
             <div class="bg-slate-50 dark:bg-white/[0.02] rounded-xl p-4 border border-slate-100 dark:border-white/5 font-mono text-[9px] text-slate-500 dark:text-dark-mute leading-relaxed max-h-[120px] overflow-y-auto">
-                {{ ocr_result.raw_text[:500] }}{% if ocr_result.raw_text|length > 500 %}...{% endif %}
+                {{ ocr_result.raw_text | substring(0, 500) }}{% if ocr_result.raw_text|length > 500 %}...{% endif %}
             </div>
           </div>
 

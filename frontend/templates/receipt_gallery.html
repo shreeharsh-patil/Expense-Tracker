@@ -60,7 +60,7 @@
           {{ r.original_name | truncate(28) }}
         </p>
         <div class="flex items-center gap-2 mt-1 text-[9px] text-slate-400 dark:text-dark-mute">
-          <span>{{ r.created_at[:10] if r.created_at else '' }}</span>
+          <span>{{ r.created_at | substring(0, 10) if r.created_at else '' }}</span>
           {% if r.amount %}
           <span class="font-mono font-bold text-slate-600 dark:text-dark-mute">{{ currency_symbol(preferred_currency) }}{{ "%.2f"|format(r.amount) }}</span>
           {% endif %}

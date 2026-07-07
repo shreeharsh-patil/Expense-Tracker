@@ -1,16 +1,14 @@
 function onPageReady() {
   setThemeToggleIcon();
 
-  // Flash message auto-dismissal
-  document.querySelectorAll('.flash-message').forEach((msg) => {
-    if (msg.dataset.autoDismissed) return;
-    msg.dataset.autoDismissed = 'true';
-    setTimeout(() => {
-      msg.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-      msg.style.opacity = '0';
-      msg.style.transform = 'translateY(-12px)';
-      setTimeout(() => msg.remove(), 500);
-    }, 5000);
+  // Initialize server-rendered flash messages as toasts
+  document.querySelectorAll('.flash-message').forEach((el) => {
+    var category = el.getAttribute('data-flash-category') || 'info';
+    var message = el.getAttribute('data-flash-message');
+    if (message) {
+      showToast(message, { type: category, duration: 5000 });
+    }
+    el.remove();
   });
 
   // Reveal stat cards after a brief skeleton loading state
@@ -579,6 +577,215 @@ function setLoading(button, loading) {
     if (spinner) spinner.classList.add('hidden');
     button.disabled = false;
   }
+}
+// ============ Toast Notification System ============
+
+const toastDefaults = {
+  type: 'info',
+  duration: 5000,
+  title: '',
+  action: null, // { label: 'Undo', onClick: fn }
+  position: 'top-right'
+};
+
+const toastIcons = {
+  success: 'check_circle',
+  danger: 'error',
+  info: 'info',
+  warning: 'warning'
+};
+
+const toastTitles = {
+  success: 'Success',
+  danger: 'Error',
+  info: 'Info',
+  warning: 'Warning'
+};
+
+let toastCounter = 0;
+const activeToasts = new Map();
+
+// Prevent duplicate toasts with same message within 3 seconds
+function isDuplicateToast(message) {
+  const now = Date.now();
+  for (const [key, data] of activeToasts) {
+    if (data.message === message && now - data.createdAt < 3000) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getToastContainer() {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    container.setAttribute('aria-live', 'polite');
+    container.setAttribute('aria-atomic', 'false');
+    document.body.appendChild(container);
+  }
+  return container;
+}
+
+/**
+ * Show a toast notification.
+ * @param {string} message - The message text
+ * @param {Object} options - Optional settings
+ * @param {string} options.type - 'success' | 'danger' | 'info' | 'warning' (default: 'info')
+ * @param {number} options.duration - Auto-dismiss in ms (default: 5000, 0 = sticky)
+ * @param {string} options.title - Optional title above message
+ * @param {Object} options.action - { label: string, onClick: fn }
+ */
+window.showToast = function(message, options = {}) {
+  if (!message) return;
+  
+  // Prevent duplicates
+  if (isDuplicateToast(message)) return;
+  
+  const config = { ...toastDefaults, ...options };
+  const id = `toast-${++toastCounter}`;
+  const container = getToastContainer();
+  
+  // Track this toast
+  activeToasts.set(id, { message: message, createdAt: Date.now() });
+  
+  // Build toast element
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${config.type}`;
+  toast.id = id;
+  toast.setAttribute('role', 'alert');
+  
+  const iconName = toastIcons[config.type] || 'info';
+  const titleText = config.title || toastTitles[config.type] || '';
+  
+  toast.innerHTML = `
+    <div class="toast-icon">
+      <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="none">
+        <use href="#icon-${iconName.replace(/_/g, '-')}"/>
+      </svg>
+    </div>
+    <div class="toast-body">
+      ${titleText ? `<p class="toast-title">${escapeHtml(titleText)}</p>` : ''}
+      <p class="toast-message">${escapeHtml(message)}</p>
+    </div>
+    ${config.action ? `<button class="toast-action" data-toast-action>${escapeHtml(config.action.label)}</button>` : ''}
+    <button class="toast-close" data-toast-close aria-label="Dismiss">&times;</button>
+    <div class="toast-progress" style="width: 100%"></div>
+  `;
+  
+  container.appendChild(toast);
+  
+  // Trigger enter animation
+  requestAnimationFrame(() => {
+    toast.classList.add('toast-visible');
+  });
+  
+  // Progress bar animation
+  let progressWidth = 100;
+  let startTime = Date.now();
+  let isPaused = false;
+  
+  function startProgress() {
+    if (config.duration === 0) return; // sticky toast
+    
+    const intervalId = setInterval(function() {
+      if (isPaused) return;
+      var elapsed = Date.now() - startTime;
+      progressWidth = Math.max(0, 100 - (elapsed / config.duration) * 100);
+      var progressBar = toast.querySelector('.toast-progress');
+      if (progressBar) {
+        progressBar.style.width = progressWidth + '%';
+      }
+      if (progressWidth <= 0) {
+        dismissToast(id, false);
+      }
+    }, 50);
+    
+    // Store interval ID on the toast element so dismissToast can clear it
+    toast._progressIntervalId = intervalId;
+  }
+  
+  startProgress();
+  
+  // Pause on hover
+  toast.addEventListener('mouseenter', function() {
+    isPaused = true;
+  });
+  
+  toast.addEventListener('mouseleave', function() {
+    isPaused = false;
+    if (config.duration > 0) {
+      startTime = Date.now() - (config.duration * (1 - progressWidth / 100));
+    }
+  });
+  
+  // Click-to-dismiss (click anywhere, except close/action buttons)
+  toast.addEventListener('click', (e) => {
+    // Don't dismiss if clicking close button or action button
+    if (e.target.closest('[data-toast-close]') || e.target.closest('[data-toast-action]')) return;
+    dismissToast(id, false);
+  });
+  
+  // Close button
+  const closeBtn = toast.querySelector('[data-toast-close]');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dismissToast(id, false);
+    });
+  }
+  
+  // Action button
+  const actionBtn = toast.querySelector('[data-toast-action]');
+  if (actionBtn && config.action) {
+    actionBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      config.action.onClick();
+      dismissToast(id, true);
+    });
+  }
+  
+  return id;
+};
+
+/**
+ * Dismiss a toast by ID
+ */
+window.dismissToast = function(id, immediate) {
+  if (immediate === undefined) immediate = false;
+  var toast = document.getElementById(id);
+  if (!toast) return;
+  
+  // Clear the progress interval to prevent memory leak
+  if (toast._progressIntervalId) {
+    clearInterval(toast._progressIntervalId);
+    toast._progressIntervalId = null;
+  }
+  
+  if (immediate) {
+    toast.remove();
+    activeToasts.delete(id);
+    return;
+  }
+  
+  // Exit animation
+  toast.classList.remove('toast-visible');
+  toast.classList.add('toast-exit');
+  
+  setTimeout(function() {
+    if (toast.parentNode) toast.remove();
+    activeToasts.delete(id);
+  }, 400);
+};
+
+// Helper: HTML-escape text for toast messages
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 // ============ Chart Theme ============

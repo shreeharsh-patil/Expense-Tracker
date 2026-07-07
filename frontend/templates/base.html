@@ -98,9 +98,8 @@
         </a>
         <a href="{{ url_for('expenses.scan_receipt') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('expenses.scan_receipt') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
           <span class="flex items-center gap-3">{{ icon('center_focus_strong', 'text-[20px]') }} Scan Receipt</span>
-        </a>
-        <a href="{{ url_for('expenses.receipt_gallery') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('expenses.receipt_gallery') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
-          <span class="flex items-center gap-3">{{ icon('image', 'text-[20px]') }} Receipt Gallery</span>
+        </a>          <a href="{{ url_for('expenses.receipt_gallery') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('expenses.receipt_gallery') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
+          <span class="flex items-center gap-3">{{ icon('dataset', 'text-[20px]') }} Receipt Gallery</span>
         </a>
         <a href="{{ url_for('expenses.recurring_list') }}" class="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors {% if request.path == url_for('expenses.recurring_list') %}bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light{% endif %}">
           <span class="flex items-center gap-3">{{ icon('event_repeat', 'text-[20px]') }} Recurring</span>
@@ -134,30 +133,12 @@
     </div>
   </header>
 
-  <div class="fixed top-6 right-6 z-[100] w-full max-w-sm space-y-3 pointer-events-none" role="alert" aria-live="polite" aria-atomic="true">
+  <!-- Toast notification container (populated by JS) -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="false">
     {% set messages = get_flashed_messages({ with_categories: true }) %}
     {% if messages %}
     {% for category, message in messages %}
-    <div class="flash-message p-4 bg-white/90 dark:bg-dark-card/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white rounded-2xl shadow-2xl flex items-center justify-between animate-fade-in-up pointer-events-auto group hover:scale-[1.02] transition-transform flash-{{ category }}
-      {% if category == 'success' %}border-l-[4px] border-l-primary{% endif %}
-      {% if category == 'danger' %}border-l-[4px] border-l-accent-red{% endif %}
-      {% if category == 'info' %}border-l-[4px] border-l-accent-blue{% endif %}
-      {% if category == 'warning' %}border-l-[4px] border-l-accent-yellow{% endif %}">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center
-          {% if category == 'success' %}bg-primary/10 text-primary{% endif %}
-          {% if category == 'danger' %}bg-accent-red/10 text-accent-red{% endif %}
-          {% if category == 'info' %}bg-accent-blue/10 text-accent-blue{% endif %}
-          {% if category == 'warning' %}bg-accent-yellow/10 text-accent-yellow{% endif %}">
-          {% if category == 'success' %}{{ icon('check_circle', 'text-[20px]') }}{% endif %}
-          {% if category == 'danger' %}{{ icon('error', 'text-[20px]') }}{% endif %}
-          {% if category == 'info' %}{{ icon('info', 'text-[20px]') }}{% endif %}
-          {% if category == 'warning' %}{{ icon('warning', 'text-[20px]') }}{% endif %}
-        </div>
-        <span class="text-xs font-semibold tracking-tight">{{ message }}</span>
-      </div>
-      <button data-dismiss-flash class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors p-1 cursor-pointer">&times;</button>
-    </div>
+    <div class="flash-message hidden" data-flash-category="{{ category }}" data-flash-message="{{ message | e }}"></div>
     {% endfor %}
     {% endif %}
   </div>
