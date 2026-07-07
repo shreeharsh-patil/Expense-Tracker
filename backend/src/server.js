@@ -216,7 +216,41 @@ app.use((req, res, next) => {
 // ------------------------------------------------------------------ //
 // Nunjucks Templates & Static Files                                  //
 // ------------------------------------------------------------------ //
-const env = nunjucks.configure(path.join(__dirname, '../../frontend/templates'), {
+function getTemplatesPath() {
+    const paths = [
+        path.join(process.cwd(), 'frontend/templates'),
+        path.join(process.cwd(), 'backend/frontend/templates'),
+        path.join(__dirname, '../../frontend/templates'),
+        path.join(__dirname, '../frontend/templates'),
+        path.join(__dirname, 'frontend/templates')
+    ];
+    for (const p of paths) {
+        if (fs.existsSync(p)) {
+            console.log("Found templates directory at:", p);
+            return p;
+        }
+    }
+    return path.join(__dirname, '../../frontend/templates');
+}
+
+function getStaticPath() {
+    const paths = [
+        path.join(process.cwd(), 'frontend/static'),
+        path.join(process.cwd(), 'backend/frontend/static'),
+        path.join(__dirname, '../../frontend/static'),
+        path.join(__dirname, '../frontend/static'),
+        path.join(__dirname, 'frontend/static')
+    ];
+    for (const p of paths) {
+        if (fs.existsSync(p)) {
+            console.log("Found static directory at:", p);
+            return p;
+        }
+    }
+    return path.join(__dirname, '../../frontend/static');
+}
+
+const env = nunjucks.configure(getTemplatesPath(), {
     autoescape: true,
     express: app,
     watch: process.env.NODE_ENV !== 'production'
@@ -317,11 +351,11 @@ env.addGlobal('url_for', (dest, options = {}) => {
 });
 
 // Serve assets
-app.use(express.static(path.join(__dirname, '../../frontend/static')));
+app.use(express.static(getStaticPath()));
 
 const isVercel = process.env.VERCEL;
-const receiptFolder = isVercel ? '/tmp/uploads/receipts' : path.join(__dirname, '../../frontend/static/uploads/receipts');
-const uploadFolder = isVercel ? '/tmp/uploads/profile_pics' : path.join(__dirname, '../../frontend/static/uploads/profile_pics');
+const receiptFolder = isVercel ? '/tmp/uploads/receipts' : path.join(getStaticPath(), 'uploads/receipts');
+const uploadFolder = isVercel ? '/tmp/uploads/profile_pics' : path.join(getStaticPath(), 'uploads/profile_pics');
 
 app.use('/uploads/receipts', express.static(receiptFolder));
 app.use('/uploads/profile_pics', express.static(uploadFolder));
