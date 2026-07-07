@@ -7,6 +7,7 @@ const nunjucks = require('nunjucks');
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
+const cors = require('cors');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -67,6 +68,10 @@ async function seed_db() {
 // ------------------------------------------------------------------ //
 // App Middlewares                                                    //
 // ------------------------------------------------------------------ //
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

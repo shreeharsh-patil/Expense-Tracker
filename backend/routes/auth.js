@@ -496,4 +496,73 @@ router.post('/reset-password/:token', async (req, res) => {
     return res.redirect('/login');
 });
 
+// ------------------------------------------------------------------ //
+// Headless JSON API Auth Endpoints                                   //
+// ------------------------------------------------------------------ //
+router.get('/api/auth/me', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.json({ user: null });
+    }
+    try {
+        const user = await User.findById(req.session.user_id);
+        if (!user) {
+            return res.json({ user: null });
+        }
+        res.json({
+            user: {
+                id: user._id.toString(),
+                name: user.name,
+                email: user.email
+            }
+        });
+    } catch (err) {
+        res.json({ user: null });
+    }
+});
+
+router.post('/api/auth/login', async (req, res) => {
+    const email = (req.body.email || '').trim().toLowerCase();
+    const password = req.body.password || '';
+
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
+    const ip = req.ip || 'unknown';
+    if (is_rate_limited(ip)) {
+        return res.status(429).json({ error: 'Too many login attempts. Please try again in 15 minutes.' });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+        if (user && user.password_hash && await bcrypt.compare(password, user.password_hash)) {
+            req.session.user_id = user._id.toString();
+            req.session.user_name = user.name;
+
+            const now_str = formatCurrentTime();
+            const ip_addr = req.ip || 'Unknown';
+            await send_signin_confirmation(email, user.name, now_str, ip_addr, 'email');
+
+            return res.json({
+                success: true,
+                user: {
+                    id: user._id.toString(),
+                    name: user.name,
+                    email: user.email
+                }
+            });
+        }
+        record_login_attempt(ip);
+        return res.status(401).json({ error: 'Invalid credentials.' });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/api/auth/logout', (req, res) => {
+    req.session.destroy();
+    res.clearCookie('connect.sid');
+    res.json({ success: true });
+});
+
 module.exports = router;

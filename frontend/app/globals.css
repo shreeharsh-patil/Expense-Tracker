@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@import "./style-legacy.css";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #334155;
+  --primary: #4f46e5;
+  --primary-light: #818cf8;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
