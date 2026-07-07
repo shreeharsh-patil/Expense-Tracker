@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Record Entry | Spendly{% endblock %}
+
+{% block content %}
+<section class="px-4 sm:px-6 py-12 flex justify-center relative overflow-hidden">
+  <div class="glow-blob -top-10 -left-10 w-64 h-64 bg-primary/10"></div>
+  <div class="glow-blob -bottom-10 -right-10 w-64 h-64 bg-signature-peach/10"></div>
+
+  <div class="w-full max-w-[520px] relative z-10 animate-fade-in-up px-4 md:px-0">
+
+    <div class="mb-6 md:mb-8 flex flex-col items-center text-center">
+      <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4 shadow-sm border border-primary/20">
+        {{ icon('add_task', 'text-[28px]') }}
+      </div>
+      <h1 class="text-2xl md:text-3xl text-slate-900 dark:text-white mb-1 font-extrabold tracking-tight">Record Transaction</h1>
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute">Append a new line-item to your financial ledger.</p>
+    </div>
+
+    <div class="card-apple p-6 md:p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none hover-lift border-white/60 dark:border-white/5">
+      <form method="POST" class="space-y-6">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+          <div class="space-y-2 group">
+            <label for="amount" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Amount (<span class="currency-label">{{ currency_symbol(preferred_currency) }}</span>)</label>
+            <div class="relative flex items-center">
+              {{ icon('payments', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <input type="number" step="0.01" id="amount" name="amount" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-mono font-bold text-slate-900 dark:text-white" placeholder="0.00" required autofocus>
+            </div>
+          </div>
+
+          <div class="space-y-2 group">
+            <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
+            <div class="relative flex items-center">
+              {{ icon('currency_exchange', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <select name="currency" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+                {% for c in currencies %}
+                <option value="{{ c }}" {% if c == preferred_currency %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-2 group">
+            <label for="date" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Transaction Date</label>
+            <div class="relative flex items-center">
+              {{ icon('calendar_today', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <input type="date" id="date" name="date" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+          <div class="space-y-2 group">
+            <label for="category" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
+            <div class="relative flex items-center">
+              {{ icon('category', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <select id="category" name="category" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
+                <optgroup label="Default">
+                  <option value="Food">Food & Dining</option>
+                  <option value="Transport">Transportation</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Bills">Bills & Rent</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Health">Health</option>
+                  <option value="Other">Other</option>
+                </optgroup>
+                {% if custom_categories %}
+                <optgroup label="Custom">
+                  {% for cc in custom_categories %}
+                  <option value="{{ cc }}">{{ cc }}</option>
+                  {% endfor %}
+                </optgroup>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-2 group">
+            <label for="payment_method" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Channel</label>
+            <div class="relative flex items-center">
+              {{ icon('credit_card', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <select id="payment_method" name="payment_method" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+                <option value="Cash">Physical Cash</option>
+                <option value="Bank">Bank Transfer / UPI</option>
+                <option value="Credit Card">Credit Instrument</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-2 group">
+            <label for="account_id" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Account</label>
+            <div class="relative flex items-center">
+              {{ icon('account_balance', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0') }}
+              <select id="account_id" name="account_id" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+                <option value="">No account</option>
+                {% for acc in accounts %}
+                <option value="{{ acc.id }}">{{ acc.name }} ({{ acc.type|replace('_', ' ')|title }})</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2 group">
+          <label for="description" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Memo / Description</label>
+          <div class="relative flex items-start">
+            {{ icon('description', 'text-slate-300 dark:text-dark-border text-[18px] absolute left-0 top-3') }}
+            <input type="text" id="description" name="description" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" placeholder="Enter transaction details...">
+          </div>
+        </div>
+
+        <!-- Tags Selector -->
+        <div class="space-y-2 group">
+          <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors">Tags</label>
+          <div class="flex flex-wrap gap-2 tag-pills" id="tag-selector">
+            {% for tag in tags %}
+            <label class="tag-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 text-[10px] font-bold cursor-pointer transition-all hover:border-primary/50" data-tag-id="{{ tag.id }}">
+              <input type="checkbox" name="tag_ids" value="{{ tag.id }}" class="hidden tag-checkbox">
+              <span class="w-2 h-2 rounded-full" style="background-color: {{ tag.color }}"></span>
+              {{ tag.name }}
+            </label>
+            {% endfor %}
+          </div>
+          <a href="{{ url_for('tags.manage_tags') }}" class="text-[9px] text-primary hover:text-primary-light font-bold">Manage tags →</a>
+        </div>
+
+        <div class="flex gap-3 md:gap-4 pt-6 border-t border-slate-100 dark:border-dark-border/40">
+          <button type="submit" class="btn-primary flex-1 py-3.5 md:py-3 text-sm font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group !rounded-xl">
+            Commit Entry
+            {{ icon('arrow_forward', 'text-[18px] transition-transform group-hover:translate-x-1') }}
+          </button>
+          <a href="{{ url_for('dashboard.dashboard') }}" class="btn-secondary flex-1 py-3.5 md:py-3 text-sm font-bold flex items-center justify-center no-underline !rounded-xl">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Set default date to today
+  const dateInput = document.getElementById('date');
+  if (!dateInput.value) {
+    dateInput.valueAsDate = new Date();
+  }
+
+  // Tag pill visual feedback
+  document.querySelectorAll('.tag-pill').forEach(pill => {
+    const checkbox = pill.querySelector('.tag-checkbox');
+    function updatePill() {
+      pill.classList.toggle('!border-primary', checkbox.checked);
+      pill.classList.toggle('!bg-primary/10', checkbox.checked);
+      pill.classList.toggle('!text-primary', checkbox.checked);
+    }
+    checkbox.addEventListener('change', updatePill);
+    updatePill();
+  });
+</script>
+{% endblock %}

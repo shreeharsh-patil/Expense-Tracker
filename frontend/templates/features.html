@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Features | Spendly{% endblock %}
+{% block content %}
+<section class="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 sm:px-6 py-24 relative overflow-hidden">
+  <div class="glow-blob top-1/4 -left-20 w-72 h-72 bg-primary/10"></div>
+  <div class="max-w-3xl w-full relative z-10 text-center animate-fade-in-up">
+    <h1 class="heading-display-sm text-slate-900 dark:text-white mb-6">Spendly Features</h1>
+    <p class="body-text text-slate-500 dark:text-dark-mute mb-12 text-lg">Everything you need to track, manage, and optimize your finances.</p>
+    <div class="grid sm:grid-cols-2 gap-6 text-left">
+      <div class="card-apple p-8 rounded-3xl">
+        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">{{ icon('dashboard', '') }}</div>
+        <h3 class="font-bold text-lg mb-2">Smart Dashboard</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute">Visualize your spending with beautiful, real-time charts.</p>
+      </div>
+      <div class="card-apple p-8 rounded-3xl">
+        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">{{ icon('event-repeat', '') }}</div>
+        <h3 class="font-bold text-lg mb-2">Automated Tracking</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute">Set recurring expenses and never miss a payment.</p>
+      </div>
+      <div class="card-apple p-8 rounded-3xl">
+        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">{{ icon('document-scanner', '') }}</div>
+        <h3 class="font-bold text-lg mb-2">AI Receipt Scanner</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute">Extract data instantly from your receipts using OCR.</p>
+      </div>
+      <div class="card-apple p-8 rounded-3xl">
+        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">{{ icon('download', '') }}</div>
+        <h3 class="font-bold text-lg mb-2">Custom Exports</h3>
+        <p class="text-sm text-slate-500 dark:text-dark-mute">Download your data in CSV format for accounting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

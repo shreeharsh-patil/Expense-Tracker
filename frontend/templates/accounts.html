@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Accounts | Spendly{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
+
+  <!-- Header -->
+  <section class="mb-8 md:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest">Wallet Manager</span>
+      </div>
+      <h1 class="text-2xl md:text-3xl text-slate-900 dark:text-white font-extrabold tracking-tight mb-1">Accounts</h1>
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute">Manage your bank accounts, cash wallets, and credit instruments.</p>
+    </div>
+    <button onclick="document.getElementById('addAccountModal').classList.add('open')" class="btn-primary px-5 py-2.5 text-xs font-bold shadow-lg shadow-primary/20 flex items-center gap-2">
+      {{ icon('add', 'text-[16px]') }}
+      New Account
+    </button>
+  </section>
+
+  {% if accounts %}
+  <!-- Accounts Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+    {% for acc in accounts %}
+    <div class="card-apple p-5 md:p-6 hover-lift flex flex-col border-white/60 dark:border-white/5 {% if not acc.is_active %}opacity-50{% endif %}">
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl {% if acc.type == 'bank' %}bg-accent-blue/10 text-accent-blue{% elif acc.type == 'cash' %}bg-signature-mint/10 text-signature-mint{% elif acc.type == 'credit_card' %}bg-accent-red/10 text-accent-red{% elif acc.type == 'investment' %}bg-signature-peach/10 text-signature-peach{% else %}bg-slate-100 dark:bg-white/5 text-slate-400{% endif %} flex items-center justify-center">
+            {% set acc_icon = 'account-balance-wallet' if acc.type == 'bank' else 'payments' if acc.type == 'cash' else 'credit-card' if acc.type == 'credit_card' else 'trending-up' if acc.type == 'investment' else 'payments' if acc.type == 'wallet' else 'category' %}
+            {{ icon(acc_icon, 'text-[22px]') }}
+          </div>
+          <div>
+            <p class="text-sm font-bold text-slate-900 dark:text-white">{{ acc.name }}</p>
+            <p class="text-[9px] text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">{{ acc.type.replace('_', ' ') }}</p>
+          </div>
+        </div>
+        <button onclick="openEditModal({{ acc.id }}, '{{ acc.name|e }}', '{{ acc.type|e }}', '{{ acc.currency|e }}', {{ acc.is_active }})" class="text-slate-300 hover:text-primary transition-colors p-1 cursor-pointer">
+          {{ icon('edit', 'text-[16px]') }}
+        </button>
+      </div>
+
+      <div class="mt-auto pt-4 border-t border-slate-100 dark:border-dark-border/40">
+        <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Calculated Balance</p>
+        <p class="text-2xl font-mono font-bold {% if acc.calculated_balance >= 0 %}text-slate-900 dark:text-white{% else %}text-accent-red{% endif %}">
+          {{ currency_symbol(acc.currency) }}{{ "%.2f"|format(acc.calculated_balance) }}
+        </p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <!-- Empty State -->
+  <div class="card-apple p-16 text-center">
+    <div class="w-20 h-20 rounded-full bg-slate-50 dark:bg-white/[0.02] flex items-center justify-center mx-auto mb-6 border border-dashed border-slate-200 dark:border-white/10">
+      {{ icon('account-balance-wallet', 'text-slate-300 dark:text-dark-border text-[40px]') }}
+    </div>
+    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">No Accounts Yet</h3>
+    <p class="text-sm text-slate-500 dark:text-dark-mute max-w-sm mx-auto mb-8">Create an account to start tracking your balances across bank accounts, cash, credit cards, and more.</p>
+    <button onclick="document.getElementById('addAccountModal').classList.add('open')" class="btn-primary px-8 py-3 text-sm font-bold shadow-lg shadow-primary/20 inline-flex items-center gap-2">
+      {{ icon('add', 'text-[18px]') }}
+      Create Your First Account
+    </button>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Add Account Modal -->
+<div class="modal-overlay" id="addAccountModal" role="dialog" aria-modal="true">
+  <div class="modal-content text-left max-w-sm">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white">New Account</h3>
+      <button onclick="document.getElementById('addAccountModal').classList.remove('open')" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors flex items-center justify-center">
+        {{ icon('close', 'text-[20px]') }}
+      </button>
+    </div>
+    <form method="POST" action="{{ url_for('accounts.add_account') }}" class="space-y-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="space-y-2">
+        <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Account Name</label>
+        <input type="text" name="name" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-900 dark:text-white" placeholder="e.g. HDFC Savings" required>
+      </div>
+      <div class="space-y-2">
+        <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Type</label>
+        <select name="type" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-800 dark:text-white appearance-none cursor-pointer">
+          {% for t in account_types %}
+          <option value="{{ t }}">{{ t.replace('_', ' ')|title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="space-y-2">
+        <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Currency</label>
+        <select name="currency" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-800 dark:text-white appearance-none cursor-pointer">
+          {% for c in currencies %}
+          <option value="{{ c }}" {% if c == preferred_currency %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex gap-3 pt-4">
+        <button type="submit" class="btn-primary flex-1 py-3 text-xs font-bold shadow-lg shadow-primary/20">Create Account</button>
+        <button type="button" onclick="document.getElementById('addAccountModal').classList.remove('open')" class="btn-secondary flex-1 py-3 text-xs font-bold">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Account Modal -->
+<div class="modal-overlay" id="editAccountModal" role="dialog" aria-modal="true">
+  <div class="modal-content text-left max-w-sm">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white">Edit Account</h3>
+      <button onclick="document.getElementById('editAccountModal').classList.remove('open')" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors flex items-center justify-center">
+        {{ icon('close', 'text-[20px]') }}
+      </button>
+    </div>
+    <form method="POST" action="" id="editAccountForm" class="space-y-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="space-y-2">
+        <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Account Name</label>
+        <input type="text" name="name" id="edit_acc_name" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-900 dark:text-white" required>
+      </div>
+      <div class="space-y-2">
+        <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Type</label>
+        <select name="type" id="edit_acc_type" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-800 dark:text-white appearance-none cursor-pointer">
+          {% for t in account_types %}
+          <option value="{{ t }}">{{ t.replace('_', ' ')|title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="space-y-2">
+        <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Currency</label>
+        <select name="currency" id="edit_acc_currency" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-800 dark:text-white appearance-none cursor-pointer">
+          {% for c in currencies %}
+          <option value="{{ c }}">{{ c }} — {{ currency_symbol(c) }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" name="is_active" id="edit_acc_active" value="1" class="rounded border-slate-300 dark:border-dark-border">
+        <label for="edit_acc_active" class="text-xs text-slate-600 dark:text-dark-mute">Account is active</label>
+      </div>
+      <div class="flex gap-3 pt-4">
+        <button type="submit" class="btn-primary flex-1 py-3 text-xs font-bold shadow-lg shadow-primary/20">Save Changes</button>
+        <button type="button" onclick="document.getElementById('editAccountModal').classList.remove('open')" class="btn-secondary flex-1 py-3 text-xs font-bold">Cancel</button>
+      </div>
+    </form>
+    <form method="POST" action="" id="deleteAccountForm" class="mt-4 pt-4 border-t border-slate-100 dark:border-dark-border/40">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="w-full text-xs font-bold text-accent-red hover:text-red-600 transition-colors py-2 cursor-pointer" onclick="return confirm('Delete this account? Transactions linked to it will be unlinked.')">Delete Account</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openEditModal(id, name, type, currency, isActive) {
+    document.getElementById('edit_acc_name').value = name;
+    document.getElementById('edit_acc_type').value = type;
+    document.getElementById('edit_acc_currency').value = currency;
+    document.getElementById('edit_acc_active').checked = isActive === 1;
+    document.getElementById('editAccountForm').action = "{{ url_for('accounts.edit_account', id=0) }}".replace('/0', '/' + id);
+    document.getElementById('deleteAccountForm').action = "{{ url_for('accounts.delete_account', id=0) }}".replace('/0', '/' + id);
+    document.getElementById('editAccountModal').classList.add('open');
+  }
+</script>
+{% endblock %}

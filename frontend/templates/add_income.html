@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Record Income | Spendly{% endblock %}
+
+{% block content %}
+<section class="min-h-[calc(100vh-64px)] py-12 px-4 sm:px-6 lg:px-8 flex justify-center animate-fade-in">
+  <div class="w-full max-w-xl px-0 md:px-0">
+    <div class="mb-6 md:mb-8 text-center sm:text-left px-4 md:px-0">
+      <h1 class="text-2xl md:text-3xl text-slate-900 dark:text-white mb-2 font-bold tracking-tight">Record Income</h1>
+      <p class="text-sm md:text-base text-slate-500 dark:text-dark-mute">Add money you've received — salary, freelance, or other income.</p>
+    </div>
+
+    <div class="card-apple p-6 md:p-8 shadow-lg shadow-slate-200/30 dark:shadow-none border-white/60 dark:border-white/5 mx-4 md:mx-0">
+      <form method="POST" action="{{ url_for('income.add_income') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="space-y-6">
+          <div>
+            <label for="amount" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Amount ({{ currency_symbol(preferred_currency) }})</label>
+            <input id="amount" name="amount" type="number" step="0.01" min="0.01" placeholder="50000" required
+                   class="input-apple w-full text-lg font-mono font-bold mobile-input-lg">
+          </div>
+
+          <div>
+            <label for="currency" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Currency</label>
+            <select id="currency" name="currency" class="input-apple w-full mobile-input-lg">
+              {% for c in currencies %}
+              <option value="{{ c }}" {% if c == preferred_currency %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="source" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Source</label>
+            <select id="source" name="source" required class="input-apple w-full mobile-input-lg">
+              {% for src in sources %}
+              <option value="{{ src }}">{{ src }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="description" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Description (Optional)</label>
+            <input id="description" name="description" type="text" placeholder="Monthly salary, freelance project..."
+                   class="input-apple w-full mobile-input-lg">
+          </div>
+
+          <div>
+            <label for="account_id" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Account</label>
+            <select id="account_id" name="account_id" class="input-apple w-full mobile-input-lg">
+              <option value="">No account</option>
+              {% for acc in accounts %}
+              <option value="{{ acc.id }}">{{ acc.name }} ({{ acc.type|replace('_', ' ')|title }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="date" class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Date</label>
+            <input id="date" name="date" type="date" required value="{{ now().strftime('%Y-%m-%d') }}"
+                   class="input-apple w-full mobile-input-lg">
+          </div>
+
+          <div class="flex items-center gap-3 md:gap-4 pt-4">
+            <button type="submit" class="btn-primary flex-1 justify-center py-3.5 md:py-3 !rounded-xl">
+              {{ icon('savings', 'text-[18px]') }}
+              Record Income
+            </button>
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn-secondary flex-1 justify-center py-3.5 md:py-3 !rounded-xl">Cancel</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
