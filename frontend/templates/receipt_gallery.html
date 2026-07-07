@@ -35,7 +35,7 @@
              alt="{{ r.original_name }}"
              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
              loading="lazy"
-             onerror="this.parentElement.innerHTML = '<div class=\'w-full h-full flex items-center justify-center\'><svg class=\'w-12 h-12 text-slate-300 dark:text-dark-border\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'none\'><use href=\'#icon-photo-camera\'/></svg></div>'">
+             data-error-fallback="true">
         {% else %}
         <div class="w-full h-full flex items-center justify-center">
           {{ icon('photo-camera', 'text-5xl text-slate-300 dark:text-dark-border') }}
@@ -140,4 +140,17 @@
   {% endif %}
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll('[data-error-fallback]').forEach(function(img) {
+    img.addEventListener('error', function() {
+      var fallback = document.createElement('div');
+      fallback.className = 'w-full h-full flex items-center justify-center';
+      fallback.innerHTML = '<svg class="w-12 h-12 text-slate-300 dark:text-dark-border" viewBox="0 0 24 24" fill="none"><use href="#icon-photo-camera"/></svg>';
+      this.parentElement.replaceChild(fallback, this);
+    }, { once: true });
+  });
+</script>
 {% endblock %}

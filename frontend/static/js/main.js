@@ -180,13 +180,13 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Scroll-to-top visibility
+const scrollBtn = document.getElementById('scrollToTopBtn');
 window.addEventListener('scroll', () => {
-  const btn = document.getElementById('scrollToTopBtn');
-  if (!btn) return;
+  if (!scrollBtn) return;
   if (window.scrollY > 400) {
-    btn.classList.add('visible');
+    scrollBtn.classList.add('visible');
   } else {
-    btn.classList.remove('visible');
+    scrollBtn.classList.remove('visible');
   }
 }, { passive: true });
 
@@ -349,6 +349,13 @@ function closeQuickSheet() {
 }
 
 // ============ OTP Digit Auto-Advance ============
+function getOtpDigits() {
+  return document.querySelectorAll('.otp-digit');
+}
+function getOtpHidden() {
+  return document.getElementById('otp-code-hidden');
+}
+
 document.addEventListener('input', (e) => {
   const digit = e.target.closest('.otp-digit');
   if (!digit) return;
@@ -359,11 +366,9 @@ document.addEventListener('input', (e) => {
     const next = digit.parentElement.querySelector(`[data-index="${parseInt(digit.dataset.index) + 1}"]`);
     if (next) next.focus();
   }
-  // Update hidden field with combined value
-  const hidden = document.getElementById('otp-code-hidden');
+  const hidden = getOtpHidden();
   if (hidden) {
-    const allDigits = document.querySelectorAll('.otp-digit');
-    hidden.value = Array.from(allDigits).map(d => d.value).join('');
+    hidden.value = Array.from(getOtpDigits()).map(d => d.value).join('');
   }
 });
 
@@ -388,26 +393,23 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Paste support for OTP
 document.addEventListener('paste', (e) => {
   const digit = e.target.closest('.otp-digit');
   if (!digit) return;
   e.preventDefault();
   const paste = (e.clipboardData || window.clipboardData).getData('text');
   const digits = paste.replace(/[^0-9]/g, '').split('').slice(0, 6);
-  const allDigits = document.querySelectorAll('.otp-digit');
+  const allDigits = getOtpDigits();
   digits.forEach((d, i) => {
     if (allDigits[i]) {
       allDigits[i].value = d;
       allDigits[i].classList.add('filled');
     }
   });
-  // Focus next empty or last
   const nextEmpty = Array.from(allDigits).find(d => !d.value);
   if (nextEmpty) nextEmpty.focus();
   else if (allDigits.length > 0) allDigits[allDigits.length - 1].focus();
-  // Update hidden field
-  const hidden = document.getElementById('otp-code-hidden');
+  const hidden = getOtpHidden();
   if (hidden) {
     hidden.value = digits.join('');
   }
@@ -438,7 +440,7 @@ document.addEventListener('submit', (e) => {
   // OTP verification form — validate all 6 digits filled
   const otpForm = e.target.closest('#otp-form');
   if (otpForm) {
-    const allDigits = document.querySelectorAll('.otp-digit');
+    const allDigits = getOtpDigits();
     const code = Array.from(allDigits).map(d => d.value).join('');
     const errorEl = document.getElementById('otp-error');
     if (code.length !== 6) {

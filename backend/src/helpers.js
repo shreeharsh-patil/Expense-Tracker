@@ -215,7 +215,7 @@ function should_process_recurring(user_id) {
 }
 
 async function process_recurring_expenses(user_id) {
-    const { RecurringExpense, Expense } = require('./models');
+    const { RecurringExpense, Expense } = require('../models');
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth() + 1; // 1-12

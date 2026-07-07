@@ -145,7 +145,8 @@ router.get('/authorize/:provider', async (req, res) => {
         const ip_addr = req.ip || 'Unknown';
 
         if (user) {
-            req.session.clear();
+            req.session.user_id = null;
+            req.session.user_name = null;
             req.session.user_id = user._id.toString();
             req.session.user_name = user.name;
             await send_signin_confirmation(email, user.name, now_str, ip_addr, provider);
@@ -161,7 +162,8 @@ router.get('/authorize/:provider', async (req, res) => {
             existing.email_verified = true;
             await existing.save();
 
-            req.session.clear();
+            req.session.user_id = null;
+            req.session.user_name = null;
             req.session.user_id = existing._id.toString();
             req.session.user_name = existing.name;
             await send_signin_confirmation(email, existing.name, now_str, ip_addr, provider);
@@ -180,7 +182,8 @@ router.get('/authorize/:provider', async (req, res) => {
         });
         await newUser.save();
 
-        req.session.clear();
+        req.session.user_id = null;
+        req.session.user_name = null;
         req.session.user_id = newUser._id.toString();
         req.session.user_name = newUser.name;
         await send_signin_confirmation(email, name, now_str, ip_addr, provider);
@@ -261,7 +264,7 @@ router.post('/register', async (req, res) => {
                 req.flash('danger', 'Email already registered. Please log in.');
                 return res.redirect('/login');
             }
-            throw err;
+            return next(err);
         }
     } else {
         // --- Initial Registration Step ---
@@ -323,9 +326,9 @@ router.post('/register', async (req, res) => {
         // Send OTP email
         const emailResult = await send_otp_email(email, name, otp);
         if (!emailResult.success) {
-            console.log(`\n==================================================`);
-            console.log(`[DEV ONLY] Failed to send email. Verification OTP: ${otp}`);
-            console.log(`==================================================\n`);
+            if (process.env.NODE_ENV !== 'production') {
+                console.log(`\n[DEV ONLY] Failed to send OTP email to ${email}. Check email configuration.\n`);
+            }
         }
 
         req.flash('info', 'A verification code has been sent to your email.');
@@ -408,7 +411,8 @@ router.post('/login', async (req, res) => {
 
     const user = await User.findOne({ email });
     if (user && user.password_hash && await bcrypt.compare(password, user.password_hash)) {
-        req.session.clear();
+        req.session.user_id = null;
+        req.session.user_name = null;
         req.session.user_id = user._id.toString();
         req.session.user_name = user.name;
 
@@ -427,7 +431,7 @@ router.post('/login', async (req, res) => {
 
 router.get('/logout', (req, res) => {
     req.session.destroy();
-    // Redirect to landing
+    res.clearCookie('connect.sid');
     res.redirect('/');
 });
 

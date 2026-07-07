@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -78,13 +78,13 @@ app.use(session({
     saveUninitialized: false,
     store: MongoStore.create({
         mongoUrl: MONGODB_URI,
-        ttl: 14 * 24 * 60 * 60 // 14 days
+        ttl: 30 * 24 * 60 * 60 // 30 days
     }),
     cookie: {
         httpOnly: true,
         secure: 'auto',
         sameSite: 'lax',
-        maxAge: 14 * 24 * 60 * 60 * 1000
+        maxAge: 30 * 24 * 60 * 60 * 1000
     }
 }));
 

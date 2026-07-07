@@ -30,11 +30,11 @@ const receiptStorage = multer.diskStorage({
 const receiptUpload = multer({
     storage: receiptStorage,
     fileFilter: (req, file, cb) => {
-        const ext = path.extname(file.originalname).toLowerCase();
-        if (['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp'].includes(ext)) {
+        const allowedMimes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/bmp'];
+        if (allowedMimes.includes(file.mimetype)) {
             cb(null, true);
         } else {
-            cb(new Error('Invalid file type. Please upload an image.'), false);
+            cb(null, false);
         }
     }
 });
@@ -541,15 +541,17 @@ router.post('/receipts/:id/delete', async (req, res, next) => {
         }
 
         // Delete file on disk
-        if (receipt.filepath && fs.existsSync(receipt.filepath)) {
+        if (receipt.filepath && receipt.filepath.startsWith(receiptFolder)) {
             try {
-                fs.unlinkSync(receipt.filepath);
+                await fs.promises.unlink(receipt.filepath);
             } catch (err) {
-                console.error("Error deleting receipt file:", err);
+                if (err.code !== 'ENOENT') {
+                    console.error("Error deleting receipt file:", err);
+                }
             }
         }
 
-        await Receipt.deleteOne({ _id: receipt_id });
+        await Receipt.deleteOne({ _id: receipt_id, user_id });
         req.flash('info', 'Receipt deleted.');
         res.redirect('/receipts/gallery');
     } catch (err) {

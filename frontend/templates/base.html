@@ -9,6 +9,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
   <!-- CSS loaded first — blocking to prevent FOUC -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
@@ -24,7 +25,6 @@
     }
   </script>
 
-  <script src="{{ url_for('static', filename='js/charts.js') }}?v=2" defer></script>
   <script src="{{ url_for('static', filename='js/main.js') }}?v=13" defer></script>
   {% block head_scripts %}{% endblock %}
   {% block head %}{% endblock %}
