@@ -14,26 +14,36 @@ router.get('/accounts', async (req, res, next) => {
 
     try {
         const accounts = await Account.find({ user_id }).sort({ is_active: -1, name: 1 });
-        const accounts_data = [];
+        
+        const spentByAccount = await Expense.aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
+            { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
+        ]);
 
-        for (const acc of accounts) {
-            const spentRow = await Expense.aggregate([
-                { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: acc._id } },
-                { $group: { _id: null, total: { $sum: '$amount' } } }
-            ]);
-            const earnedRow = await Income.aggregate([
-                { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: acc._id } },
-                { $group: { _id: null, total: { $sum: '$amount' } } }
-            ]);
+        const earnedByAccount = await Income.aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
+            { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
+        ]);
 
-            const spent = spentRow[0]?.total || 0;
-            const earned = earnedRow[0]?.total || 0;
-
-            const accObj = acc.toObject();
-            accObj.id = acc._id.toString();
-            accObj.calculated_balance = earned - spent;
-            accounts_data.push(accObj);
+        const spentMap = {};
+        for (const row of spentByAccount) {
+            if (row._id) spentMap[row._id.toString()] = row.total;
         }
+
+        const earnedMap = {};
+        for (const row of earnedByAccount) {
+            if (row._id) earnedMap[row._id.toString()] = row.total;
+        }
+
+        const accounts_data = accounts.map(acc => {
+            const accIdStr = acc._id.toString();
+            const spent = spentMap[accIdStr] || 0;
+            const earned = earnedMap[accIdStr] || 0;
+            const accObj = acc.toObject();
+            accObj.id = accIdStr;
+            accObj.calculated_balance = earned - spent;
+            return accObj;
+        });
 
         const user = await User.findById(user_id);
         const preferred_currency = user?.preferred_currency || 'INR';

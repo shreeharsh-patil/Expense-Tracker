@@ -35,7 +35,8 @@ router.get('/login/:provider', (req, res) => {
         return res.redirect('/dashboard');
     }
     const provider = req.params.provider;
-    const redirect_uri = `${req.protocol}://${req.get('host')}/authorize/${provider}`;
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const redirect_uri = `${protocol}://${req.get('host')}/authorize/${provider}`;
 
     if (provider === 'google') {
         const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -72,7 +73,8 @@ router.get('/authorize/:provider', async (req, res) => {
         return res.redirect('/login');
     }
 
-    const redirect_uri = `${req.protocol}://${req.get('host')}/authorize/${provider}`;
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const redirect_uri = `${protocol}://${req.get('host')}/authorize/${provider}`;
     let email = '';
     let name = '';
     let oauth_id = '';
@@ -319,7 +321,12 @@ router.post('/register', async (req, res) => {
         };
 
         // Send OTP email
-        await send_otp_email(email, name, otp);
+        const emailResult = await send_otp_email(email, name, otp);
+        if (!emailResult.success) {
+            console.log(`\n==================================================`);
+            console.log(`[DEV ONLY] Failed to send email. Verification OTP: ${otp}`);
+            console.log(`==================================================\n`);
+        }
 
         req.flash('info', 'A verification code has been sent to your email.');
         return res.render('register.html', {
@@ -360,7 +367,12 @@ router.post('/resend-otp', async (req, res) => {
     });
     await emailOtp.save();
 
-    await send_otp_email(email, name, otp);
+    const emailResult = await send_otp_email(email, name, otp);
+    if (!emailResult.success) {
+        console.log(`\n==================================================`);
+        console.log(`[DEV ONLY] Failed to send email. Verification OTP: ${otp}`);
+        console.log(`==================================================\n`);
+    }
     req.flash('info', 'A new verification code has been sent.');
     return res.redirect('/register');
 });

@@ -26,6 +26,14 @@ router.get('/dashboard', async (req, res, next) => {
     const user_id = req.session.user_id;
     const now = new Date();
     const current_month_str = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    
+    // Compute date range for current month to optimize query indexing (avoid regex)
+    const [cYear, cMonth] = current_month_str.split('-').map(Number);
+    const nextMonthVal = cMonth === 12 ? 1 : cMonth + 1;
+    const nextYearVal = cMonth === 12 ? cYear + 1 : cYear;
+    const next_month_str = `${nextYearVal}-${String(nextMonthVal).padStart(2, '0')}`;
+    const start_date = `${current_month_str}-01`;
+    const end_date = `${next_month_str}-01`;
 
     // 0. Auto-process recurring expenses
     if (should_process_recurring(user_id)) {
@@ -132,7 +140,7 @@ router.get('/dashboard', async (req, res, next) => {
             {
                 $match: {
                     user_id: new mongoose.Types.ObjectId(user_id),
-                    date: new RegExp(`^${current_month_str}`)
+                    date: { $gte: start_date, $lt: end_date }
                 }
             },
             { $group: { _id: null, total: { $sum: '$amount' } } }
@@ -144,7 +152,7 @@ router.get('/dashboard', async (req, res, next) => {
             {
                 $match: {
                     user_id: new mongoose.Types.ObjectId(user_id),
-                    date: new RegExp(`^${current_month_str}`)
+                    date: { $gte: start_date, $lt: end_date }
                 }
             },
             { $group: { _id: null, total: { $sum: '$amount' } } }
@@ -296,24 +304,36 @@ router.get('/dashboard', async (req, res, next) => {
 
         // 11b. Account balances
         const accounts = await Account.find({ user_id, is_active: true }).sort({ name: 1 });
-        const accounts_data = [];
-        for (const acc of accounts) {
-            const spentRow = await Expense.aggregate([
-                { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: acc._id } },
-                { $group: { _id: null, total: { $sum: '$amount' } } }
-            ]);
-            const earnedRow = await Income.aggregate([
-                { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: acc._id } },
-                { $group: { _id: null, total: { $sum: '$amount' } } }
-            ]);
-            const spent = spentRow[0]?.total || 0;
-            const earned = earnedRow[0]?.total || 0;
+        
+        const spentByAccount = await Expense.aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
+            { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
+        ]);
 
-            const accObj = acc.toObject();
-            accObj.id = acc._id.toString();
-            accObj.balance = earned - spent;
-            accounts_data.push(accObj);
+        const earnedByAccount = await Income.aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
+            { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
+        ]);
+
+        const spentMap = {};
+        for (const row of spentByAccount) {
+            if (row._id) spentMap[row._id.toString()] = row.total;
         }
+
+        const earnedMap = {};
+        for (const row of earnedByAccount) {
+            if (row._id) earnedMap[row._id.toString()] = row.total;
+        }
+
+        const accounts_data = accounts.map(acc => {
+            const accIdStr = acc._id.toString();
+            const spent = spentMap[accIdStr] || 0;
+            const earned = earnedMap[accIdStr] || 0;
+            const accObj = acc.toObject();
+            accObj.id = accIdStr;
+            accObj.balance = earned - spent;
+            return accObj;
+        });
 
         // 12a. Tags for chip filters
         const tags = await Tag.find({ user_id }).sort({ name: 1 });
@@ -399,12 +419,15 @@ router.get('/reports', async (req, res, next) => {
             return res.render('reports.html', cached);
         }
 
+        const start_date_year = `${year}-01-01`;
+        const end_date_year = `${Number(year) + 1}-01-01`;
+
         // Expense monthly breakdown
         const monthly = await Expense.aggregate([
             {
                 $match: {
                     user_id: new mongoose.Types.ObjectId(user_id),
-                    date: new RegExp(`^${year}-`)
+                    date: { $gte: start_date_year, $lt: end_date_year }
                 }
             },
             {
@@ -431,7 +454,7 @@ router.get('/reports', async (req, res, next) => {
             {
                 $match: {
                     user_id: new mongoose.Types.ObjectId(user_id),
-                    date: new RegExp(`^${year}-`)
+                    date: { $gte: start_date_year, $lt: end_date_year }
                 }
             },
             {
@@ -457,7 +480,7 @@ router.get('/reports', async (req, res, next) => {
             {
                 $match: {
                     user_id: new mongoose.Types.ObjectId(user_id),
-                    date: new RegExp(`^${year}-`)
+                    date: { $gte: start_date_year, $lt: end_date_year }
                 }
             },
             {
@@ -482,7 +505,7 @@ router.get('/reports', async (req, res, next) => {
             {
                 $match: {
                     user_id: new mongoose.Types.ObjectId(user_id),
-                    date: new RegExp(`^${year}-`)
+                    date: { $gte: start_date_year, $lt: end_date_year }
                 }
             },
             {

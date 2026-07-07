@@ -49,5 +49,6 @@ const expenseSchema = new Schema({
 // Indexes for query optimization matching SQLite
 expenseSchema.index({ user_id: 1, date: -1 });
 expenseSchema.index({ user_id: 1, category: 1 });
+expenseSchema.index({ user_id: 1, account_id: 1 });
 
 module.exports = mongoose.model('Expense', expenseSchema);

@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5001;
 
 // ------------------------------------------------------------------ //
@@ -81,7 +82,7 @@ app.use(session({
     }),
     cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: 'auto',
         sameSite: 'lax',
         maxAge: 14 * 24 * 60 * 60 * 1000
     }
