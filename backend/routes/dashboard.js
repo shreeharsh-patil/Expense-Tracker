@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const { User, Expense, Income, Account, Tag, Receipt } = require('../models');
 const {
     cache_get, cache_set, cache_clear_user, validate_budget,
-    should_process_recurring, process_recurring_expenses
+    should_process_recurring, process_recurring_expenses,
+    _budget_alerts_sent, _weekly_summary_sent
 } = require('../src/helpers');
 const { send_budget_alert, send_weekly_summary } = require('../src/email_alerts');
 
@@ -570,6 +571,144 @@ router.get('/reports', async (req, res, next) => {
 
     } catch (err) {
         next(err);
+    }
+});
+
+// ------------------------------------------------------------------ //
+// JSON API Endpoints                                                 //
+// ------------------------------------------------------------------ //
+router.get('/api/dashboard', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const now = new Date();
+    const [cYear, cMonth] = [`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`].join('').split('-').map(Number);
+    const nextMonthVal = cMonth === 12 ? 1 : cMonth + 1;
+    const nextYearVal = cMonth === 12 ? cYear + 1 : cYear;
+    const start_date = `${cYear}-${String(cMonth).padStart(2, '0')}-01`;
+    const end_date = `${nextYearVal}-${String(nextMonthVal).padStart(2, '0')}-01`;
+
+    try {
+        const user = await mongoose.model('User').findById(user_id);
+        const monthly_budget = user ? user.monthly_budget : 10000.0;
+
+        const currentMonthSpentRow = await mongoose.model('Expense').aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), date: { $gte: start_date, $lt: end_date } } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]);
+        const current_month_spent = currentMonthSpentRow[0]?.total || 0;
+
+        const currentMonthIncomeRow = await mongoose.model('Income').aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), date: { $gte: start_date, $lt: end_date } } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]);
+        const current_month_income = currentMonthIncomeRow[0]?.total || 0;
+
+        const expenses = await mongoose.model('Expense').find({ user_id }).sort({ date: -1 }).limit(25).lean();
+        const plainExpenses = expenses.map(e => ({ ...e, id: e._id.toString() }));
+
+        const days_in_month = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const current_day = now.getDate();
+        const projected_total = current_day > 0 ? (current_month_spent / current_day) * days_in_month : 0;
+
+        const accounts = await mongoose.model('Account').find({ user_id, is_active: true }).sort({ name: 1 }).lean();
+        const spentByAccount = await mongoose.model('Expense').aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
+            { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
+        ]);
+        const earnedByAccount = await mongoose.model('Income').aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
+            { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
+        ]);
+        const spentMap = {};
+        for (const row of spentByAccount) if (row._id) spentMap[row._id.toString()] = row.total;
+        const earnedMap = {};
+        for (const row of earnedByAccount) if (row._id) earnedMap[row._id.toString()] = row.total;
+        const accounts_data = accounts.map(acc => ({
+            id: acc._id.toString(),
+            name: acc.name,
+            type: acc.type,
+            currency: acc.currency || 'INR',
+            balance: (earnedMap[acc._id.toString()] || 0) - (spentMap[acc._id.toString()] || 0)
+        }));
+
+        res.json({
+            current_month_spent,
+            current_month_income,
+            net_savings: current_month_income - current_month_spent,
+            monthly_budget,
+            projected_total,
+            expenses: plainExpenses,
+            accounts_data
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.get('/api/reports', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const year = req.query.year || new Date().getFullYear().toString();
+    const start_date = `${year}-01-01`;
+    const end_date = `${Number(year) + 1}-01-01`;
+
+    try {
+        const monthly = await mongoose.model('Expense').aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), date: { $gte: start_date, $lt: end_date } } },
+            { $group: { _id: { $substr: ['$date', 5, 2] }, total: { $sum: '$amount' } } }
+        ]);
+        const monthly_data = {};
+        for (const r of monthly) monthly_data[r._id] = r.total;
+        const monthly_totals = Array.from({ length: 12 }, (_, i) => monthly_data[String(i + 1).padStart(2, '0')] || 0);
+
+        const monthlyIncome = await mongoose.model('Income').aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), date: { $gte: start_date, $lt: end_date } } },
+            { $group: { _id: { $substr: ['$date', 5, 2] }, total: { $sum: '$amount' } } }
+        ]);
+        const income_data = {};
+        for (const r of monthlyIncome) income_data[r._id] = r.total;
+        const income_monthly_values = Array.from({ length: 12 }, (_, i) => income_data[String(i + 1).padStart(2, '0')] || 0);
+
+        const categoriesRaw = await mongoose.model('Expense').aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), date: { $gte: start_date, $lt: end_date } } },
+            { $group: { _id: '$category', total: { $sum: '$amount' }, count: { $sum: 1 } } },
+            { $sort: { total: -1 } }
+        ]);
+
+        const total_year = monthly_totals.reduce((a, b) => a + b, 0);
+        const total_income_year = income_monthly_values.reduce((a, b) => a + b, 0);
+        const month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        const non_zero = monthly_totals.map((v, i) => ({ val: v, idx: i })).filter(x => x.val > 0);
+        let best_month = '—', worst_month = '—';
+        if (non_zero.length > 0) {
+            const min_item = non_zero.reduce((min, cur) => cur.val < min.val ? cur : min, non_zero[0]);
+            const max_item = non_zero.reduce((max, cur) => cur.val > max.val ? cur : max, non_zero[0]);
+            best_month = month_names[min_item.idx];
+            worst_month = month_names[max_item.idx];
+        }
+
+        res.json({
+            year,
+            total_year,
+            total_income_year,
+            net_savings_year: total_income_year - total_year,
+            categories: categoriesRaw.map(c => ({ category: c._id, total: c.total, count: c.count })),
+            labels: categoriesRaw.map(c => c._id),
+            values: categoriesRaw.map(c => c.total),
+            available_years: [year],
+            best_month,
+            worst_month,
+            monthly_totals,
+            income_monthly_values,
+            month_names
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 

@@ -12,9 +12,7 @@ body {
   color: var(--foreground);
 }
 
-/* Re-export Tailwind classes from the static CSS */
-@import "../static/css/tailwind.css";
-@import "../static/css/style.css";
+/* Styles are imported via JS in layout.js */
 
 /* Prevent navigation highlight on mobile tap */
 * {

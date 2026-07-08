@@ -9,30 +9,28 @@ import { Sun, Moon, Menu, X, Wallet, FileText, Camera, BarChart2, Repeat, User, 
 export default function Header() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    return 'light';
+  });
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Initialize theme
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    setTheme(savedTheme);
-    if (savedTheme === 'dark') {
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, []);
+  }, [theme]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
   };
 
   const navLinkClass = (path) => {
@@ -119,7 +117,7 @@ export default function Header() {
             {/* Mobile Menu Button */}
             <button 
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden touch-target w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-dark-mute flex items-center justify-center"
+              className="md:!hidden touch-target w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-dark-mute flex items-center justify-center"
               aria-label="Toggle menu"
             >
               {menuOpen ? <X className="w-[22px] h-[22px]" /> : <Menu className="w-[22px] h-[22px]" />}

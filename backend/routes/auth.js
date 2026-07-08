@@ -563,4 +563,245 @@ router.post('/api/auth/logout', (req, res) => {
     res.json({ success: true });
 });
 
+// ------------------------------------------------------------------ //
+// JSON API Auth Endpoints (for Next.js frontend)                     //
+// ------------------------------------------------------------------ //
+router.post('/api/auth/register', async (req, res) => {
+    if (req.session.user_id) {
+        return res.status(400).json({ error: 'Already logged in.' });
+    }
+
+    const name = (req.body.name || '').trim();
+    const email = (req.body.email || '').trim().toLowerCase();
+    const password = req.body.password || '';
+
+    if (!name || name.length < 2) {
+        return res.status(400).json({ error: 'Name must be at least 2 characters.' });
+    }
+    if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+        return res.status(400).json({ error: 'Invalid email address.' });
+    }
+    if (password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+    }
+
+    try {
+        const existing = await User.findOne({ email });
+        if (existing) {
+            return res.status(400).json({ error: 'Email already registered. Please log in.' });
+        }
+
+        const otp = generate_otp(email);
+        if (otp === null) {
+            const cooldown = get_otp_remaining_cooldown(email);
+            return res.status(429).json({ error: `Please wait ${cooldown} seconds before requesting another OTP.` });
+        }
+
+        const password_hash = await bcrypt.hash(password, 10);
+        const expires_at = new Date(Date.now() + 10 * 60 * 1000);
+
+        const emailOtp = new EmailOtp({
+            email,
+            otp,
+            name,
+            password_hash,
+            expires_at
+        });
+        await emailOtp.save();
+
+        req.session.pending_registration = { name, email, password_hash };
+
+        // Log OTP in dev mode so users can test without email
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`\n[DEV] OTP for ${email}: ${otp}\n`);
+        }
+
+        // Send OTP email (non-blocking)
+        send_otp_email(email, name, otp).catch(err => {
+            if (process.env.NODE_ENV !== 'production') {
+                console.log(`[DEV] Failed to send OTP email to ${email}: ${err.message}`);
+            }
+        });
+
+        return res.json({ otp_sent: true, email });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/api/auth/verify-otp', async (req, res) => {
+    const code = (req.body.code || '').trim();
+    const email = (req.body.email || '').trim().toLowerCase();
+
+    if (!code || code.length !== 6) {
+        return res.status(400).json({ error: 'Please enter a valid 6-digit code.' });
+    }
+
+    const reg_data = req.session.pending_registration;
+    if (!reg_data || reg_data.email !== email) {
+        return res.status(400).json({ error: 'Registration session expired. Please start over.' });
+    }
+
+    try {
+        const stored = await EmailOtp.findOne({
+            email,
+            otp: code,
+            used: false,
+            expires_at: { $gt: new Date() }
+        }).sort({ _id: -1 });
+
+        if (!stored) {
+            return res.status(400).json({ error: 'Invalid or expired code. Please try again.' });
+        }
+
+        stored.used = true;
+        await stored.save();
+
+        // Check for duplicate email one more time (race condition)
+        const existing = await User.findOne({ email });
+        if (existing) {
+            delete req.session.pending_registration;
+            return res.status(400).json({ error: 'Email already registered. Please log in.' });
+        }
+
+        const newUser = new User({
+            name: reg_data.name,
+            email: reg_data.email,
+            password_hash: reg_data.password_hash,
+            email_verified: true
+        });
+        await newUser.save();
+        delete req.session.pending_registration;
+
+        req.session.user_id = newUser._id.toString();
+        req.session.user_name = newUser.name;
+
+        return res.json({
+            success: true,
+            user: {
+                id: newUser._id.toString(),
+                name: newUser.name,
+                email: newUser.email
+            }
+        });
+    } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({ error: 'Email already registered. Please log in.' });
+        }
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+// ------------------------------------------------------------------ //
+// JSON API Forgot / Reset Password Endpoints                         //
+// ------------------------------------------------------------------ //
+router.post('/api/auth/forgot-password', async (req, res) => {
+    const email = (req.body.email || '').trim().toLowerCase();
+    if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+        return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+        if (user) {
+            const token = generate_reset_token(email);
+            const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5001}`;
+            const reset_url = `${backendUrl}/api/auth/reset-password/${token}`;
+
+            await send_password_reset_email(email, reset_url).catch(err => {
+                if (process.env.NODE_ENV !== 'production') {
+                    console.log(`[DEV] Password reset email delivery failed for ${email}: ${err.message}`);
+                }
+            });
+
+            if (process.env.NODE_ENV !== 'production') {
+                console.log(`\n[DEV] Password reset token for ${email}: ${token}\n`);
+            }
+        }
+        // Always return success to prevent email enumeration
+        return res.json({ success: true, message: 'If that email is registered, a reset link has been sent.' });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/api/auth/reset-password/:token', async (req, res) => {
+    const { token } = req.params;
+    const email = verify_reset_token(token);
+
+    if (!email) {
+        return res.status(400).json({ error: 'Invalid or expired reset link. Please request a new one.' });
+    }
+
+    const password = req.body.password || '';
+    const confirm = req.body.confirm_password || '';
+
+    if (!password || password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+    }
+    if (password !== confirm) {
+        return res.status(400).json({ error: 'Passwords do not match.' });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            consume_reset_token(token);
+            return res.status(400).json({ error: 'User not found.' });
+        }
+
+        user.password_hash = await bcrypt.hash(password, 10);
+        await user.save();
+
+        consume_reset_token(token);
+        return res.json({ success: true, message: 'Password reset successfully! Please log in.' });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/api/auth/resend-otp', async (req, res) => {
+    const email = (req.body.email || '').trim().toLowerCase();
+    const reg_data = req.session.pending_registration;
+
+    if (!reg_data || reg_data.email !== email) {
+        return res.status(400).json({ error: 'Registration session not found.' });
+    }
+
+    const cooldown = get_otp_remaining_cooldown(email);
+    if (cooldown > 0) {
+        return res.status(429).json({ error: `Please wait ${cooldown} seconds before requesting a new code.` });
+    }
+
+    try {
+        const otp = generate_otp(email);
+        if (otp === null) {
+            return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
+        }
+
+        const expires_at = new Date(Date.now() + 10 * 60 * 1000);
+        const emailOtp = new EmailOtp({
+            email,
+            otp,
+            name: reg_data.name,
+            password_hash: reg_data.password_hash,
+            expires_at
+        });
+        await emailOtp.save();
+
+        // Log OTP in dev mode so users can test without email
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`\n[DEV] Resent OTP for ${email}: ${otp}\n`);
+        }
+
+        send_otp_email(email, reg_data.name, otp).catch(err => {
+            console.error(`[DEV] OTP email delivery failed for ${email}: ${err.message}`);
+        });
+
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

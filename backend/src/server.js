@@ -124,6 +124,11 @@ app.use((req, res, next) => {
 
 // Custom CSRF verification middleware matching Flask's CSRF
 app.use((req, res, next) => {
+    // Skip CSRF for API routes (they use session cookies)
+    if (req.path.startsWith('/api/')) {
+        return next();
+    }
+
     if (!req.session.csrfToken) {
         req.session.csrfToken = crypto.randomBytes(32).toString('hex');
     }
@@ -213,7 +218,10 @@ app.use((req, res, next) => {
 
     res.locals.request = {
         path: req.path,
-        endpoint: endpoint
+        endpoint: endpoint,
+        args: {
+            get: (key, defaultVal) => req.query[key] !== undefined ? req.query[key] : (defaultVal || '')
+        }
     };
     next();
 });
@@ -311,9 +319,22 @@ env.addFilter('format', function(formatStr, value) {
     return formatStr;
   });
   env.addFilter('tojson', (obj) => JSON.stringify(obj));
+env.addFilter('min', function(arr) {
+    if (!Array.isArray(arr)) return arr;
+    if (arr.length === 0) return 0;
+    return Math.min(...arr);
+});
 env.addFilter('substring', (str, start, end) => {
     if (!str) return '';
     return str.substring(start, end);
+});
+env.addFilter('format', (fmt, val) => {
+    if (typeof fmt === 'string' && val !== undefined) {
+        if (fmt.includes('%s')) return fmt.replace('%s', String(val));
+        if (fmt.includes('%d')) return fmt.replace('%d', String(Math.round(val)));
+        if (fmt.includes('%f')) return fmt.replace(/%([.\d]+)f/, (m, dec) => Number(val).toFixed(parseInt(dec) || 0));
+    }
+    return String(val);
 });
 
 // Flask url_for replacement
@@ -416,15 +437,32 @@ app.use('/', accountsRouter);
 app.use('/', webhooksRouter);
 
 // ------------------------------------------------------------------ //
+// Global unhandled rejection handler (Express 4 async safety)       //
+// ------------------------------------------------------------------ //
+process.on('unhandledRejection', (reason) => {
+    console.error('UNHANDLED REJECTION:', reason);
+});
+
+// ------------------------------------------------------------------ //
 // Error Handlers                                                     //
 // ------------------------------------------------------------------ //
-app.use((req, res, next) => {
+app.use((req, res) => {
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'Not found' });
+    }
     res.status(404).render('500.html');
 });
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).render('500.html');
+    if (req.path.startsWith('/api/')) {
+        return res.status(500).json({ error: err.message || 'Internal server error' });
+    }
+    try {
+        res.status(500).render('500.html');
+    } catch {
+        res.status(500).send('Internal server error');
+    }
 });
 
 // Start Server

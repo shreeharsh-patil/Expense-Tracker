@@ -148,5 +148,34 @@ router.post('/rules/:id/delete', async (req, res, next) => {
     }
 });
 
+// ------------------------------------------------------------------ //
+// JSON API Endpoint                                                  //
+// ------------------------------------------------------------------ //
+router.get('/api/rules', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    try {
+        const rules = await SmartRule.find({ user_id: req.session.user_id }).sort({ priority: -1, _id: 1 });
+        const tags = await Tag.find({ user_id: req.session.user_id }).sort({ name: 1 });
+        res.json({
+            rules: rules.map(r => ({
+                id: r._id.toString(),
+                name: r.name,
+                pattern: r.pattern,
+                category: r.category,
+                is_active: r.is_active
+            })),
+            tags: tags.map(t => ({
+                id: t._id.toString(),
+                name: t.name,
+                color: t.color
+            }))
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
 module.exports.apply_smart_rules = apply_smart_rules;

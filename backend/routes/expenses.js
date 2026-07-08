@@ -561,4 +561,70 @@ router.post('/receipts/:id/delete', async (req, res, next) => {
     }
 });
 
+// ------------------------------------------------------------------ //
+// JSON API Endpoints                                                 //
+// ------------------------------------------------------------------ //
+router.get('/api/recurring', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    try {
+        const recurring = await RecurringExpense.find({ user_id: req.session.user_id }).lean();
+        res.json(recurring.map(r => ({
+            id: r._id.toString(),
+            amount: r.amount,
+            category: r.category,
+            payment_method: r.payment_method,
+            description: r.description,
+            day_of_month: r.day_of_month,
+            currency: r.currency || 'INR'
+        })));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.get('/api/receipts', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const page = parseInt(req.query.page || '1', 10);
+    const per_page = 20;
+
+    try {
+        const count = await Receipt.countDocuments({ user_id });
+        const total_pages = Math.max(1, Math.ceil(count / per_page));
+        const active_page = Math.max(1, Math.min(page, total_pages));
+        const offset = (active_page - 1) * per_page;
+
+        const receipts = await Receipt.find({ user_id })
+            .sort({ created_at: -1 })
+            .skip(offset)
+            .limit(per_page)
+            .populate('expense_id')
+            .lean();
+
+        res.json({
+            receipts: receipts.map(r => ({
+                id: r._id.toString(),
+                filename: r.filename,
+                original_name: r.original_name,
+                created_at: r.created_at,
+                amount: r.amount,
+                category: r.category,
+                currency: r.currency || 'INR',
+                expense_id: r.expense_id ? r.expense_id._id.toString() : null,
+                expense_desc: r.expense_id?.description || null,
+                expense_amount: r.expense_id?.amount || null
+            })),
+            page: active_page,
+            total_pages,
+            total_receipts: count
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

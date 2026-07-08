@@ -26,12 +26,13 @@ export default function LiveSimulator() {
   const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsFading(true);
     const timer = setTimeout(() => {
-      const filtered = selectedCategory === 'All' 
-        ? demoTransactions 
+      const filtered = selectedCategory === 'All'
+        ? demoTransactions
         : demoTransactions.filter(t => t.category === selectedCategory);
-      
+
       const total = filtered.reduce((sum, item) => sum + item.amount, 0);
       const percent = Math.min(Math.round((total / 10000) * 100), 100);
 

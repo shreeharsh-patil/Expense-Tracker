@@ -2,8 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { AuthProvider } from '../components/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LiveSimulator from '../components/LiveSimulator';
@@ -11,7 +9,6 @@ import { ArrowRight, Terminal, Sparkles, Star, CheckCircle, Shield, Brain, Cpu, 
 
 export default function Home() {
   return (
-    <AuthProvider>
       <div className="flex flex-col min-h-screen">
         <Header />
 
@@ -109,7 +106,7 @@ export default function Home() {
                     </div>
                     <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">OCR Ingestion Receipt Digitation</h3>
                     <p className="text-sm md:text-base text-slate-500 dark:text-dark-mute max-w-xl">
-                      Stop manually recording entries. Snap or upload a photo of any bill or receipt, and let Spendly's local OCR scanner automatically extract the merchant name, transactional items, tax configurations, and total billing amounts in real time.
+                      Stop manually recording entries. Snap or upload a photo of any bill or receipt, and let Spendly&apos;s local OCR scanner automatically extract the merchant name, transactional items, tax configurations, and total billing amounts in real time.
                     </p>
                   </div>
                   <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-slate-100 dark:border-dark-border/40 flex items-center gap-3">
@@ -212,7 +209,7 @@ export default function Home() {
                     <div className="flex gap-1 text-amber-400">
                       {[...Array(5)].map((_, i) => <Star key={i} className="w-[16px] h-[16px] fill-current" />)}
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-dark-mute flex-grow">"{item.text}"</p>
+                    <p className="text-sm text-slate-600 dark:text-dark-mute flex-grow">{item.text}</p>
                     <div className="flex items-center gap-3 mt-4">
                       <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
                         {item.name.split(' ').map(n => n[0]).join('')}
@@ -310,6 +307,5 @@ export default function Home() {
 
         <Footer />
       </div>
-    </AuthProvider>
   );
 }

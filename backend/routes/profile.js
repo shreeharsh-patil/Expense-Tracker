@@ -110,4 +110,29 @@ router.post('/profile', profileUpload.single('profile_photo'), async (req, res, 
     }
 });
 
+// ------------------------------------------------------------------ //
+// JSON API Endpoint                                                  //
+// ------------------------------------------------------------------ //
+router.get('/api/profile', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    try {
+        const user = await User.findById(req.session.user_id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.json({
+            user: {
+                id: user._id.toString(),
+                name: user.name,
+                email: user.email,
+                phone: user.phone || '',
+                preferred_currency: user.preferred_currency || 'INR',
+                avatar_url: user.avatar_url || ''
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
