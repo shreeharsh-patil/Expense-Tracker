@@ -1,6 +1,5 @@
-'use client';
-
 import React from 'react';
+import Image from 'next/image';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
@@ -15,7 +14,7 @@ export default function AboutPage() {
 
           <div className="max-w-2xl w-full relative z-10 text-center animate-fade-in-up">
             <div className="w-24 h-24 mx-auto mb-8 rounded-3xl shadow-2xl overflow-hidden ring-1 ring-slate-900/10 dark:ring-white/10 bg-white p-2">
-              <img src="/images/favicon.png" alt="Spendly Logo" className="w-full h-full object-contain" loading="lazy" />
+              <Image src="/images/favicon.png" alt="Spendly Logo" width={96} height={96} className="w-full h-full object-contain" />
             </div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl text-slate-900 dark:text-white font-extrabold tracking-tight mb-6">About Spendly</h1>
             <p className="text-sm md:text-base text-slate-500 dark:text-dark-mute mb-6 text-lg leading-relaxed">

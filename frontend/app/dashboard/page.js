@@ -6,9 +6,8 @@ import { useAuth, api } from '../../components/AuthContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import {
-  Plus, TrendingUp, TrendingDown, Wallet, BarChart3, Search, X,
-  Edit3, Trash2, ChevronLeft, ChevronRight, Filter, PiggyBank,
-  Calendar, DollarSign, CheckCircle, AlertTriangle, Receipt, CreditCard,
+  Plus, TrendingUp, TrendingDown, Wallet, BarChart3, Search,
+  Calendar, DollarSign, CheckCircle, AlertTriangle, Receipt,
   ArrowUpRight
 } from 'lucide-react';
 

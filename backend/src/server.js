@@ -409,6 +409,16 @@ const uploadFolder = isVercel ? '/tmp/uploads/profile_pics' : path.join(getStati
 app.use('/uploads/receipts', express.static(receiptFolder));
 app.use('/uploads/profile_pics', express.static(uploadFolder));
 
+// API caching headers middleware
+app.use('/api/', (req, res, next) => {
+    res.setHeader('Surrogate-Control', 'max-age=60');
+    res.setHeader('Cache-Control', req.session?.user_id
+        ? 'private, no-cache, must-revalidate, max-age=0'
+        : 'public, max-age=60, s-maxage=120'
+    );
+    next();
+});
+
 // ------------------------------------------------------------------ //
 // Routes Mounting                                                    //
 // ------------------------------------------------------------------ //

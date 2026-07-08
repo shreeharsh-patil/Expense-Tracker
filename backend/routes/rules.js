@@ -156,8 +156,8 @@ router.get('/api/rules', async (req, res) => {
         return res.status(401).json({ error: 'Not authenticated' });
     }
     try {
-        const rules = await SmartRule.find({ user_id: req.session.user_id }).sort({ priority: -1, _id: 1 });
-        const tags = await Tag.find({ user_id: req.session.user_id }).sort({ name: 1 });
+        const rules = await SmartRule.find({ user_id: req.session.user_id }).sort({ priority: -1, _id: 1 }).lean();
+        const tags = await Tag.find({ user_id: req.session.user_id }).sort({ name: 1 }).lean();
         res.json({
             rules: rules.map(r => ({
                 id: r._id.toString(),

@@ -249,7 +249,6 @@ function RecurringManager() {
           </div>
         </div>
       </div>
-    </div>
 
       <ConfirmDialog
         open={!!deleteConfirm}

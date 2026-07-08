@@ -137,98 +137,148 @@ router.get('/dashboard', async (req, res, next) => {
             total_spent = totalRow[0]?.total || 0;
         }
 
-        // 3. Current-month spending
-        const currentMonthSpentRow = await Expense.aggregate([
-            {
-                $match: {
-                    user_id: new mongoose.Types.ObjectId(user_id),
-                    date: { $gte: start_date, $lt: end_date }
-                }
-            },
-            { $group: { _id: null, total: { $sum: '$amount' } } }
+        // 3-12. Run all stats queries in parallel for faster dashboard load
+        const oid = new mongoose.Types.ObjectId(user_id);
+
+        // 3-12. Run all stats queries in parallel for faster dashboard load
+        const oid = new mongoose.Types.ObjectId(user_id);
+
+        const [
+            currentMonthSpentRow,
+            currentMonthIncomeRow,
+            categories_data,
+            monthly_trends,
+            rawIncomeTrends,
+            methods_raw,
+            biggest,
+            minExpense,
+            maxExpense,
+            accounts,
+            spentByAccount,
+            earnedByAccount,
+            tags,
+            receipts
+        ] = await Promise.all([
+
+            // 3. Current-month spending
+            Expense.aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date, $lt: end_date } } },
+                { $group: { _id: null, total: { $sum: '$amount' } } }
+            ]),
+
+            // 4. Current-month income
+            Income.aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date, $lt: end_date } } },
+                { $group: { _id: null, total: { $sum: '$amount' } } }
+            ]),
+
+            // 5. Category totals (cached)
+            (() => {
+                let cached = cache_get([user_id, 'categories']);
+                if (cached) return cached;
+                return Expense.aggregate([
+                    { $match: { user_id: oid } },
+                    { $group: { _id: '$category', total: { $sum: '$amount' } } },
+                    { $sort: { total: -1 } }
+                ]).then(rows => {
+                    const data = rows.map(c => ({ category: c._id, total: c.total }));
+                    cache_set([user_id, 'categories'], data);
+                    return data;
+                });
+            })(),
+
+            // 6. Monthly trends (cached)
+            (() => {
+                let cached = cache_get([user_id, 'trends']);
+                if (cached) return cached;
+                return Expense.aggregate([
+                    { $match: { user_id: oid } },
+                    { $group: { _id: { $substr: ['$date', 0, 7] }, total: { $sum: '$amount' } } },
+                    { $sort: { _id: -1 } },
+                    { $limit: 6 }
+                ]).then(rows => {
+                    const data = rows.map(r => ({ month: r._id, total: r.total })).reverse();
+                    cache_set([user_id, 'trends'], data);
+                    return data;
+                });
+            })(),
+
+            // 7. Income monthly trends (raw, mapped after monthly_trends resolves)
+            (() => {
+                let cached = cache_get([user_id, 'income_trends']);
+                if (cached) return cached;
+                return Income.aggregate([
+                    { $match: { user_id: oid } },
+                    { $group: { _id: { $substr: ['$date', 0, 7] }, total: { $sum: '$amount' } } },
+                    { $sort: { _id: -1 } },
+                    { $limit: 6 }
+                ]).then(raw => {
+                    const incomeMap = {};
+                    for (const r of raw) incomeMap[r._id] = r.total;
+                    return incomeMap;
+                });
+            })(),
+
+            // 8. Payment Method Breakdown (cached)
+            (() => {
+                let cached = cache_get([user_id, 'methods']);
+                if (cached) return cached;
+                return Expense.aggregate([
+                    { $match: { user_id: oid } },
+                    { $group: { _id: '$payment_method', total: { $sum: '$amount' } } }
+                ]).then(rows => {
+                    const data = rows.map(m => ({ payment_method: m._id, total: m.total }));
+                    cache_set([user_id, 'methods'], data);
+                    return data;
+                });
+            })(),
+
+            // 9a. Biggest expense
+            Expense.findOne({ user_id }).sort({ amount: -1 }).lean(),
+
+            // 9b. Earliest expense
+            Expense.findOne({ user_id }).sort({ date: 1 }).lean(),
+
+            // 9c. Latest expense
+            Expense.findOne({ user_id }).sort({ date: -1 }).lean(),
+
+            // 11b. Accounts
+            Account.find({ user_id, is_active: true }).sort({ name: 1 }).lean(),
+
+            // 11b. Spent by account
+            Expense.aggregate([
+                { $match: { user_id: oid, account_id: { $ne: null } } },
+                { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
+            ]),
+
+            // 11b. Earned by account
+            Income.aggregate([
+                { $match: { user_id: oid, account_id: { $ne: null } } },
+                { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
+            ]),
+
+            // 12a. Tags
+            Tag.find({ user_id }).sort({ name: 1 }).lean(),
+
+            // 12b. Receipts
+            Receipt.find({ user_id, expense_id: { $ne: null } }).lean()
         ]);
+
+        // Build income_trend_values from the resolved monthly_trends (no race condition)
+        const incomeMap = rawIncomeTrends;
+        const income_trend_values = trend_labels.map(m => incomeMap[m] || 0);
+        cache_set([user_id, 'income_trends'], income_trend_values);
+
         const current_month_spent = currentMonthSpentRow[0]?.total || 0;
-
-        // 4. Current-month income
-        const currentMonthIncomeRow = await Income.aggregate([
-            {
-                $match: {
-                    user_id: new mongoose.Types.ObjectId(user_id),
-                    date: { $gte: start_date, $lt: end_date }
-                }
-            },
-            { $group: { _id: null, total: { $sum: '$amount' } } }
-        ]);
         const current_month_income = currentMonthIncomeRow[0]?.total || 0;
-
         const net_savings = current_month_income - current_month_spent;
 
-        // 5. Category totals (cached)
-        let categories_data = cache_get([user_id, 'categories']);
-        if (!categories_data) {
-            categories_data = await Expense.aggregate([
-                { $match: { user_id: new mongoose.Types.ObjectId(user_id) } },
-                { $group: { _id: '$category', total: { $sum: '$amount' } } },
-                { $sort: { total: -1 } }
-            ]);
-            categories_data = categories_data.map(c => ({ category: c._id, total: c.total }));
-            cache_set([user_id, 'categories'], categories_data);
-        }
         const chart_labels = categories_data.map(c => c.category);
         const chart_values = categories_data.map(c => c.total);
 
-        // 6. Monthly trends (cached)
-        let monthly_trends = cache_get([user_id, 'trends']);
-        if (!monthly_trends) {
-            monthly_trends = await Expense.aggregate([
-                { $match: { user_id: new mongoose.Types.ObjectId(user_id) } },
-                {
-                    $group: {
-                        _id: { $substr: ['$date', 0, 7] },
-                        total: { $sum: '$amount' }
-                    }
-                },
-                { $sort: { _id: -1 } },
-                { $limit: 6 }
-            ]);
-            monthly_trends = monthly_trends.map(r => ({ month: r._id, total: r.total })).reverse();
-            cache_set([user_id, 'trends'], monthly_trends);
-        }
         const trend_labels = monthly_trends.map(r => r.month);
         const trend_values = monthly_trends.map(r => r.total);
 
-        // 7. Income monthly trends
-        let income_trend_values = cache_get([user_id, 'income_trends']);
-        if (!income_trend_values) {
-            const raw_income_trends = await Income.aggregate([
-                { $match: { user_id: new mongoose.Types.ObjectId(user_id) } },
-                {
-                    $group: {
-                        _id: { $substr: ['$date', 0, 7] },
-                        total: { $sum: '$amount' }
-                    }
-                },
-                { $sort: { _id: -1 } },
-                { $limit: 6 }
-            ]);
-            const incomeMap = {};
-            for (const r of raw_income_trends) {
-                incomeMap[r._id] = r.total;
-            }
-            income_trend_values = trend_labels.map(m => incomeMap[m] || 0);
-            cache_set([user_id, 'income_trends'], income_trend_values);
-        }
-
-        // 8. Payment Method Breakdown (cached)
-        let methods_raw = cache_get([user_id, 'methods']);
-        if (!methods_raw) {
-            methods_raw = await Expense.aggregate([
-                { $match: { user_id: new mongoose.Types.ObjectId(user_id) } },
-                { $group: { _id: '$payment_method', total: { $sum: '$amount' } } }
-            ]);
-            methods_raw = methods_raw.map(m => ({ payment_method: m._id, total: m.total }));
-            cache_set([user_id, 'methods'], methods_raw);
-        }
         const methods_labels = methods_raw.map(m => m.payment_method);
         const methods_values = methods_raw.map(m => m.total);
 
@@ -242,7 +292,6 @@ router.get('/dashboard', async (req, res, next) => {
             insights.top_category_amt = 0;
         }
 
-        const biggest = await Expense.findOne({ user_id }).sort({ amount: -1 });
         if (biggest) {
             insights.biggest_expense = biggest.amount;
             insights.biggest_desc = biggest.description || biggest.category;
@@ -251,8 +300,6 @@ router.get('/dashboard', async (req, res, next) => {
             insights.biggest_desc = '—';
         }
 
-        const minExpense = await Expense.findOne({ user_id }).sort({ date: 1 });
-        const maxExpense = await Expense.findOne({ user_id }).sort({ date: -1 });
         if (minExpense && maxExpense && minExpense.date && maxExpense.date) {
             const d_min = new Date(minExpense.date);
             const d_max = new Date(maxExpense.date);
@@ -268,7 +315,7 @@ router.get('/dashboard', async (req, res, next) => {
         const current_day = now.getDate();
         const projected_total = current_day > 0 ? (current_month_spent / current_day) * days_in_month : 0;
 
-        // 11. Email alerts (async)
+        // 11. Email alerts (async, fire-and-forget)
         const alert_key = `${user_id}_${current_month_str}`;
         if (user_email && monthly_budget > 0 && current_month_spent > monthly_budget * 0.8) {
             if (!_budget_alerts_sent.get(alert_key)) {
@@ -300,29 +347,15 @@ router.get('/dashboard', async (req, res, next) => {
             }
         }
 
-        // 11b. Account balances
-        const accounts = await Account.find({ user_id, is_active: true }).sort({ name: 1 }).lean();
-        
-        const spentByAccount = await Expense.aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
-            { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
-        ]);
-
-        const earnedByAccount = await Income.aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
-            { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
-        ]);
-
+        // Account balances
         const spentMap = {};
         for (const row of spentByAccount) {
             if (row._id) spentMap[row._id.toString()] = row.total;
         }
-
         const earnedMap = {};
         for (const row of earnedByAccount) {
             if (row._id) earnedMap[row._id.toString()] = row.total;
         }
-
         const accounts_data = accounts.map(acc => {
             const accIdStr = acc._id.toString();
             acc.id = accIdStr;
@@ -330,15 +363,13 @@ router.get('/dashboard', async (req, res, next) => {
             return acc;
         });
 
-        // 12a. Tags for chip filters
-        const tags = await Tag.find({ user_id }).sort({ name: 1 }).lean();
+        // Tags for chip filters
         const all_tags = tags.map(t => {
             t.id = t._id.toString();
             return t;
         });
 
-        // 12b. Receipt lookup
-        const receipts = await Receipt.find({ user_id, expense_id: { $ne: null } }).lean();
+        // Receipt lookup
         const receipt_expense_ids = receipts.map(r => r.expense_id.toString());
 
         res.render('dashboard.html', {
@@ -415,27 +446,57 @@ router.get('/reports', async (req, res, next) => {
 
         const start_date_year = `${year}-01-01`;
         const end_date_year = `${Number(year) + 1}-01-01`;
-
-        // Expense monthly breakdown
-        const monthly = await Expense.aggregate([
-            {
-                $match: {
-                    user_id: new mongoose.Types.ObjectId(user_id),
-                    date: { $gte: start_date_year, $lt: end_date_year }
-                }
-            },
-            {
-                $group: {
-                    _id: { $substr: ['$date', 5, 2] },
-                    total: { $sum: '$amount' }
-                }
-            }
-        ]);
+        const oid = new mongoose.Types.ObjectId(user_id);
         const month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        // Run all 5 aggregate queries in parallel
+        const [monthly, monthlyIncome, categoriesRaw, methodsRaw, years] = await Promise.all([
+
+            // Expense monthly breakdown
+            Expense.aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date_year, $lt: end_date_year } } },
+                { $group: { _id: { $substr: ['$date', 5, 2] }, total: { $sum: '$amount' } } }
+            ]),
+
+            // Income monthly breakdown
+            Income.aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date_year, $lt: end_date_year } } },
+                { $group: { _id: { $substr: ['$date', 5, 2] }, total: { $sum: '$amount' } } }
+            ]),
+
+            // Category breakdown
+            Expense.aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date_year, $lt: end_date_year } } },
+                { $group: { _id: '$category', total: { $sum: '$amount' }, count: { $sum: 1 } } },
+                { $sort: { total: -1 } }
+            ]),
+
+            // Payment method breakdown
+            Expense.aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date_year, $lt: end_date_year } } },
+                { $group: { _id: '$payment_method', total: { $sum: '$amount' } } },
+                { $sort: { total: -1 } }
+            ]),
+
+            // Available years (cached)
+            (() => {
+                let cached = cache_get([user_id, 'available_years']);
+                if (cached) return cached;
+                return Expense.aggregate([
+                    { $match: { user_id: oid } },
+                    { $group: { _id: { $substr: ['$date', 0, 4] } } },
+                    { $sort: { _id: -1 } }
+                ]).then(raw => {
+                    const data = raw.map(y => y._id);
+                    cache_set([user_id, 'available_years'], data);
+                    return data;
+                });
+            })()
+        ]);
+
+        // Process results
         const monthly_data = {};
-        for (const r of monthly) {
-            monthly_data[r._id] = r.total;
-        }
+        for (const r of monthly) monthly_data[r._id] = r.total;
         const report_labels = month_names;
         const expense_monthly = Array.from({ length: 12 }, (_, i) => {
             const mStr = String(i + 1).padStart(2, '0');
@@ -443,25 +504,8 @@ router.get('/reports', async (req, res, next) => {
         });
         const year_expense_total = expense_monthly.reduce((a, b) => a + b, 0);
 
-        // Income monthly breakdown
-        const monthlyIncome = await Income.aggregate([
-            {
-                $match: {
-                    user_id: new mongoose.Types.ObjectId(user_id),
-                    date: { $gte: start_date_year, $lt: end_date_year }
-                }
-            },
-            {
-                $group: {
-                    _id: { $substr: ['$date', 5, 2] },
-                    total: { $sum: '$amount' }
-                }
-            }
-        ]);
         const income_monthly_data = {};
-        for (const r of monthlyIncome) {
-            income_monthly_data[r._id] = r.total;
-        }
+        for (const r of monthlyIncome) income_monthly_data[r._id] = r.total;
         const income_monthly_values = Array.from({ length: 12 }, (_, i) => {
             const mStr = String(i + 1).padStart(2, '0');
             return income_monthly_data[mStr] || 0;
@@ -469,23 +513,6 @@ router.get('/reports', async (req, res, next) => {
         const year_income_total = income_monthly_values.reduce((a, b) => a + b, 0);
         const net_savings_year = year_income_total - year_expense_total;
 
-        // Category breakdown
-        const categoriesRaw = await Expense.aggregate([
-            {
-                $match: {
-                    user_id: new mongoose.Types.ObjectId(user_id),
-                    date: { $gte: start_date_year, $lt: end_date_year }
-                }
-            },
-            {
-                $group: {
-                    _id: '$category',
-                    total: { $sum: '$amount' },
-                    count: { $sum: 1 }
-                }
-            },
-            { $sort: { total: -1 } }
-        ]);
         const categories = categoriesRaw.map(c => ({
             category: c._id,
             total: c.total,
@@ -494,22 +521,6 @@ router.get('/reports', async (req, res, next) => {
         const cat_labels = categories.map(c => c.category);
         const cat_values = categories.map(c => c.total);
 
-        // Payment method breakdown
-        const methodsRaw = await Expense.aggregate([
-            {
-                $match: {
-                    user_id: new mongoose.Types.ObjectId(user_id),
-                    date: { $gte: start_date_year, $lt: end_date_year }
-                }
-            },
-            {
-                $group: {
-                    _id: '$payment_method',
-                    total: { $sum: '$amount' }
-                }
-            },
-            { $sort: { total: -1 } }
-        ]);
         const methods = methodsRaw.map(m => ({
             payment_method: m._id,
             total: m.total
@@ -517,17 +528,7 @@ router.get('/reports', async (req, res, next) => {
         const method_labels = methods.map(m => m.payment_method);
         const method_values = methods.map(m => m.total);
 
-        // Available years
-        let years = cache_get([user_id, 'available_years']);
-        if (!years) {
-            const rawYears = await Expense.aggregate([
-                { $match: { user_id: new mongoose.Types.ObjectId(user_id) } },
-                { $group: { _id: { $substr: ['$date', 0, 4] } } },
-                { $sort: { _id: -1 } }
-            ]);
-            years = rawYears.map(y => y._id);
-            cache_set([user_id, 'available_years'], years);
-        }
+        const available_years = years.length > 0 ? years : [new Date().getFullYear().toString()];
         const available_years = years.length > 0 ? years : [new Date().getFullYear().toString()];
 
         // Insights
@@ -590,37 +591,46 @@ router.get('/api/dashboard', async (req, res) => {
     const end_date = `${nextYearVal}-${String(nextMonthVal).padStart(2, '0')}-01`;
 
     try {
-        const user = await mongoose.model('User').findById(user_id);
+        const oid = new mongoose.Types.ObjectId(user_id);
+
+        const [
+            user,
+            currentMonthSpentRow,
+            currentMonthIncomeRow,
+            expenses,
+            accounts,
+            spentByAccount,
+            earnedByAccount
+        ] = await Promise.all([
+            mongoose.model('User').findById(user_id).lean(),
+            mongoose.model('Expense').aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date, $lt: end_date } } },
+                { $group: { _id: null, total: { $sum: '$amount' } } }
+            ]),
+            mongoose.model('Income').aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date, $lt: end_date } } },
+                { $group: { _id: null, total: { $sum: '$amount' } } }
+            ]),
+            mongoose.model('Expense').find({ user_id }).sort({ date: -1 }).limit(25).lean(),
+            mongoose.model('Account').find({ user_id, is_active: true }).sort({ name: 1 }).lean(),
+            mongoose.model('Expense').aggregate([
+                { $match: { user_id: oid, account_id: { $ne: null } } },
+                { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
+            ]),
+            mongoose.model('Income').aggregate([
+                { $match: { user_id: oid, account_id: { $ne: null } } },
+                { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
+            ])
+        ]);
+
         const monthly_budget = user ? user.monthly_budget : 10000.0;
-
-        const currentMonthSpentRow = await mongoose.model('Expense').aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId(user_id), date: { $gte: start_date, $lt: end_date } } },
-            { $group: { _id: null, total: { $sum: '$amount' } } }
-        ]);
         const current_month_spent = currentMonthSpentRow[0]?.total || 0;
-
-        const currentMonthIncomeRow = await mongoose.model('Income').aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId(user_id), date: { $gte: start_date, $lt: end_date } } },
-            { $group: { _id: null, total: { $sum: '$amount' } } }
-        ]);
         const current_month_income = currentMonthIncomeRow[0]?.total || 0;
-
-        const expenses = await mongoose.model('Expense').find({ user_id }).sort({ date: -1 }).limit(25).lean();
         const plainExpenses = expenses.map(e => ({ ...e, id: e._id.toString() }));
 
         const days_in_month = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
         const current_day = now.getDate();
         const projected_total = current_day > 0 ? (current_month_spent / current_day) * days_in_month : 0;
-
-        const accounts = await mongoose.model('Account').find({ user_id, is_active: true }).sort({ name: 1 }).lean();
-        const spentByAccount = await mongoose.model('Expense').aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
-            { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
-        ]);
-        const earnedByAccount = await mongoose.model('Income').aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId(user_id), account_id: { $ne: null } } },
-            { $group: { _id: '$account_id', total: { $sum: '$amount' } } }
-        ]);
         const spentMap = {};
         for (const row of spentByAccount) if (row._id) spentMap[row._id.toString()] = row.total;
         const earnedMap = {};
@@ -657,27 +667,31 @@ router.get('/api/reports', async (req, res) => {
     const end_date = `${Number(year) + 1}-01-01`;
 
     try {
-        const monthly = await mongoose.model('Expense').aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId(user_id), date: { $gte: start_date, $lt: end_date } } },
-            { $group: { _id: { $substr: ['$date', 5, 2] }, total: { $sum: '$amount' } } }
+        const oid = new mongoose.Types.ObjectId(user_id);
+
+        const [monthly, monthlyIncome, categoriesRaw] = await Promise.all([
+            mongoose.model('Expense').aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date, $lt: end_date } } },
+                { $group: { _id: { $substr: ['$date', 5, 2] }, total: { $sum: '$amount' } } }
+            ]),
+            mongoose.model('Income').aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date, $lt: end_date } } },
+                { $group: { _id: { $substr: ['$date', 5, 2] }, total: { $sum: '$amount' } } }
+            ]),
+            mongoose.model('Expense').aggregate([
+                { $match: { user_id: oid, date: { $gte: start_date, $lt: end_date } } },
+                { $group: { _id: '$category', total: { $sum: '$amount' }, count: { $sum: 1 } } },
+                { $sort: { total: -1 } }
+            ])
         ]);
+
         const monthly_data = {};
         for (const r of monthly) monthly_data[r._id] = r.total;
         const monthly_totals = Array.from({ length: 12 }, (_, i) => monthly_data[String(i + 1).padStart(2, '0')] || 0);
 
-        const monthlyIncome = await mongoose.model('Income').aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId(user_id), date: { $gte: start_date, $lt: end_date } } },
-            { $group: { _id: { $substr: ['$date', 5, 2] }, total: { $sum: '$amount' } } }
-        ]);
         const income_data = {};
         for (const r of monthlyIncome) income_data[r._id] = r.total;
         const income_monthly_values = Array.from({ length: 12 }, (_, i) => income_data[String(i + 1).padStart(2, '0')] || 0);
-
-        const categoriesRaw = await mongoose.model('Expense').aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId(user_id), date: { $gte: start_date, $lt: end_date } } },
-            { $group: { _id: '$category', total: { $sum: '$amount' }, count: { $sum: 1 } } },
-            { $sort: { total: -1 } }
-        ]);
 
         const total_year = monthly_totals.reduce((a, b) => a + b, 0);
         const total_income_year = income_monthly_values.reduce((a, b) => a + b, 0);

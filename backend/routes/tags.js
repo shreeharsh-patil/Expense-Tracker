@@ -11,19 +11,23 @@ router.get('/tags', async (req, res, next) => {
     const user_id = req.session.user_id;
 
     try {
-        const tags = await Tag.find({ user_id });
-        const tags_data = [];
+        const tags = await Tag.find({ user_id }).lean();
 
-        for (const tag of tags) {
-            const usage_count = await Expense.countDocuments({
-                user_id: new mongoose.Types.ObjectId(user_id),
-                tags: tag._id
-            });
-            const tagObj = tag.toObject();
-            tagObj.id = tag._id.toString();
-            tagObj.usage_count = usage_count;
-            tags_data.push(tagObj);
+        const usageCounts = await Expense.aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id) } },
+            { $unwind: '$tags' },
+            { $group: { _id: '$tags', count: { $sum: 1 } } }
+        ]);
+        const usageMap = {};
+        for (const uc of usageCounts) {
+            usageMap[uc._id.toString()] = uc.count;
         }
+
+        const tags_data = tags.map(tag => ({
+            ...tag,
+            id: tag._id.toString(),
+            usage_count: usageMap[tag._id.toString()] || 0
+        }));
 
         // Sort by usage_count DESC, then name ASC
         tags_data.sort((a, b) => {
@@ -108,7 +112,7 @@ router.get('/api/tags', async (req, res) => {
         return res.json([]);
     }
     try {
-        const tags = await Tag.find({ user_id: req.session.user_id }).sort({ name: 1 });
+        const tags = await Tag.find({ user_id: req.session.user_id }).sort({ name: 1 }).lean();
         res.json(tags.map(t => ({
             id: t._id.toString(),
             name: t.name,

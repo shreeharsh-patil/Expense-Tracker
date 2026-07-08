@@ -40,5 +40,6 @@ const incomeSchema = new Schema({
 
 incomeSchema.index({ user_id: 1, date: -1 });
 incomeSchema.index({ user_id: 1, account_id: 1 });
+incomeSchema.index({ user_id: 1, source: 1 });
 
 module.exports = mongoose.model('Income', incomeSchema);

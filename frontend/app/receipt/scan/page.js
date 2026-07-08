@@ -204,6 +204,7 @@ function ScanReceiptForm() {
                 ) : (
                   <div className="relative z-10 w-full">
                     <div className="max-w-[280px] mx-auto relative rounded-xl overflow-hidden shadow-2xl border-4 border-white dark:border-white/5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={preview} alt="Receipt Preview" className="w-full h-auto object-contain bg-slate-100 dark:bg-dark-bg" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-center p-4">
                         <p className="text-[10px] text-white font-mono font-bold tracking-widest">{fileName}</p>

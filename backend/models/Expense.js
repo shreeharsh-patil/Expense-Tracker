@@ -50,5 +50,9 @@ const expenseSchema = new Schema({
 expenseSchema.index({ user_id: 1, date: -1 });
 expenseSchema.index({ user_id: 1, category: 1 });
 expenseSchema.index({ user_id: 1, account_id: 1 });
+expenseSchema.index({ user_id: 1, payment_method: 1 });
+expenseSchema.index({ user_id: 1, amount: -1 });
+expenseSchema.index({ user_id: 1, tags: 1 });
+expenseSchema.index({ user_id: 1, date: 1, category: 1 });
 
 module.exports = mongoose.model('Expense', expenseSchema);

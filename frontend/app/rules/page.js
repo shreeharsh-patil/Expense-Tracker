@@ -198,7 +198,7 @@ function RulesManager() {
                   }`}>
                   {rule.is_active ? 'Active' : 'Paused'}
                 </button>
-                <button onClick={() => handleDelete(rule.id)} className="text-slate-400 hover:text-accent-red transition-colors cursor-pointer p-1">
+                <button onClick={() => setDeleteConfirm(rule.id)} className="text-slate-400 hover:text-accent-red transition-colors cursor-pointer p-1">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>

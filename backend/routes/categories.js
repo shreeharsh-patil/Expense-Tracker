@@ -11,19 +11,22 @@ router.get('/categories', async (req, res, next) => {
     const user_id = req.session.user_id;
 
     try {
-        const cats = await CustomCategory.find({ user_id }).sort({ name: 1 });
-        const cats_data = [];
+        const cats = await CustomCategory.find({ user_id }).sort({ name: 1 }).lean();
 
-        for (const cat of cats) {
-            const usage_count = await Expense.countDocuments({
-                user_id: new mongoose.Types.ObjectId(user_id),
-                category: cat.name
-            });
-            const catObj = cat.toObject();
-            catObj.id = cat._id.toString();
-            catObj.usage_count = usage_count;
-            cats_data.push(catObj);
+        const usageCounts = await Expense.aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id) } },
+            { $group: { _id: '$category', count: { $sum: 1 } } }
+        ]);
+        const usageMap = {};
+        for (const uc of usageCounts) {
+            usageMap[uc._id] = uc.count;
         }
+
+        const cats_data = cats.map(cat => ({
+            ...cat,
+            id: cat._id.toString(),
+            usage_count: usageMap[cat.name] || 0
+        }));
 
         res.render('categories.html', { categories: cats_data });
     } catch (err) {
@@ -162,7 +165,7 @@ router.get('/api/categories', async (req, res) => {
         return res.json([]);
     }
     try {
-        const cats = await CustomCategory.find({ user_id: req.session.user_id }).sort({ name: 1 });
+        const cats = await CustomCategory.find({ user_id: req.session.user_id }).sort({ name: 1 }).lean();
         res.json(cats.map(c => ({
             id: c._id.toString(),
             name: c.name

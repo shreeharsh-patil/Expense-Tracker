@@ -175,7 +175,7 @@ router.get('/api/accounts', async (req, res) => {
         return res.status(401).json({ error: 'Not authenticated' });
     }
     try {
-        const accounts = await Account.find({ user_id: req.session.user_id }).sort({ is_active: -1, name: 1 });
+        const accounts = await Account.find({ user_id: req.session.user_id }).sort({ is_active: -1, name: 1 }).lean();
         const spentByAccount = await Expense.aggregate([
             { $match: { user_id: new mongoose.Types.ObjectId(req.session.user_id), account_id: { $ne: null } } },
             { $group: { _id: '$account_id', total: { $sum: '$amount' } } }

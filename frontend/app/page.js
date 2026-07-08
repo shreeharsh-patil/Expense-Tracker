@@ -2,10 +2,20 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import LiveSimulator from '../components/LiveSimulator';
 import { ArrowRight, Terminal, Sparkles, Star, CheckCircle, Shield, Brain, Cpu, Rocket } from 'lucide-react';
+
+const LiveSimulator = dynamic(() => import('../components/LiveSimulator'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[400px] rounded-3xl bg-slate-100 dark:bg-dark-card animate-pulse flex items-center justify-center">
+      <span className="text-xs text-slate-400 dark:text-dark-mute font-mono">Loading simulator...</span>
+    </div>
+  ),
+});
 
 export default function Home() {
   return (
@@ -69,11 +79,13 @@ export default function Home() {
                 <div className="relative w-full">
                   <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-primary/20 to-violet-500/15 blur-2xl opacity-60"></div>
                   <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
-                    <img 
+                    <Image 
                       src="/images/spendly_hero_dashboard.png"
                       alt="Spendly expense tracking dashboard"
+                      width={1200}
+                      height={750}
                       className="w-full h-auto object-contain"
-                      loading="lazy"
+                      priority
                     />
                   </div>
                 </div>
@@ -294,11 +306,13 @@ export default function Home() {
               
               {/* Receipt scanner image below CTA */}
               <div className="mt-14 max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10">
-                <img 
+                <Image 
                   src="/images/spendly_receipt_scanner.png"
                   alt="Spendly AI receipt scanner feature"
+                  width={1200}
+                  height={675}
                   className="w-full h-auto object-contain"
-                  loading="lazy"
+                  priority={false}
                 />
               </div>
             </div>

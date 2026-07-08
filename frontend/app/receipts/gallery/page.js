@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth, api } from '../../../components/AuthContext';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
-import { Camera, Upload, Trash2, ChevronLeft, ChevronRight, Image, Receipt } from 'lucide-react';
+import { Camera, Upload, Trash2, ChevronLeft, ChevronRight, Image } from 'lucide-react';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 
 function ReceiptGallery() {
@@ -103,14 +103,15 @@ function ReceiptGallery() {
                 <div key={r.id} className="card-apple p-0 overflow-hidden hover-lift group flex flex-col border-white/60 dark:border-white/5">
                   <div className="relative aspect-[3/4] bg-slate-100 dark:bg-dark-bg overflow-hidden">
                     {imageUrl ? (
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imageUrl}
-                        alt={r.original_name}
+                        alt={r.original_name || 'Receipt'}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                         onError={(e) => {
                           e.target.style.display = 'none';
-                          e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center"><svg class="w-12 h-12 text-slate-400 dark:text-dark-border" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
+                          e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center" aria-hidden="true"><svg class="w-12 h-12 text-slate-400 dark:text-dark-border" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
                         }}
                       />
                     ) : (

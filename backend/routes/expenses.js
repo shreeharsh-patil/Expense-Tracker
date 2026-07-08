@@ -367,19 +367,24 @@ router.get('/expenses/export', async (req, res, next) => {
         return res.redirect('/login');
     }
     try {
-        const rows = await Expense.find({ user_id: req.session.user_id }).sort({ date: -1 });
-        let csvContent = 'Date,Category,Description,Amount,Currency\r\n';
-        for (const r of rows) {
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', 'attachment; filename=spendly_expenses.csv');
+        res.write('\uFEFF'); // BOM for Excel compatibility
+        res.write('Date,Category,Description,Amount,Currency\r\n');
+
+        const cursor = Expense.find({ user_id: req.session.user_id }).sort({ date: -1 }).lean().cursor();
+
+        cursor.on('data', (r) => {
             const date = r.date || '';
             const category = r.category || '';
             const description = (r.description || '').replace(/"/g, '""').replace(/^[=+\-@]/g, "'$&");
             const amount = Number(r.amount).toFixed(2);
             const currency = r.currency || 'INR';
-            csvContent += `${date},${category},"${description}",${amount},${currency}\r\n`;
-        }
-        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader('Content-Disposition', 'attachment; filename=spendly_expenses.csv');
-        res.send(csvContent);
+            res.write(`${date},${category},"${description}",${amount},${currency}\r\n`);
+        });
+
+        cursor.on('end', () => res.end());
+        cursor.on('error', (err) => next(err));
     } catch (err) {
         next(err);
     }
