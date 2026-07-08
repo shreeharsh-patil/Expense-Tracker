@@ -498,57 +498,7 @@ router.post('/reset-password/:token', async (req, res) => {
 });
 
 // ------------------------------------------------------------------ //
-// API OAuth Endpoints (for Next.js frontend + Vercel routing)        //
-// ------------------------------------------------------------------ //
-router.get('/api/auth/:provider', (req, res) => {
-    // Forward to the existing OAuth login handler
-    req.params.provider = req.params.provider;
-    // Reconstruct the redirect_uri to use /api/authorize/ for Vercel routing
-    const provider = req.params.provider;
-    if (req.session.user_id) {
-        return res.redirect('/dashboard');
-    }
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const redirect_uri = `${protocol}://${req.get('host')}/api/authorize/${provider}`;
-
-    if (provider === 'google') {
-        const clientId = process.env.GOOGLE_CLIENT_ID;
-        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-        if (!clientId || !clientSecret) {
-            return res.status(400).json({ error: 'Google OAuth is not configured.' });
-        }
-        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=code&scope=openid%20email%20profile`;
-        return res.redirect(authUrl);
-    } else if (provider === 'github') {
-        const clientId = process.env.GITHUB_CLIENT_ID;
-        const clientSecret = process.env.GITHUB_CLIENT_SECRET;
-        if (!clientId || !clientSecret) {
-            return res.status(400).json({ error: 'GitHub OAuth is not configured.' });
-        }
-        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=user:email`;
-        return res.redirect(authUrl);
-    } else {
-        return res.status(400).json({ error: 'Invalid provider.' });
-    }
-});
-
-router.get('/api/authorize/:provider', async (req, res) => {
-    if (req.session.user_id) {
-        return res.redirect('/dashboard');
-    }
-    const provider = req.params.provider;
-    const code = req.query.code;
-    if (!code) {
-        return res.status(400).json({ error: 'OAuth authorization failed: code is missing.' });
-    }
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const redirect_uri = `${protocol}://${req.get('host')}/api/authorize/${provider}`;
-    // The shared handler uses req.flash and res.redirect which work for both routes
-    return handleOAuthAuthorize(req, res, provider, code, redirect_uri);
-});
-
-// ------------------------------------------------------------------ //
-// Headless JSON API Auth Endpoints                                   //
+// Headless JSON API Auth Endpoints — must precede /api/auth/:provider //
 // ------------------------------------------------------------------ //
 router.get('/api/auth/me', async (req, res) => {
     if (!req.session.user_id) {
@@ -870,6 +820,53 @@ router.post('/api/auth/resend-otp', async (req, res) => {
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
+});
+
+// ------------------------------------------------------------------ //
+// API OAuth Endpoints (for Next.js frontend + Vercel routing)        //
+// Must come after /api/auth/me and other static API routes           //
+// ------------------------------------------------------------------ //
+router.get('/api/auth/:provider', (req, res) => {
+    const provider = req.params.provider;
+    if (req.session.user_id) {
+        return res.redirect('/dashboard');
+    }
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const redirect_uri = `${protocol}://${req.get('host')}/api/authorize/${provider}`;
+
+    if (provider === 'google') {
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        if (!clientId || !clientSecret) {
+            return res.status(400).json({ error: 'Google OAuth is not configured.' });
+        }
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=code&scope=openid%20email%20profile`;
+        return res.redirect(authUrl);
+    } else if (provider === 'github') {
+        const clientId = process.env.GITHUB_CLIENT_ID;
+        const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+        if (!clientId || !clientSecret) {
+            return res.status(400).json({ error: 'GitHub OAuth is not configured.' });
+        }
+        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=user:email`;
+        return res.redirect(authUrl);
+    } else {
+        return res.status(400).json({ error: 'Invalid provider.' });
+    }
+});
+
+router.get('/api/authorize/:provider', async (req, res) => {
+    if (req.session.user_id) {
+        return res.redirect('/dashboard');
+    }
+    const provider = req.params.provider;
+    const code = req.query.code;
+    if (!code) {
+        return res.status(400).json({ error: 'OAuth authorization failed: code is missing.' });
+    }
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const redirect_uri = `${protocol}://${req.get('host')}/api/authorize/${provider}`;
+    return handleOAuthAuthorize(req, res, provider, code, redirect_uri);
 });
 
 module.exports = router;
