@@ -23,6 +23,26 @@ export const metadata = {
     icon: '/images/favicon.svg',
     apple: '/images/favicon.svg',
   },
+  openGraph: {
+    title: "Spendly — Personal Ledger Terminal",
+    description: "Scan receipts, forecast monthly burn, track subscriptions, and visualize cash flow securely.",
+    url: "https://your-app.vercel.app",
+    siteName: "Spendly",
+    images: [
+      {
+        url: "/images/spendly_hero_dashboard.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Spendly — Personal Ledger Terminal",
+    images: ["/images/spendly_hero_dashboard.png"],
+  },
 };
 
 export default function RootLayout({ children }) {
