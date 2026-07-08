@@ -117,7 +117,7 @@ function DashboardContent() {
               <div>
                 <p className="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Net Savings</p>
                 <p className={`text-2xl md:text-3xl font-mono font-bold ${net_savings >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
-                  {net_savings >= 0 ? '' : '-'}₹{Math.abs(net_savings).toFixed(0)}
+                  {net_savings >= 0 ? '' : '-'}{'₹'}{Math.abs(net_savings).toFixed(0)}
                 </p>
               </div>
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${net_savings >= 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
@@ -127,11 +127,11 @@ function DashboardContent() {
             <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-slate-100 dark:border-dark-border/40">
               <div className="flex justify-between text-[10px]">
                 <span className="text-slate-500 dark:text-dark-mute">Income</span>
-                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">₹{current_month_income.toFixed(0)}</span>
+                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{'₹'}{current_month_income.toFixed(0)}</span>
               </div>
               <div className="flex justify-between text-[10px] mt-1">
                 <span className="text-slate-500 dark:text-dark-mute">Spent</span>
-                <span className="font-mono font-bold text-red-500">₹{current_month_spent.toFixed(0)}</span>
+                <span className="font-mono font-bold text-red-500">{'₹'}{current_month_spent.toFixed(0)}</span>
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ function DashboardContent() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Monthly Burn</p>
-                <p className="text-2xl md:text-3xl font-mono font-bold text-slate-900 dark:text-white">₹{current_month_spent.toFixed(0)}</p>
+                <p className="text-2xl md:text-3xl font-mono font-bold text-slate-900 dark:text-white">{'₹'}{current_month_spent.toFixed(0)}</p>
               </div>
               <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
                 <Wallet className="w-5 h-5" />
@@ -206,7 +206,7 @@ function DashboardContent() {
                       </td>
                       <td className="px-6 py-5 text-right">
                         <span className="text-sm font-mono font-bold text-slate-900 dark:text-white tracking-tighter">
-                          ₹{exp.amount?.toFixed(2)}
+                          {'₹'}{exp.amount?.toFixed(2)}
                         </span>
                       </td>
                       <td className="px-6 py-5 text-right">
@@ -244,7 +244,7 @@ function DashboardContent() {
                         <p className="text-[10px] text-slate-500 dark:text-dark-mute font-medium">{exp.category} &middot; {exp.date}</p>
                       </div>
                     </div>
-                    <span className="text-sm font-mono font-bold text-slate-900 dark:text-white shrink-0">₹{exp.amount?.toFixed(2)}</span>
+                    <span className="text-sm font-mono font-bold text-slate-900 dark:text-white shrink-0">{'₹'}{exp.amount?.toFixed(2)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="px-2 py-1 rounded bg-slate-100 dark:bg-white/5 text-[9px] font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest border border-slate-200/50 dark:border-white/5">
@@ -274,25 +274,25 @@ function DashboardContent() {
             <div className="space-y-3 md:space-y-4">
               <div className="flex justify-between items-center pb-3 md:pb-4 border-b border-slate-100 dark:border-dark-border/40">
                 <span className="text-xs font-medium text-slate-500 dark:text-dark-mute">Income</span>
-                <span className="text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400">₹{current_month_income.toFixed(2)}</span>
+                <span className="text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400">{'₹'}{current_month_income.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center pb-3 md:pb-4 border-b border-slate-100 dark:border-dark-border/40">
                 <span className="text-xs font-medium text-slate-500 dark:text-dark-mute">Spent so far</span>
-                <span className="text-sm font-mono font-bold text-slate-900 dark:text-white">₹{current_month_spent.toFixed(2)}</span>
+                <span className="text-sm font-mono font-bold text-slate-900 dark:text-white">{'₹'}{current_month_spent.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center pb-3 md:pb-4 border-b border-slate-100 dark:border-dark-border/40">
                 <span className="text-xs font-medium text-slate-500 dark:text-dark-mute">Net Savings</span>
                 <span className={`text-sm font-mono font-bold ${net_savings >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
-                  ₹{net_savings.toFixed(2)}
+                  {'₹'}{net_savings.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between items-center pb-3 md:pb-4 border-b border-slate-100 dark:border-dark-border/40">
                 <span className="text-xs font-medium text-slate-500 dark:text-dark-mute">Monthly budget</span>
-                <span className="text-sm font-mono font-bold text-slate-900 dark:text-white">₹{monthly_budget.toFixed(0)}</span>
+                <span className="text-sm font-mono font-bold text-slate-900 dark:text-white">{'₹'}{monthly_budget.toFixed(0)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs font-medium text-slate-500 dark:text-dark-mute">Projected total</span>
-                <span className="text-sm font-mono font-bold text-slate-900 dark:text-white">₹{projected_total.toFixed(2)}</span>
+                <span className="text-sm font-mono font-bold text-slate-900 dark:text-white">{'₹'}{projected_total.toFixed(2)}</span>
               </div>
             </div>
             <div className="mt-4 md:mt-6">

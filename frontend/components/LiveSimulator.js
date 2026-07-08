@@ -69,13 +69,13 @@ export default function LiveSimulator() {
           <div>
             <p className="text-[9px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Current Burn</p>
             <p className="text-4xl font-mono font-bold text-slate-900 dark:text-white mt-1">
-              ₹{burnTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {'₹'}{burnTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
           <div className="text-right">
             <span className="text-[10px] font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Active Limit Progress</span>
             <p className="text-sm font-mono font-bold text-slate-900 dark:text-white mt-1">
-              {burnPercent}% of ₹10,000
+              {burnPercent}% of {'₹'}10,000
             </p>
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function LiveSimulator() {
                 </div>
               </div>
               <span className="text-xs font-mono font-bold text-slate-900 dark:text-white">
-                -₹{t.amount.toFixed(2)}
+                -{'₹'}{t.amount.toFixed(2)}
               </span>
             </div>
           );

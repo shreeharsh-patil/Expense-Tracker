@@ -82,18 +82,18 @@ function ReportsContent() {
           <div className="card-apple py-2 px-4 flex items-center gap-4 bg-white/50 dark:bg-white/5">
             <div className="text-right shrink-0">
               <span className="block text-[8px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Outflow</span>
-              <span className="text-base md:text-lg font-bold text-slate-900 dark:text-white tracking-tighter">₹{total_year.toFixed(0)}</span>
+              <span className="text-base md:text-lg font-bold text-slate-900 dark:text-white tracking-tighter">{'₹'}{total_year.toFixed(0)}</span>
             </div>
             <div className="w-px h-8 bg-slate-200 dark:bg-dark-border shrink-0"></div>
             <div className="text-right shrink-0">
               <span className="block text-[8px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Inflow</span>
-              <span className="text-base md:text-lg font-bold text-emerald-600 dark:text-emerald-400 tracking-tighter">₹{total_income_year.toFixed(0)}</span>
+              <span className="text-base md:text-lg font-bold text-emerald-600 dark:text-emerald-400 tracking-tighter">{'₹'}{total_income_year.toFixed(0)}</span>
             </div>
             <div className="w-px h-8 bg-slate-200 dark:bg-dark-border shrink-0"></div>
             <div className="text-right shrink-0">
               <span className="block text-[8px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Net</span>
               <span className={`text-base md:text-lg font-bold tracking-tighter ${net_savings_year >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                ₹{net_savings_year.toFixed(0)}
+                {'₹'}{net_savings_year.toFixed(0)}
               </span>
             </div>
           </div>
@@ -167,7 +167,7 @@ function ReportsContent() {
                         <span className="font-bold text-slate-700 dark:text-slate-300">{cat.category}</span>
                       </div>
                       <div className="flex items-center gap-1.5 font-mono shrink-0">
-                        <span className="font-bold text-slate-900 dark:text-white">₹{cat.total.toFixed(0)}</span>
+                        <span className="font-bold text-slate-900 dark:text-white">{'₹'}{cat.total.toFixed(0)}</span>
                         <span className="text-[10px] text-slate-400 dark:text-dark-mute hidden sm:inline">({pct.toFixed(1)}%)</span>
                       </div>
                     </div>
@@ -203,11 +203,11 @@ function ReportsContent() {
                     <div className="flex-1 space-y-0.5">
                       <div className="flex items-center gap-1">
                         <div className="h-2 rounded-full bg-primary/60" style={{ width: `${Math.max(expPct, 2)}%` }}></div>
-                        <span className="text-[8px] font-mono text-slate-400">₹{total.toFixed(0)}</span>
+                        <span className="text-[8px] font-mono text-slate-400">{'₹'}{total.toFixed(0)}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <div className="h-2 rounded-full bg-emerald-500/60" style={{ width: `${Math.max(incPct, 2)}%` }}></div>
-                        <span className="text-[8px] font-mono text-emerald-500">₹{incomeTotal.toFixed(0)}</span>
+                        <span className="text-[8px] font-mono text-emerald-500">{'₹'}{incomeTotal.toFixed(0)}</span>
                       </div>
                     </div>
                   </div>
