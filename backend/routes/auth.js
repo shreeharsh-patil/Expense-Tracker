@@ -79,6 +79,7 @@ router.get('/authorize/:provider', async (req, res) => {
     let name = '';
     let oauth_id = '';
     let email_verified = false;
+    let avatarUrl = '';
 
     try {
         if (provider === 'google') {
@@ -97,6 +98,7 @@ router.get('/authorize/:provider', async (req, res) => {
             email = (userRes.data.email || '').toLowerCase();
             name = userRes.data.name || '';
             email_verified = userRes.data.email_verified || false;
+            avatarUrl = userRes.data.picture || '';
         } else if (provider === 'github') {
             const tokenRes = await axios.post('https://github.com/login/oauth/access_token', {
                 code,
@@ -116,6 +118,7 @@ router.get('/authorize/:provider', async (req, res) => {
             oauth_id = String(userRes.data.id);
             name = userRes.data.name || userRes.data.login || '';
             email = (userRes.data.email || '').toLowerCase();
+            avatarUrl = userRes.data.avatar_url || '';
 
             if (!email) {
                 // Fetch public/private emails from GitHub
@@ -145,10 +148,11 @@ router.get('/authorize/:provider', async (req, res) => {
         const ip_addr = req.ip || 'Unknown';
 
         if (user) {
-            req.session.user_id = null;
-            req.session.user_name = null;
+            // Update avatar URL on every login (in case Google/GitHub photo changed)
+            if (avatarUrl) user.avatar_url = avatarUrl;
             req.session.user_id = user._id.toString();
             req.session.user_name = user.name;
+            await user.save();
             await send_signin_confirmation(email, user.name, now_str, ip_addr, provider);
             req.flash('success', `Welcome back, ${user.name}!`);
             return res.redirect('/dashboard');
@@ -160,10 +164,9 @@ router.get('/authorize/:provider', async (req, res) => {
             existing.oauth_provider = provider;
             existing.oauth_id = oauth_id;
             existing.email_verified = true;
+            if (avatarUrl) existing.avatar_url = avatarUrl;
             await existing.save();
 
-            req.session.user_id = null;
-            req.session.user_name = null;
             req.session.user_id = existing._id.toString();
             req.session.user_name = existing.name;
             await send_signin_confirmation(email, existing.name, now_str, ip_addr, provider);
@@ -178,7 +181,8 @@ router.get('/authorize/:provider', async (req, res) => {
             password_hash: null,
             oauth_provider: provider,
             oauth_id: oauth_id,
-            email_verified: email_verified
+            email_verified: email_verified,
+            avatar_url: avatarUrl || undefined
         });
         await newUser.save();
 

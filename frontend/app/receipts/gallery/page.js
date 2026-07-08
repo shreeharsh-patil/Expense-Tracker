@@ -17,6 +17,7 @@ function ReceiptGallery() {
   const [totalReceipts, setTotalReceipts] = useState(0);
   const [error, setError] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [failedImages, setFailedImages] = useState({});
 
   const fetchReceipts = useCallback((p = 1) => {
     setLoading(true);
@@ -102,21 +103,24 @@ function ReceiptGallery() {
               return (
                 <div key={r.id} className="card-apple p-0 overflow-hidden hover-lift group flex flex-col border-white/60 dark:border-white/5">
                   <div className="relative aspect-[3/4] bg-slate-100 dark:bg-dark-bg overflow-hidden">
-                    {imageUrl ? (
+                    {imageUrl && !failedImages[r.id] ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={imageUrl}
                         alt={r.original_name || 'Receipt'}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center" aria-hidden="true"><svg class="w-12 h-12 text-slate-400 dark:text-dark-border" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
+                        onError={() => {
+                          setFailedImages(prev => ({ ...prev, [r.id]: true }));
                         }}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Image className="w-12 h-12 text-slate-400 dark:text-dark-border" />
+                      <div className="w-full h-full flex items-center justify-center" aria-hidden={!imageUrl}>
+                        <svg className="w-12 h-12 text-slate-400 dark:text-dark-border" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2"/>
+                          <circle cx="8.5" cy="8.5" r="1.5"/>
+                          <polyline points="21 15 16 10 5 21"/>
+                        </svg>
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">

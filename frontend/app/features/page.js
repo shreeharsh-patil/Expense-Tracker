@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import DynamicIcon from '../../components/DynamicIcon';
-import { ArrowRight, CheckCircle, HelpCircle, Shield, Star, Zap } from 'lucide-react';
+import { ArrowRight, CheckCircle, Download, HelpCircle, Shield, Star, Zap } from 'lucide-react';
 
 const features = [
   {

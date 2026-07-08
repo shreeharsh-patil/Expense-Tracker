@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}Record Entry | Spendly{% endblock %}
 
 {% block content %}
@@ -35,7 +35,7 @@
               {{ icon('currency_exchange', 'text-slate-400 dark:text-dark-border text-[18px] absolute left-0') }}
               <select name="currency" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                 {% for c in currencies %}
-                <option value="{{ c }}" {% if c == preferred_currency %}selected{% endif %}>{{ c }} â€” {{ currency_symbol(c) }}</option>
+                <option value="{{ c }}" {% if c == preferred_currency %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
                 {% endfor %}
               </select>
             </div>

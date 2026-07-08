@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './AuthContext';
-import { Sun, Moon, Menu, X, Wallet, FileText, Camera, BarChart2, Repeat, User, Award, Tag, LogOut, ChevronRight } from 'lucide-react';
+import { Sun, Moon, Menu, X, Wallet, FileText, Camera, BarChart2, Repeat, User, Award, Tag, LogOut } from 'lucide-react';
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -127,6 +127,11 @@ export default function Header() {
             {/* Desktop Action Buttons */}
             {user ? (
               <>
+                {/* Mobile Profile link */}
+                <Link href="/profile" className="inline-flex md:hidden items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" aria-label="Profile">
+                  <User className="w-[18px] h-[18px]" />
+                </Link>
+                {/* Desktop Profile link */}
                 <Link href="/profile" className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                   <User className="w-[16px] h-[16px] text-slate-400" />
                   {user.name}

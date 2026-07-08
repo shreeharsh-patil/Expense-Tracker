@@ -127,7 +127,8 @@ router.get('/api/profile', async (req, res) => {
                 email: user.email,
                 phone: user.phone || '',
                 preferred_currency: user.preferred_currency || 'INR',
-                avatar_url: user.avatar_url || ''
+                avatar_url: user.avatar_url || '',
+                oauth_provider: user.oauth_provider || ''
             }
         });
     } catch (err) {

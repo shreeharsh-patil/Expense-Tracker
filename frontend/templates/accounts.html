@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}Accounts | Spendly{% endblock %}
 
 {% block content %}
@@ -104,7 +104,7 @@
         <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest">Currency</label>
         <select name="currency" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-800 dark:text-white appearance-none cursor-pointer">
           {% for c in currencies %}
-          <option value="{{ c }}" {% if c == preferred_currency %}selected{% endif %}>{{ c }} â€” {{ currency_symbol(c) }}</option>
+          <option value="{{ c }}" {% if c == preferred_currency %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
           {% endfor %}
         </select>
       </div>
@@ -143,7 +143,7 @@
         <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest">Currency</label>
         <select name="currency" id="edit_acc_currency" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-800 dark:text-white appearance-none cursor-pointer">
           {% for c in currencies %}
-          <option value="{{ c }}">{{ c }} â€” {{ currency_symbol(c) }}</option>
+          <option value="{{ c }}">{{ c }} — {{ currency_symbol(c) }}</option>
           {% endfor %}
         </select>
       </div>

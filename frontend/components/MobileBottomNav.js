@@ -9,9 +9,8 @@ import { Wallet, BarChart3, Scan, User, Image, PlusCircle, Plus, TrendingUp } fr
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: Wallet },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
-  { href: '/receipt/scan', label: 'Scan', icon: Scan },
-  { href: '/profile', label: 'Profile', icon: User },
   { href: '/receipts/gallery', label: 'Receipts', icon: Image },
+  { href: '/profile', label: 'Profile', icon: User },
 ];
 
 const QUICK_ACTIONS = [
@@ -66,7 +65,8 @@ export default function MobileBottomNav() {
         role="navigation"
         aria-label="Main navigation"
       >
-        {NAV_ITEMS.map((item) => {
+        {/* Left navigation items */}
+        {NAV_ITEMS.slice(0, 2).map((item) => {
           const active = isActive(item.href);
           const IconComponent = item.icon;
           return (
@@ -87,18 +87,35 @@ export default function MobileBottomNav() {
 
         {/* Plus button to open quick-add sheet */}
         <button
-          className={`mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 ${
-            sheetOpen
-              ? 'text-primary'
-              : 'text-slate-500 dark:text-dark-mute hover:text-primary dark:hover:text-primary-light'
+          className={`flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-primary to-primary-light text-white shadow-lg shadow-primary/30 active:scale-95 transition-all duration-200 focus:outline-none -translate-y-2.5 border-4 border-canvas dark:border-dark-bg ${
+            sheetOpen ? 'rotate-45' : ''
           }`}
           onClick={() => setSheetOpen(!sheetOpen)}
           aria-label="Quick add"
           aria-expanded={sheetOpen}
         >
-          <PlusCircle className="w-[26px] h-[26px]" />
-          <span className="font-sans text-[9px] font-semibold mt-0.5">Add</span>
+          <Plus className="w-6 h-6" />
         </button>
+
+        {/* Right navigation items */}
+        {NAV_ITEMS.slice(2, 4).map((item) => {
+          const active = isActive(item.href);
+          const IconComponent = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative ${
+                active
+                  ? 'text-primary mobile-nav-active'
+                  : 'text-slate-500 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300'
+              }`}
+            >
+              <IconComponent className="w-[22px] h-[22px]" />
+              <span className="font-sans text-[9px] font-semibold mt-0.5">{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Mobile quick-add bottom sheet */}
