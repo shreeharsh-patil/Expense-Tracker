@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}Ledger Terminal | Spendly{% endblock %}
 {% block head_scripts %}
   <script src="{{ url_for('static', filename='js/charts.js') }}?v=2" defer></script>
@@ -425,19 +425,19 @@
 
         <div class="mt-4 md:mt-6">
             {% if projected_total <= monthly_budget %}
-            <div class="bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl p-4 flex gap-3 items-start">
-                {{ icon('check-circle', 'text-signature-mint text-[18px] mt-0.5 shrink-0') }}
+            <div class="bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 dark:border-emerald-500/10 rounded-xl p-4 flex gap-3 items-start">
+                {{ icon('check-circle', 'text-emerald-600 dark:text-emerald-400 text-[18px] mt-0.5 shrink-0') }}
                 <div>
-                    <p class="text-xs font-bold text-slate-900 dark:text-white mb-1">On Track</p>
-                    <p class="text-[10px] text-slate-500 dark:text-dark-mute leading-tight">Expense trajectory is within safety limits.</p>
+                    <p class="text-xs font-bold text-emerald-900 dark:text-emerald-300 mb-1">On Track</p>
+                    <p class="text-[10px] text-emerald-700 dark:text-emerald-400/90 leading-tight">Expense trajectory is within safety limits.</p>
                 </div>
             </div>
             {% else %}
-            <div class="bg-accent-red/5 border border-accent-red/20 rounded-xl p-4 flex gap-3 items-start">
-                {{ icon('warning', 'text-accent-red text-[18px] mt-0.5 shrink-0') }}
+            <div class="bg-red-500/10 dark:bg-red-500/5 border border-red-500/20 dark:border-red-500/10 rounded-xl p-4 flex gap-3 items-start">
+                {{ icon('warning', 'text-red-600 dark:text-red-400 text-[18px] mt-0.5 shrink-0') }}
                 <div>
-                    <p class="text-xs font-bold text-accent-red mb-1">Over Budget</p>
-                    <p class="text-[10px] text-slate-500 dark:text-dark-mute leading-tight">Projected spending will exceed the monthly budget.</p>
+                    <p class="text-xs font-bold text-red-900 dark:text-red-300 mb-1">Over Budget</p>
+                    <p class="text-[10px] text-red-700 dark:text-red-400/90 leading-tight">Projected spending will exceed the monthly budget.</p>
                 </div>
             </div>
             {% endif %}
