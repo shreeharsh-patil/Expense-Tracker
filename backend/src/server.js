@@ -8,6 +8,7 @@ const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
 const cors = require('cors');
+const helmet = require('helmet');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -76,20 +77,24 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Session with MongoStore
-const SECRET_KEY = process.env.SECRET_KEY || 'spendly-local-dev-secret-key-change-in-prod';
+const SECRET_KEY = process.env.SECRET_KEY;
+if (!SECRET_KEY) {
+    console.error('FATAL: SECRET_KEY environment variable is not set.');
+    process.exit(1);
+}
 app.use(session({
     secret: SECRET_KEY,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
         mongoUrl: MONGODB_URI,
-        ttl: 30 * 24 * 60 * 60 // 30 days
+        ttl: 7 * 24 * 60 * 60 // 7 days
     }),
     cookie: {
         httpOnly: true,
-        secure: 'auto',
+        secure: process.env.NODE_ENV === 'production' || !!process.env.VERCEL,
         sameSite: 'lax',
-        maxAge: 30 * 24 * 60 * 60 * 1000
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     }
 }));
 
@@ -148,23 +153,36 @@ app.use((req, res, next) => {
     next();
 });
 
-// Security headers middleware
-app.use((req, res, next) => {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
-        res.setHeader('Content-Security-Policy',
-            "default-src 'self'; " +
-            "script-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline'; " +
-            "style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net 'unsafe-inline'; " +
-            "font-src 'self' https://fonts.gstatic.com; " +
-            "img-src 'self' https://ui-avatars.com data: blob:; " +
-            "connect-src 'self' https://accounts.google.com https://api.github.com; " +
-            "frame-ancestors 'none'"
-        );
-    }
-    next();
-});
+// Security headers via helmet
+const cspDirectives = process.env.NODE_ENV === 'production' || process.env.VERCEL
+    ? {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net', 'https://fonts.googleapis.com'],
+        styleSrc: ["'self'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'https://ui-avatars.com', 'data:', 'blob:'],
+        connectSrc: ["'self'", 'https://accounts.google.com', 'https://api.github.com'],
+        formAction: ["'self'"],
+        baseUri: ["'self'"],
+        frameAncestors: ["'none'"]
+      }
+    : {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net', 'https://fonts.googleapis.com'],
+        styleSrc: ["'self'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'https://ui-avatars.com', 'data:', 'blob:'],
+        connectSrc: ["'self'", 'https://accounts.google.com', 'https://api.github.com'],
+        formAction: ["'self'"],
+        baseUri: ["'self'"],
+        frameAncestors: ["'none'"]
+      };
+
+app.use(helmet({
+    contentSecurityPolicy: cspDirectives,
+    crossOriginEmbedderPolicy: false,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+}));
 
 // Bind session and request path/endpoint to locals for Nunjucks
 app.use((req, res, next) => {

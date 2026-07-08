@@ -86,6 +86,24 @@ router.post('/rules/add', async (req, res, next) => {
         return res.redirect('/rules');
     }
 
+    if (pattern.length > 200) {
+        req.flash('danger', 'Pattern must be 200 characters or fewer.');
+        return res.redirect('/rules');
+    }
+
+    // Validate the pattern compiles and guard against ReDoS
+    try {
+        new RegExp(pattern, 'i');
+    } catch (regexErr) {
+        req.flash('danger', 'Invalid regex pattern. Please check your syntax.');
+        return res.redirect('/rules');
+    }
+    // Block patterns with dangerous nested quantifiers
+    if (/\(.[*+?]\)[+*?]/.test(pattern)) {
+        req.flash('danger', 'Pattern uses nested quantifiers which can cause performance issues. Please simplify.');
+        return res.redirect('/rules');
+    }
+
     try {
         const newRule = new SmartRule({
             user_id,

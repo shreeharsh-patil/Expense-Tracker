@@ -24,15 +24,16 @@ const profileStorage = multer.diskStorage({
     }
 });
 
+const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/bmp'];
+
 const profileUpload = multer({
     storage: profileStorage,
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-        const ext = path.extname(file.originalname).toLowerCase();
-        if (['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp'].includes(ext)) {
+        if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
             cb(null, true);
         } else {
-            cb(new Error('Invalid file type. Please upload an image.'), false);
+            cb(new Error('Invalid file type. Please upload an image (PNG, JPEG, GIF, WebP, or BMP).'), false);
         }
     }
 });

@@ -624,6 +624,11 @@ router.post('/api/auth/register', async (req, res) => {
         return res.status(400).json({ error: 'Already logged in.' });
     }
 
+    const ip = req.ip || 'unknown';
+    if (is_rate_limited(ip)) {
+        return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    }
+
     const name = (req.body.name || '').trim();
     const email = (req.body.email || '').trim().toLowerCase();
     const password = req.body.password || '';
@@ -683,6 +688,11 @@ router.post('/api/auth/register', async (req, res) => {
 });
 
 router.post('/api/auth/verify-otp', async (req, res) => {
+    const ip = req.ip || 'unknown';
+    if (is_rate_limited(ip)) {
+        return res.status(429).json({ error: 'Too many attempts. Please try again later.' });
+    }
+
     const code = (req.body.code || '').trim();
     const email = (req.body.email || '').trim().toLowerCase();
 
@@ -814,6 +824,11 @@ router.post('/api/auth/reset-password/:token', async (req, res) => {
 });
 
 router.post('/api/auth/resend-otp', async (req, res) => {
+    const ip = req.ip || 'unknown';
+    if (is_rate_limited(ip)) {
+        return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    }
+
     const email = (req.body.email || '').trim().toLowerCase();
     const reg_data = req.session.pending_registration;
 
