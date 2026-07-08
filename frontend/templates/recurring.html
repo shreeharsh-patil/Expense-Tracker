@@ -175,38 +175,41 @@
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           
           <div class="space-y-2 group">
-            <label for="amount" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Monthly Amount ({{ currency_symbol(preferred_currency) }})</label>
-            <div class="relative flex items-center">
-              {{ icon('payments', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
-              <input type="number" step="0.01" id="amount" name="amount" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-mono font-bold text-slate-900 dark:text-white" placeholder="0.00" required>
+            <label for="amount" class="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Monthly Amount ({{ currency_symbol(preferred_currency) }})</label>
+            <div class="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+              <span class="absolute left-4 text-slate-400 dark:text-dark-mute flex items-center pointer-events-none">{{ icon('payments', 'text-[18px]') }}</span>
+              <input type="number" step="0.01" id="amount" name="amount" class="w-full bg-transparent border-0 py-3 pl-11 pr-4 outline-none focus:ring-0 text-sm font-mono font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="0.00" required>
             </div>
           </div>
 
           <div class="space-y-2 group">
-            <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
-            <div class="relative flex items-center">
-              {{ icon('currency-exchange', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
-              <select name="currency" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+            <label class="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
+            <div class="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+              <span class="absolute left-4 text-slate-400 dark:text-dark-mute flex items-center pointer-events-none">{{ icon('currency-exchange', 'text-[18px]') }}</span>
+              <select name="currency" class="w-full bg-transparent border-0 py-3 pl-11 pr-10 outline-none focus:ring-0 text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                 {% for c in currencies %}
                 <option value="{{ c }}" {% if c == preferred_currency %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
                 {% endfor %}
               </select>
+              <span class="absolute right-4 pointer-events-none text-slate-400 dark:text-dark-mute flex items-center">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+              </span>
             </div>
           </div>
 
           <div class="space-y-2 group">
-            <label for="day_of_month" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Billing Day (1-28)</label>
-            <div class="relative flex items-center">
-              {{ icon('event', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
-              <input type="number" min="1" max="28" id="day_of_month" name="day_of_month" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" value="1" required>
+            <label for="day_of_month" class="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Billing Day (1-28)</label>
+            <div class="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+              <span class="absolute left-4 text-slate-400 dark:text-dark-mute flex items-center pointer-events-none">{{ icon('event', 'text-[18px]') }}</span>
+              <input type="number" min="1" max="28" id="day_of_month" name="day_of_month" class="w-full bg-transparent border-0 py-3 pl-11 pr-4 outline-none focus:ring-0 text-sm font-medium text-slate-800 dark:text-white" value="1" required>
             </div>
           </div>
 
           <div class="space-y-2 group">
-            <label for="category" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
-            <div class="relative flex items-center">
-              {{ icon('category', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
-              <select id="category" name="category" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
+            <label for="category" class="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
+            <div class="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+              <span class="absolute left-4 text-slate-400 dark:text-dark-mute flex items-center pointer-events-none">{{ icon('category', 'text-[18px]') }}</span>
+              <select id="category" name="category" class="w-full bg-transparent border-0 py-3 pl-11 pr-10 outline-none focus:ring-0 text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
                 <option value="Bills">Bills & Rent</option>
                 <option value="Food">Subscription Box</option>
                 <option value="Entertainment">Streaming Service</option>
@@ -214,31 +217,37 @@
                 <option value="Transport">Public Transit</option>
                 <option value="Other">Miscellaneous</option>
               </select>
+              <span class="absolute right-4 pointer-events-none text-slate-400 dark:text-dark-mute flex items-center">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+              </span>
             </div>
           </div>
 
           <div class="space-y-2 group">
-            <label for="payment_method" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Method</label>
-            <div class="relative flex items-center">
-              {{ icon('credit-card', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
-              <select id="payment_method" name="payment_method" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+            <label for="payment_method" class="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Method</label>
+            <div class="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+              <span class="absolute left-4 text-slate-400 dark:text-dark-mute flex items-center pointer-events-none">{{ icon('credit-card', 'text-[18px]') }}</span>
+              <select id="payment_method" name="payment_method" class="w-full bg-transparent border-0 py-3 pl-11 pr-10 outline-none focus:ring-0 text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                 <option value="Bank">Bank Transfer / UPI</option>
                 <option value="Cash">Physical Cash</option>
                 <option value="Credit Card">Credit Card</option>
               </select>
+              <span class="absolute right-4 pointer-events-none text-slate-400 dark:text-dark-mute flex items-center">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+              </span>
             </div>
           </div>
 
           <div class="space-y-2 group">
-            <label for="description" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Schedule Name</label>
-            <div class="relative flex items-center">
-              {{ icon('description', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
-              <input type="text" id="description" name="description" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" placeholder="e.g. Netflix Monthly">
+            <label for="description" class="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Schedule Name</label>
+            <div class="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+              <span class="absolute left-4 text-slate-400 dark:text-dark-mute flex items-center pointer-events-none">{{ icon('description', 'text-[18px]') }}</span>
+              <input type="text" id="description" name="description" class="w-full bg-transparent border-0 py-3 pl-11 pr-4 outline-none focus:ring-0 text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="e.g. Netflix Monthly">
             </div>
           </div>
 
           <div class="pt-4">
-            <button type="submit" class="btn-primary w-full py-3.5 text-xs font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group">
+            <button type="submit" class="btn-primary w-full py-3.5 text-xs font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group relative overflow-hidden transition-all duration-300 hover:brightness-110 active:scale-[0.98]">
               Initialize Schedule
               {{ icon('schedule-send', 'text-[18px] transition-transform group-hover:translate-x-1') }}
             </button>

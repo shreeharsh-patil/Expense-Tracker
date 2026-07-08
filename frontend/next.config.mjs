@@ -13,6 +13,11 @@ const nextConfig = {
         port: '5001',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '**.vercel.app',
+        pathname: '/**',
+      },
     ],
   },
 };

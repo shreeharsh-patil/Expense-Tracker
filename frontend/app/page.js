@@ -219,7 +219,7 @@ export default function Home() {
                 ].map((item, index) => (
                   <div key={index} className="card-apple p-6 flex flex-col gap-4">
                     <div className="flex gap-1 text-amber-400">
-                      {[...Array(5)].map((_, i) => <Star key={i} className="w-[16px] h-[16px] fill-current" />)}
+                      {[...Array(5)].map((_, i) => <Star key={i} className="w-[16px] h-[16px]" fill="currentColor" />)}
                     </div>
                     <p className="text-sm text-slate-600 dark:text-dark-mute flex-grow">{item.text}</p>
                     <div className="flex items-center gap-3 mt-4">

@@ -346,7 +346,7 @@ export default function FeaturesPage() {
                 SOC 2 Compliant
               </div>
               <div className="flex items-center gap-1.5 text-[10px]">
-                <Star className="w-3.5 h-3.5 text-amber-500" />
+                <Star className="w-3.5 h-3.5 text-amber-500" fill="currentColor" />
                 4.9★ App Rating
               </div>
               <div className="flex items-center gap-1.5 text-[10px]">

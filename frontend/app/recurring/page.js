@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth, api } from '../../components/AuthContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { Repeat, Plus, Trash2, CreditCard, Calendar, Tag, FileText, DollarSign } from 'lucide-react';
+import { Repeat, Plus, Trash2, CreditCard, Calendar, Tag, FileText, DollarSign, ChevronDown, Coins } from 'lucide-react';
 import ConfirmDialog from '../../components/ConfirmDialog';
 
 function RecurringManager() {
@@ -167,45 +167,46 @@ function RecurringManager() {
 
             <form onSubmit={handleAdd} className="space-y-5">
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
+                <label className="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
                   Monthly Amount ({currency})
                 </label>
-                <div className="relative flex items-center">
-                  <DollarSign className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
+                <div className="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+                  <DollarSign className="absolute left-4 text-slate-400 dark:text-dark-border w-[18px] h-[18px] pointer-events-none" />
                   <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)}
-                    className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-mono font-bold text-slate-900 dark:text-white"
+                    className="w-full bg-transparent border-0 py-3 pl-11 pr-4 outline-none focus:ring-0 text-sm font-mono font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
                     placeholder="0.00" required />
                 </div>
               </div>
 
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
-                <div className="relative flex items-center">
-                  <CreditCard className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
+                <label className="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
+                <div className="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+                  <Coins className="absolute left-4 text-slate-400 dark:text-dark-border w-[18px] h-[18px] pointer-events-none" />
                   <select value={currency} onChange={(e) => setCurrency(e.target.value)}
-                    className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+                    className="w-full bg-transparent border-0 py-3 pl-11 pr-10 outline-none focus:ring-0 text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                     {['INR', 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'SGD'].map(c => (
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
+                  <ChevronDown className="absolute right-4 text-slate-400 dark:text-dark-border w-[18px] h-[18px] pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Billing Day (1-28)</label>
-                <div className="relative flex items-center">
-                  <Calendar className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
+                <label className="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Billing Day (1-28)</label>
+                <div className="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+                  <Calendar className="absolute left-4 text-slate-400 dark:text-dark-border w-[18px] h-[18px] pointer-events-none" />
                   <input type="number" min="1" max="28" value={dayOfMonth} onChange={(e) => setDayOfMonth(parseInt(e.target.value) || 1)}
-                    className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" required />
+                    className="w-full bg-transparent border-0 py-3 pl-11 pr-4 outline-none focus:ring-0 text-sm font-medium text-slate-800 dark:text-white" required />
                 </div>
               </div>
 
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
-                <div className="relative flex items-center">
-                  <Tag className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
+                <label className="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
+                <div className="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+                  <Tag className="absolute left-4 text-slate-400 dark:text-dark-border w-[18px] h-[18px] pointer-events-none" />
                   <select value={category} onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
+                    className="w-full bg-transparent border-0 py-3 pl-11 pr-10 outline-none focus:ring-0 text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
                     <option value="Bills">Bills & Rent</option>
                     <option value="Food">Subscription Box</option>
                     <option value="Entertainment">Streaming Service</option>
@@ -213,36 +214,38 @@ function RecurringManager() {
                     <option value="Transport">Public Transit</option>
                     <option value="Other">Miscellaneous</option>
                   </select>
+                  <ChevronDown className="absolute right-4 text-slate-400 dark:text-dark-border w-[18px] h-[18px] pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Method</label>
-                <div className="relative flex items-center">
-                  <CreditCard className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
+                <label className="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Method</label>
+                <div className="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+                  <CreditCard className="absolute left-4 text-slate-400 dark:text-dark-border w-[18px] h-[18px] pointer-events-none" />
                   <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
+                    className="w-full bg-transparent border-0 py-3 pl-11 pr-10 outline-none focus:ring-0 text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                     <option value="Bank">Bank Transfer / UPI</option>
                     <option value="Cash">Physical Cash</option>
                     <option value="Credit Card">Credit Card</option>
                   </select>
+                  <ChevronDown className="absolute right-4 text-slate-400 dark:text-dark-border w-[18px] h-[18px] pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Schedule Name</label>
-                <div className="relative flex items-center">
-                  <FileText className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
+                <label className="block text-[10px] font-sans font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Schedule Name</label>
+                <div className="relative flex items-center rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-dark-border/60 focus-within:border-primary dark:focus-within:border-primary-light focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+                  <FileText className="absolute left-4 text-slate-400 dark:text-dark-border w-[18px] h-[18px] pointer-events-none" />
                   <input type="text" value={description} onChange={(e) => setDescription(e.target.value)}
-                    className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white"
+                    className="w-full bg-transparent border-0 py-3 pl-11 pr-4 outline-none focus:ring-0 text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
                     placeholder="e.g. Netflix Monthly" />
                 </div>
               </div>
 
               <div className="pt-4">
-                <button type="submit" className="btn-primary w-full py-3.5 text-xs font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group cursor-pointer">
+                <button type="submit" className="btn-primary w-full py-3.5 text-xs font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group cursor-pointer relative overflow-hidden transition-all duration-300 hover:brightness-110 active:scale-[0.98]">
                   Initialize Schedule
-                  <Plus className="w-[18px] h-[18px]" />
+                  <Plus className="w-[18px] h-[18px] transition-transform group-hover:rotate-90" />
                 </button>
               </div>
             </form>

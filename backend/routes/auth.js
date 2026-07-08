@@ -28,53 +28,9 @@ function formatCurrentTime() {
 }
 
 // ------------------------------------------------------------------ //
-// OAuth Setup (Google + GitHub)                                      //
+// Shared OAuth handler (avoids code duplication for /api/ paths)     //
 // ------------------------------------------------------------------ //
-router.get('/login/:provider', (req, res) => {
-    if (req.session.user_id) {
-        return res.redirect('/dashboard');
-    }
-    const provider = req.params.provider;
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const redirect_uri = `${protocol}://${req.get('host')}/authorize/${provider}`;
-
-    if (provider === 'google') {
-        const clientId = process.env.GOOGLE_CLIENT_ID;
-        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-        if (!clientId || !clientSecret) {
-            req.flash('danger', 'Google OAuth is not configured. Please sign in with email.');
-            return res.redirect('/login');
-        }
-        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=code&scope=openid%20email%20profile`;
-        return res.redirect(authUrl);
-    } else if (provider === 'github') {
-        const clientId = process.env.GITHUB_CLIENT_ID;
-        const clientSecret = process.env.GITHUB_CLIENT_SECRET;
-        if (!clientId || !clientSecret) {
-            req.flash('danger', 'GitHub OAuth is not configured. Please sign in with email.');
-            return res.redirect('/login');
-        }
-        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=user:email`;
-        return res.redirect(authUrl);
-    } else {
-        req.flash('danger', 'Invalid provider.');
-        return res.redirect('/login');
-    }
-});
-
-router.get('/authorize/:provider', async (req, res) => {
-    if (req.session.user_id) {
-        return res.redirect('/dashboard');
-    }
-    const provider = req.params.provider;
-    const code = req.query.code;
-    if (!code) {
-        req.flash('danger', 'OAuth authorization failed: code is missing.');
-        return res.redirect('/login');
-    }
-
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const redirect_uri = `${protocol}://${req.get('host')}/authorize/${provider}`;
+async function handleOAuthAuthorize(req, res, provider, code, redirect_uri) {
     let email = '';
     let name = '';
     let oauth_id = '';
@@ -121,7 +77,6 @@ router.get('/authorize/:provider', async (req, res) => {
             avatarUrl = userRes.data.avatar_url || '';
 
             if (!email) {
-                // Fetch public/private emails from GitHub
                 const emailsRes = await axios.get('https://api.github.com/user/emails', {
                     headers: {
                         Authorization: `token ${access_token}`,
@@ -139,7 +94,7 @@ router.get('/authorize/:provider', async (req, res) => {
         }
 
         if (!email) {
-            req.flash('danger', 'Could not retrieve email from provider. Make sure your email is public on GitHub.');
+            req.flash('danger', 'Could not retrieve email from provider.');
             return res.redirect('/login');
         }
 
@@ -148,7 +103,6 @@ router.get('/authorize/:provider', async (req, res) => {
         const ip_addr = req.ip || 'Unknown';
 
         if (user) {
-            // Update avatar URL on every login (in case Google/GitHub photo changed)
             if (avatarUrl) user.avatar_url = avatarUrl;
             req.session.user_id = user._id.toString();
             req.session.user_name = user.name;
@@ -158,7 +112,6 @@ router.get('/authorize/:provider', async (req, res) => {
             return res.redirect('/dashboard');
         }
 
-        // Check if email already registered
         const existing = await User.findOne({ email });
         if (existing) {
             existing.oauth_provider = provider;
@@ -166,7 +119,6 @@ router.get('/authorize/:provider', async (req, res) => {
             existing.email_verified = true;
             if (avatarUrl) existing.avatar_url = avatarUrl;
             await existing.save();
-
             req.session.user_id = existing._id.toString();
             req.session.user_name = existing.name;
             await send_signin_confirmation(email, existing.name, now_str, ip_addr, provider);
@@ -174,7 +126,6 @@ router.get('/authorize/:provider', async (req, res) => {
             return res.redirect('/dashboard');
         }
 
-        // Create new user
         const newUser = new User({
             name,
             email,
@@ -186,8 +137,6 @@ router.get('/authorize/:provider', async (req, res) => {
         });
         await newUser.save();
 
-        req.session.user_id = null;
-        req.session.user_name = null;
         req.session.user_id = newUser._id.toString();
         req.session.user_name = newUser.name;
         await send_signin_confirmation(email, name, now_str, ip_addr, provider);
@@ -198,6 +147,56 @@ router.get('/authorize/:provider', async (req, res) => {
         req.flash('danger', `OAuth authorization failed: ${err.message}`);
         return res.redirect('/login');
     }
+}
+
+// ------------------------------------------------------------------ //
+// OAuth Setup (Google + GitHub)                                      //
+// ------------------------------------------------------------------ //
+router.get('/login/:provider', (req, res) => {
+    if (req.session.user_id) {
+        return res.redirect('/dashboard');
+    }
+    const provider = req.params.provider;
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const redirect_uri = `${protocol}://${req.get('host')}/authorize/${provider}`;
+
+    if (provider === 'google') {
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        if (!clientId || !clientSecret) {
+            req.flash('danger', 'Google OAuth is not configured. Please sign in with email.');
+            return res.redirect('/login');
+        }
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=code&scope=openid%20email%20profile`;
+        return res.redirect(authUrl);
+    } else if (provider === 'github') {
+        const clientId = process.env.GITHUB_CLIENT_ID;
+        const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+        if (!clientId || !clientSecret) {
+            req.flash('danger', 'GitHub OAuth is not configured. Please sign in with email.');
+            return res.redirect('/login');
+        }
+        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=user:email`;
+        return res.redirect(authUrl);
+    } else {
+        req.flash('danger', 'Invalid provider.');
+        return res.redirect('/login');
+    }
+});
+
+router.get('/authorize/:provider', async (req, res) => {
+    if (req.session.user_id) {
+        return res.redirect('/dashboard');
+    }
+    const provider = req.params.provider;
+    const code = req.query.code;
+    if (!code) {
+        req.flash('danger', 'OAuth authorization failed: code is missing.');
+        return res.redirect('/login');
+    }
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const redirect_uri = `${protocol}://${req.get('host')}/authorize/${provider}`;
+    return handleOAuthAuthorize(req, res, provider, code, redirect_uri);
 });
 
 // ------------------------------------------------------------------ //
@@ -496,6 +495,56 @@ router.post('/reset-password/:token', async (req, res) => {
     consume_reset_token(token);
     req.flash('success', 'Password reset successfully! Please log in.');
     return res.redirect('/login');
+});
+
+// ------------------------------------------------------------------ //
+// API OAuth Endpoints (for Next.js frontend + Vercel routing)        //
+// ------------------------------------------------------------------ //
+router.get('/api/auth/:provider', (req, res) => {
+    // Forward to the existing OAuth login handler
+    req.params.provider = req.params.provider;
+    // Reconstruct the redirect_uri to use /api/authorize/ for Vercel routing
+    const provider = req.params.provider;
+    if (req.session.user_id) {
+        return res.redirect('/dashboard');
+    }
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const redirect_uri = `${protocol}://${req.get('host')}/api/authorize/${provider}`;
+
+    if (provider === 'google') {
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        if (!clientId || !clientSecret) {
+            return res.status(400).json({ error: 'Google OAuth is not configured.' });
+        }
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=code&scope=openid%20email%20profile`;
+        return res.redirect(authUrl);
+    } else if (provider === 'github') {
+        const clientId = process.env.GITHUB_CLIENT_ID;
+        const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+        if (!clientId || !clientSecret) {
+            return res.status(400).json({ error: 'GitHub OAuth is not configured.' });
+        }
+        const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=user:email`;
+        return res.redirect(authUrl);
+    } else {
+        return res.status(400).json({ error: 'Invalid provider.' });
+    }
+});
+
+router.get('/api/authorize/:provider', async (req, res) => {
+    if (req.session.user_id) {
+        return res.redirect('/dashboard');
+    }
+    const provider = req.params.provider;
+    const code = req.query.code;
+    if (!code) {
+        return res.status(400).json({ error: 'OAuth authorization failed: code is missing.' });
+    }
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const redirect_uri = `${protocol}://${req.get('host')}/api/authorize/${provider}`;
+    // The shared handler uses req.flash and res.redirect which work for both routes
+    return handleOAuthAuthorize(req, res, provider, code, redirect_uri);
 });
 
 // ------------------------------------------------------------------ //
