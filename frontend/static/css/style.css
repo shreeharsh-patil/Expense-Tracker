@@ -280,6 +280,26 @@ body {
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
 }
 
+/* Fix for dark cards that use card-apple */
+.card-apple.bg-slate-900 {
+  background-color: #0f172a;
+  border-color: #1e293b;
+}
+
+.card-apple.bg-slate-900:hover {
+  background-color: #1e293b;
+}
+
+.dark .card-apple.bg-slate-900 {
+  background-color: #0b0f19;
+  border-color: rgba(30, 41, 59, 0.8);
+}
+
+.dark .card-apple.bg-slate-900:hover {
+  background-color: #111622;
+}
+
+
 /* Premium Section Layout Alternations */
 .tile-light {
   background-color: #f8fafc;

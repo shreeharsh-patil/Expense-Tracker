@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth, api } from '../../components/AuthContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { Repeat, Plus, Trash2, CreditCard, Calendar, Tag, FileText, DollarSign } from 'lucide-react';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 function RecurringManager() {
   const { user } = useAuth();
@@ -17,19 +18,23 @@ function RecurringManager() {
   const [dayOfMonth, setDayOfMonth] = useState(1);
   const [currency, setCurrency] = useState('INR');
   const [error, setError] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const fetchRecurring = useCallback(() => {
+  async function loadRecurring() {
     if (!user) { setRecurring([]); setLoading(false); return; }
     setLoading(true);
-    api.get('/api/recurring')
-      .then(res => setRecurring(res.data || []))
-      .catch(() => console.error('Failed to load recurring expenses'))
-      .finally(() => setLoading(false));
-  }, [user]);
+    try {
+      const res = await api.get('/api/recurring');
+      setRecurring(res.data || []);
+    } catch {
+      setError('Failed to load recurring expenses');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  useEffect(() => {
-    fetchRecurring();
-  }, [fetchRecurring]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+  useEffect(() => { loadRecurring(); }, [user]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -49,19 +54,18 @@ function RecurringManager() {
       });
       setAmount('');
       setDescription('');
-      fetchRecurring();
+      loadRecurring();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to add recurring expense');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Remove this recurring schedule?')) return;
     try {
       await api.post(`/recurring/${id}/delete`);
-      fetchRecurring();
+      loadRecurring();
     } catch (err) {
-      console.error('Delete failed');
+      setError('Failed to delete recurring expense');
     }
     setAmount('');
     setDescription('');
@@ -134,7 +138,7 @@ function RecurringManager() {
                         Day {exp.day_of_month}
                       </div>
                       <span className="text-sm font-mono font-bold text-slate-900 dark:text-white">{exp.currency || 'INR'} {exp.amount?.toFixed(2)}</span>
-                      <button onClick={() => handleDelete(exp.id)} className="text-slate-400 hover:text-accent-red transition-colors p-1 cursor-pointer">
+                      <button onClick={() => setDeleteConfirm(exp.id)} className="text-slate-400 hover:text-accent-red transition-colors p-1 cursor-pointer">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -245,6 +249,21 @@ function RecurringManager() {
           </div>
         </div>
       </div>
+    </div>
+
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) handleDelete(deleteConfirm);
+          setDeleteConfirm(null);
+        }}
+        title="Delete Recurring Expense"
+        message="Remove this recurring schedule? This cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

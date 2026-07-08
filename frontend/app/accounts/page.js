@@ -5,6 +5,7 @@ import { useAuth, api } from '../../components/AuthContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { Plus, Edit3, Trash2, X, Wallet, CreditCard, Banknote, TrendingUp, PiggyBank } from 'lucide-react';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 const ACCOUNT_TYPES = ['bank', 'cash', 'credit_card', 'investment', 'wallet', 'other'];
 const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'SGD'];
@@ -52,12 +53,13 @@ function AccountsManager() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingAccount, setEditingAccount] = useState(null);
   const [error, setError] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
     if (!user) return;
     api.get('/api/accounts')
       .then(res => setAccounts(res.data || []))
-      .catch(() => console.error('Failed to load accounts'))
+      .catch(() => setError('Failed to load accounts'))
       .finally(() => setLoading(false));
   }, [user]);
 
@@ -93,12 +95,11 @@ function AccountsManager() {
   };
 
   const handleDelete = async (id, name) => {
-    if (!confirm(`Delete account "${name}"? Transactions linked to it will be unlinked.`)) return;
     try {
       await api.post(`/accounts/${id}/delete`);
       api.get('/api/accounts').then(res => setAccounts(res.data || [])).catch(() => {});
     } catch (err) {
-      console.error('Delete failed');
+      setError('Failed to delete account');
     }
   };
 
@@ -256,7 +257,7 @@ function AccountsManager() {
               </div>
             </form>
             <div className="mt-4 pt-4 border-t border-slate-100 dark:border-dark-border/40">
-              <button onClick={() => { handleDelete(editingAccount.id, editingAccount.name); setShowEditModal(false); }}
+              <button onClick={() => { setDeleteConfirm({ id: editingAccount.id, name: editingAccount.name }); setShowEditModal(false); }}
                 className="w-full text-xs font-bold text-accent-red hover:text-red-600 transition-colors py-2 cursor-pointer">
                 Delete Account
               </button>
@@ -264,6 +265,20 @@ function AccountsManager() {
           </>
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) handleDelete(deleteConfirm.id, deleteConfirm.name);
+          setDeleteConfirm(null);
+        }}
+        title="Delete Account"
+        message={`Delete account "${deleteConfirm?.name || ''}"? Transactions linked to it will be unlinked.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

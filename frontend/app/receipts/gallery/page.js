@@ -6,6 +6,7 @@ import { useAuth, api } from '../../../components/AuthContext';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
 import { Camera, Upload, Trash2, ChevronLeft, ChevronRight, Image, Receipt } from 'lucide-react';
+import ConfirmDialog from '../../../components/ConfirmDialog';
 
 function ReceiptGallery() {
   const { user } = useAuth();
@@ -15,6 +16,7 @@ function ReceiptGallery() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalReceipts, setTotalReceipts] = useState(0);
   const [error, setError] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const fetchReceipts = useCallback((p = 1) => {
     setLoading(true);
@@ -36,12 +38,11 @@ function ReceiptGallery() {
   }, [user, fetchReceipts]);
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this receipt?')) return;
     try {
       await api.post(`/receipts/${id}/delete`);
       fetchReceipts(page);
     } catch (err) {
-      console.error('Delete failed');
+      setError('Failed to delete receipt');
     }
   };
 
@@ -138,7 +139,7 @@ function ReceiptGallery() {
                     </div>
 
                     <div className="mt-3 pt-3 border-t border-slate-100 dark:border-dark-border/40 flex items-center justify-between">
-                      <button onClick={() => handleDelete(r.id)} className="text-slate-400 hover:text-accent-red transition-colors p-1 cursor-pointer" title="Delete">
+                      <button onClick={() => setDeleteConfirm(r.id)} className="text-slate-400 hover:text-accent-red transition-colors p-1 cursor-pointer" title="Delete">
                         <Trash2 className="w-[14px] h-[14px]" />
                       </button>
                     </div>
@@ -188,6 +189,20 @@ function ReceiptGallery() {
           </Link>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) handleDelete(deleteConfirm);
+          setDeleteConfirm(null);
+        }}
+        title="Delete Receipt"
+        message="Delete this receipt? This cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

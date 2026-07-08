@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth, api } from '../../components/AuthContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { Tag, Plus, Trash2, Palette } from 'lucide-react';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 function TagsManager() {
   const { user } = useAuth();
@@ -13,19 +14,23 @@ function TagsManager() {
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState('#6366f1');
   const [error, setError] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const fetchTags = useCallback(() => {
+  async function loadTags() {
     if (!user) { setTags([]); setLoading(false); return; }
     setLoading(true);
-    api.get('/api/tags')
-      .then(res => setTags(res.data))
-      .catch(() => console.error('Failed to load tags'))
-      .finally(() => setLoading(false));
-  }, [user]);
+    try {
+      const res = await api.get('/api/tags');
+      setTags(res.data);
+    } catch {
+      setError('Failed to load tags');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  useEffect(() => {
-    fetchTags();
-  }, [fetchTags]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+  useEffect(() => { loadTags(); }, [user]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -35,19 +40,18 @@ function TagsManager() {
       const res = await api.post('/tags/add', { name: newName.trim(), color: newColor });
       setNewName('');
       setNewColor('#6366f1');
-      fetchTags();
+      loadTags();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to add tag');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this tag?')) return;
     try {
       await api.post(`/tags/${id}/delete`);
-      fetchTags();
+      loadTags();
     } catch (err) {
-      console.error('Delete failed');
+      setError('Failed to delete tag');
     }
   };
 
@@ -120,7 +124,7 @@ function TagsManager() {
                 <span className="text-sm font-bold text-slate-900 dark:text-white">{tag.name}</span>
                 <span className="text-[10px] text-slate-500 dark:text-dark-mute">({tag.usage_count || 0} expenses)</span>
               </div>
-              <button onClick={() => handleDelete(tag.id)} className="text-slate-400 hover:text-accent-red transition-colors cursor-pointer p-1">
+              <button onClick={() => setDeleteConfirm(tag.id)} className="text-slate-400 hover:text-accent-red transition-colors cursor-pointer p-1">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
@@ -133,6 +137,20 @@ function TagsManager() {
           <p className="text-sm text-slate-500 dark:text-dark-mute">Create tags to organize your expenses (e.g., &quot;Tax Deductible&quot;, &quot;Business&quot;, &quot;Gift&quot;).</p>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) handleDelete(deleteConfirm);
+          setDeleteConfirm(null);
+        }}
+        title="Delete Tag"
+        message={`Delete tag "${tags.find(t => t.id === deleteConfirm)?.name || ''}"? This cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

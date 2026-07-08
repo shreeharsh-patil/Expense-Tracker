@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth, api } from '../../components/AuthContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { Tags, Plus, Edit3, Trash2, X, Save } from 'lucide-react';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 const ICON_OPTIONS = [
   { value: 'category', label: 'Default' },
@@ -29,19 +30,23 @@ function CategoriesManager() {
   const [newColor, setNewColor] = useState('#6366f1');
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const fetchCategories = useCallback(() => {
+  async function loadCategories() {
     if (!user) { setCategories([]); setLoading(false); return; }
     setLoading(true);
-    api.get('/api/categories')
-      .then(res => setCategories(res.data || []))
-      .catch(() => console.error('Failed to load categories'))
-      .finally(() => setLoading(false));
-  }, [user]);
+    try {
+      const res = await api.get('/api/categories');
+      setCategories(res.data || []);
+    } catch {
+      setError('Failed to load categories');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+  useEffect(() => { loadCategories(); }, [user]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -55,7 +60,7 @@ function CategoriesManager() {
       setNewName('');
       setNewIcon('category');
       setNewColor('#6366f1');
-      fetchCategories();
+      loadCategories();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to add category');
     }
@@ -65,19 +70,18 @@ function CategoriesManager() {
     try {
       await api.post(`/categories/${id}/edit`, data);
       setEditId(null);
-      fetchCategories();
+      loadCategories();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update category');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this category? Expenses will be reassigned to Other.')) return;
     try {
       await api.post(`/categories/${id}/delete`);
-      fetchCategories();
+      loadCategories();
     } catch (err) {
-      console.error('Delete failed');
+      setError('Failed to delete category');
     }
   };
 
@@ -195,7 +199,7 @@ function CategoriesManager() {
                     <button onClick={() => setEditId(editId === cat.id ? null : cat.id)} className="p-2 rounded-lg text-slate-500 hover:text-primary hover:bg-primary/10 transition-all cursor-pointer" title="Edit">
                       <Edit3 className="w-[18px] h-[18px]" />
                     </button>
-                    <button onClick={() => handleDelete(cat.id)} className="p-2 rounded-lg text-slate-500 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer" title="Delete">
+                    <button onClick={() => setDeleteConfirm(cat.id)} className="p-2 rounded-lg text-slate-500 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer" title="Delete">
                       <Trash2 className="w-[18px] h-[18px]" />
                     </button>
                   </div>
@@ -228,6 +232,20 @@ function CategoriesManager() {
         </div>
         <p className="text-[10px] text-slate-500 dark:text-dark-mute mt-4">Default categories are always available. Custom categories appear alongside them in expense forms.</p>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) handleDelete(deleteConfirm);
+          setDeleteConfirm(null);
+        }}
+        title="Delete Category"
+        message="Delete this category? Expenses will be reassigned to Other."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </section>
   );
 }

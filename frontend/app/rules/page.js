@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth, api } from '../../components/AuthContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { Zap, Plus, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Zap, Plus, Trash2 } from 'lucide-react';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 function RulesManager() {
   const { user } = useAuth();
@@ -16,25 +17,27 @@ function RulesManager() {
   const [newCategory, setNewCategory] = useState('');
   const [selectedTagIds, setSelectedTagIds] = useState([]);
   const [error, setError] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const fetchData = useCallback(() => {
+  async function loadData() {
     if (!user) { setRules([]); setTags([]); setLoading(false); return; }
     setLoading(true);
-    Promise.all([
-      api.get('/api/rules'),
-      api.get('/api/tags')
-    ])
-      .then(([rulesRes, tagsRes]) => {
-        setRules(rulesRes.data?.rules || rulesRes.data || []);
-        setTags(tagsRes.data || []);
-      })
-      .catch(() => console.error('Failed to load data'))
-      .finally(() => setLoading(false));
-  }, [user]);
+    try {
+      const [rulesRes, tagsRes] = await Promise.all([
+        api.get('/api/rules'),
+        api.get('/api/tags')
+      ]);
+      setRules(rulesRes.data?.rules || rulesRes.data || []);
+      setTags(tagsRes.data || []);
+    } catch {
+      setError('Failed to load rules');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+  useEffect(() => { loadData(); }, [user]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -54,7 +57,7 @@ function RulesManager() {
       setNewPattern('');
       setNewCategory('');
       setSelectedTagIds([]);
-      fetchData();
+      loadData();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to add rule');
     }
@@ -63,19 +66,18 @@ function RulesManager() {
   const handleToggle = async (id) => {
     try {
       await api.post(`/rules/${id}/toggle`);
-      fetchData();
+      loadData();
     } catch (err) {
-      console.error('Toggle failed');
+      setError('Failed to toggle rule');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this rule?')) return;
     try {
       await api.post(`/rules/${id}/delete`);
-      fetchData();
+      loadData();
     } catch (err) {
-      console.error('Delete failed');
+      setError('Failed to delete rule');
     }
   };
 
@@ -212,6 +214,20 @@ function RulesManager() {
           </p>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) handleDelete(deleteConfirm);
+          setDeleteConfirm(null);
+        }}
+        title="Delete Rule"
+        message={`Delete rule "${rules.find(r => r.id === deleteConfirm)?.name || ''}"? This cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

@@ -15,6 +15,7 @@ export default function Header() {
   useEffect(() => {
     const stored = localStorage.getItem('theme') ||
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTheme(stored);
   }, []);
   const [menuOpen, setMenuOpen] = useState(false);
