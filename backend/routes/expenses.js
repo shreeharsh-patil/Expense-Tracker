@@ -632,4 +632,41 @@ router.get('/api/receipts', async (req, res) => {
     }
 });
 
+// ------------------------------------------------------------------ //
+// Single Expense JSON API Endpoint                                   //
+// ------------------------------------------------------------------ //
+router.get('/api/expenses/:id', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const expense_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(expense_id)) {
+        return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    try {
+        const expense = await Expense.findOne({ _id: expense_id, user_id }).lean();
+        if (!expense) {
+            return res.status(404).json({ error: 'Expense not found' });
+        }
+
+        res.json({
+            id: expense._id.toString(),
+            amount: expense.amount,
+            category: expense.category,
+            payment_method: expense.payment_method || 'Cash',
+            description: expense.description || '',
+            date: expense.date,
+            currency: expense.currency || 'INR',
+            account_id: expense.account_id ? expense.account_id.toString() : null,
+            tags: (expense.tags || []).map(t => t.toString()),
+            created_at: expense.created_at
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

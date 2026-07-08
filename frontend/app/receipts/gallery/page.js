@@ -103,7 +103,7 @@ function ReceiptGallery() {
                 <div key={r.id} className="card-apple p-0 overflow-hidden hover-lift group flex flex-col border-white/60 dark:border-white/5">
                   <div className="relative aspect-[3/4] bg-slate-100 dark:bg-dark-bg overflow-hidden">
                     {imageUrl ? (
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={imageUrl}
                         alt={r.original_name || 'Receipt'}

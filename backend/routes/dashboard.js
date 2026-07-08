@@ -140,9 +140,6 @@ router.get('/dashboard', async (req, res, next) => {
         // 3-12. Run all stats queries in parallel for faster dashboard load
         const oid = new mongoose.Types.ObjectId(user_id);
 
-        // 3-12. Run all stats queries in parallel for faster dashboard load
-        const oid = new mongoose.Types.ObjectId(user_id);
-
         const [
             currentMonthSpentRow,
             currentMonthIncomeRow,
@@ -264,11 +261,6 @@ router.get('/dashboard', async (req, res, next) => {
             Receipt.find({ user_id, expense_id: { $ne: null } }).lean()
         ]);
 
-        // Build income_trend_values from the resolved monthly_trends (no race condition)
-        const incomeMap = rawIncomeTrends;
-        const income_trend_values = trend_labels.map(m => incomeMap[m] || 0);
-        cache_set([user_id, 'income_trends'], income_trend_values);
-
         const current_month_spent = currentMonthSpentRow[0]?.total || 0;
         const current_month_income = currentMonthIncomeRow[0]?.total || 0;
         const net_savings = current_month_income - current_month_spent;
@@ -278,6 +270,10 @@ router.get('/dashboard', async (req, res, next) => {
 
         const trend_labels = monthly_trends.map(r => r.month);
         const trend_values = monthly_trends.map(r => r.total);
+
+        const incomeMap = rawIncomeTrends;
+        const income_trend_values = trend_labels.map(m => incomeMap[m] || 0);
+        cache_set([user_id, 'income_trends'], income_trend_values);
 
         const methods_labels = methods_raw.map(m => m.payment_method);
         const methods_values = methods_raw.map(m => m.total);
@@ -528,7 +524,6 @@ router.get('/reports', async (req, res, next) => {
         const method_labels = methods.map(m => m.payment_method);
         const method_values = methods.map(m => m.total);
 
-        const available_years = years.length > 0 ? years : [new Date().getFullYear().toString()];
         const available_years = years.length > 0 ? years : [new Date().getFullYear().toString()];
 
         // Insights

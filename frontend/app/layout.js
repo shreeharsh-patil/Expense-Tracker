@@ -3,6 +3,7 @@ import "./globals.css";
 import "../static/css/tailwind.css";
 import "../static/css/style.css";
 import { Providers } from "./providers";
+import MobileBottomNav from "../components/MobileBottomNav";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,7 +29,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${fragmentMono.variable}`}>
       <body suppressHydrationWarning className="bg-canvas dark:bg-dark-bg text-slate-700 dark:text-dark-text font-sans antialiased min-h-screen pb-20 md:pb-0 transition-colors duration-200 bg-grid-pattern">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <MobileBottomNav />
+        </Providers>
       </body>
     </html>
   );
