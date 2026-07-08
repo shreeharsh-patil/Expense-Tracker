@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Custom Categories | Spendly{% endblock %}
 
 {% block content %}
@@ -21,11 +21,11 @@
     <form method="POST" action="{{ url_for('categories.add_category') }}" class="flex flex-wrap items-end gap-3">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="flex-1 min-w-[180px]">
-        <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Name</label>
+        <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Name</label>
         <input type="text" name="name" class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary transition-all" placeholder="e.g. Freelance" required>
       </div>
       <div class="w-24">
-        <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Icon</label>
+        <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Icon</label>
         <select name="icon" class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary transition-all appearance-none cursor-pointer">
           <option value="category">Default</option>
           <option value="work">Work</option>
@@ -39,7 +39,7 @@
         </select>
       </div>
       <div class="w-20">
-        <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Color</label>
+        <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Color</label>
         <input type="color" name="color" value="#6366f1" class="w-full h-[42px] rounded-xl border border-slate-200 dark:border-white/10 cursor-pointer bg-slate-50 dark:bg-white/5">
       </div>
       <button type="submit" class="btn-primary px-6 py-2.5 text-xs font-bold !rounded-xl flex items-center gap-2">
@@ -61,17 +61,17 @@
           </div>
           <div class="min-w-0">
             <p class="text-sm font-bold text-slate-800 dark:text-white truncate">{{ cat.name }}</p>
-            <p class="text-[10px] text-slate-400 dark:text-dark-mute">{{ cat.usage_count }} expense{% if cat.usage_count != 1 %}s{% endif %}</p>
+            <p class="text-[10px] text-slate-500 dark:text-dark-mute">{{ cat.usage_count }} expense{% if cat.usage_count != 1 %}s{% endif %}</p>
           </div>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <!-- Edit button triggers inline edit form -->
-          <button onclick="toggleEditForm({{ cat.id }})" class="p-2 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all" title="Edit">
+          <button onclick="toggleEditForm({{ cat.id }})" class="p-2 rounded-lg text-slate-500 hover:text-primary hover:bg-primary/10 transition-all" title="Edit">
             {{ icon('edit', 'text-[18px]') }}
           </button>
           <form method="POST" action="{{ url_for('categories.delete_category', id=cat.id) }}" class="inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="button" data-confirm-delete="Delete category '{{ cat.name }}' and reassign expenses to Other?" class="p-2 rounded-lg text-slate-400 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer" title="Delete">
+            <button type="button" data-confirm-delete="Delete category '{{ cat.name }}' and reassign expenses to Other?" class="p-2 rounded-lg text-slate-500 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer" title="Delete">
               {{ icon('delete', 'text-[18px]') }}
             </button>
           </form>
@@ -82,11 +82,11 @@
         <form method="POST" action="{{ url_for('categories.edit_category', id=cat.id) }}" class="flex flex-wrap items-end gap-3">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <div class="flex-1 min-w-[160px]">
-            <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Name</label>
+            <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Name</label>
             <input type="text" name="name" value="{{ cat.name }}" class="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-white outline-none focus:border-primary transition-all" required>
           </div>
           <div class="w-24">
-            <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Icon</label>
+            <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Icon</label>
             <select name="icon" class="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:border-primary transition-all appearance-none cursor-pointer">
               <option value="category" {% if cat.icon == 'category' %}selected{% endif %}>Default</option>
               <option value="work" {% if cat.icon == 'work' %}selected{% endif %}>Work</option>
@@ -100,7 +100,7 @@
             </select>
           </div>
           <div class="w-20">
-            <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Color</label>
+            <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Color</label>
             <input type="color" name="color" value="{{ cat.color }}" class="w-full h-[38px] rounded-xl border border-slate-200 dark:border-white/10 cursor-pointer bg-white dark:bg-white/5">
           </div>
           <div class="flex gap-2">
@@ -130,7 +130,7 @@
       <span class="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 text-[10px] font-bold text-slate-500 dark:text-dark-mute border border-slate-200 dark:border-white/10">{{ def_cat }}</span>
       {% endfor %}
     </div>
-    <p class="text-[10px] text-slate-400 dark:text-dark-mute mt-4">Default categories are always available. Custom categories appear alongside them in expense forms.</p>
+    <p class="text-[10px] text-slate-500 dark:text-dark-mute mt-4">Default categories are always available. Custom categories appear alongside them in expense forms.</p>
   </div>
 </section>
 

@@ -100,19 +100,19 @@ function CategoriesManager() {
         className="flex flex-wrap items-end gap-3"
       >
         <div className="flex-1 min-w-[160px]">
-          <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Name</label>
+          <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Name</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)}
             className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-white outline-none focus:border-primary transition-all" required />
         </div>
         <div className="w-24">
-          <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Icon</label>
+          <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Icon</label>
           <select value={icon} onChange={(e) => setIcon(e.target.value)}
             className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:border-primary transition-all appearance-none cursor-pointer">
             {ICON_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
         <div className="w-20">
-          <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Color</label>
+          <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Color</label>
           <input type="color" value={color} onChange={(e) => setColor(e.target.value)}
             className="w-full h-[38px] rounded-xl border border-slate-200 dark:border-white/10 cursor-pointer bg-white dark:bg-white/5" />
         </div>
@@ -152,20 +152,20 @@ function CategoriesManager() {
         <h3 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest mb-4">Create New Category</h3>
         <form onSubmit={handleAdd} className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[180px]">
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Name</label>
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Name</label>
             <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)}
               className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary transition-all"
               placeholder="e.g. Freelance" required />
           </div>
           <div className="w-24">
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Icon</label>
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Icon</label>
             <select value={newIcon} onChange={(e) => setNewIcon(e.target.value)}
               className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-primary transition-all appearance-none cursor-pointer">
               {ICON_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
           <div className="w-20">
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Color</label>
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Color</label>
             <input type="color" value={newColor} onChange={(e) => setNewColor(e.target.value)}
               className="w-full h-[42px] rounded-xl border border-slate-200 dark:border-white/10 cursor-pointer bg-slate-50 dark:bg-white/5" />
           </div>
@@ -188,14 +188,14 @@ function CategoriesManager() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{cat.name}</p>
-                      <p className="text-[10px] text-slate-400 dark:text-dark-mute">{cat.usage_count || 0} expense{(cat.usage_count || 0) !== 1 ? 's' : ''}</p>
+                      <p className="text-[10px] text-slate-500 dark:text-dark-mute">{cat.usage_count || 0} expense{(cat.usage_count || 0) !== 1 ? 's' : ''}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <button onClick={() => setEditId(editId === cat.id ? null : cat.id)} className="p-2 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all cursor-pointer" title="Edit">
+                    <button onClick={() => setEditId(editId === cat.id ? null : cat.id)} className="p-2 rounded-lg text-slate-500 hover:text-primary hover:bg-primary/10 transition-all cursor-pointer" title="Edit">
                       <Edit3 className="w-[18px] h-[18px]" />
                     </button>
-                    <button onClick={() => handleDelete(cat.id)} className="p-2 rounded-lg text-slate-400 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer" title="Delete">
+                    <button onClick={() => handleDelete(cat.id)} className="p-2 rounded-lg text-slate-500 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer" title="Delete">
                       <Trash2 className="w-[18px] h-[18px]" />
                     </button>
                   </div>
@@ -210,9 +210,9 @@ function CategoriesManager() {
           </div>
         ) : (
           <div className="py-16 text-center">
-            <Tags className="w-12 h-12 text-slate-300 dark:text-dark-border mx-auto mb-4" />
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">No Custom Categories</p>
-            <p className="text-[10px] mt-2 max-w-[240px] mx-auto text-slate-400">Create your own categories above for better organization.</p>
+            <Tags className="w-12 h-12 text-slate-400 dark:text-dark-border mx-auto mb-4" />
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-500">No Custom Categories</p>
+            <p className="text-[10px] mt-2 max-w-[240px] mx-auto text-slate-500">Create your own categories above for better organization.</p>
           </div>
         )}
       </div>
@@ -226,7 +226,7 @@ function CategoriesManager() {
             </span>
           ))}
         </div>
-        <p className="text-[10px] text-slate-400 dark:text-dark-mute mt-4">Default categories are always available. Custom categories appear alongside them in expense forms.</p>
+        <p className="text-[10px] text-slate-500 dark:text-dark-mute mt-4">Default categories are always available. Custom categories appear alongside them in expense forms.</p>
       </div>
     </section>
   );

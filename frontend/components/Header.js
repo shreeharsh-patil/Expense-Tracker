@@ -9,13 +9,14 @@ import { Sun, Moon, Menu, X, Wallet, FileText, Camera, BarChart2, Repeat, User, 
 export default function Header() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') ||
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    }
-    return 'light';
-  });
+  const [theme, setTheme] = useState('light');
+
+  // Hydrate theme from localStorage after mount (avoids hydration mismatch)
+  useEffect(() => {
+    const stored = localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(stored);
+  }, []);
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Initialize theme
@@ -26,6 +27,35 @@ export default function Header() {
       document.documentElement.classList.remove('dark');
     }
   }, [theme]);
+
+  // Close menu on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && menuOpen) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [menuOpen]);
+
+  // Lock body scroll when menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      return () => {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [menuOpen]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -117,8 +147,10 @@ export default function Header() {
             {/* Mobile Menu Button */}
             <button 
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:!hidden touch-target w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-dark-mute flex items-center justify-center"
+              className="max-md:inline-flex md:!hidden items-center justify-center min-w-[44px] min-h-[44px] w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-dark-mute"
               aria-label="Toggle menu"
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav-drawer"
             >
               {menuOpen ? <X className="w-[22px] h-[22px]" /> : <Menu className="w-[22px] h-[22px]" />}
             </button>
@@ -127,72 +159,90 @@ export default function Header() {
       </div>
 
       {/* Mobile Sidebar/Menu */}
-      {menuOpen && (
-        <div className="md:hidden border-t border-slate-200/50 dark:border-dark-border/40 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl transition-all duration-300 absolute top-16 left-0 w-full shadow-lg max-h-[80vh] overflow-y-auto z-40">
-          <div className="flex flex-col px-4 py-3 space-y-1">
-            {user ? (
-              <>
-                <Link href="/dashboard" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/dashboard')}>
-                  <Wallet className="w-[20px] h-[20px]" /> Dashboard
-                </Link>
-                <Link href="/reports" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/reports')}>
-                  <BarChart2 className="w-[20px] h-[20px]" /> Reports
-                </Link>
-                <Link href="/receipt/scan" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/receipt/scan')}>
-                  <Camera className="w-[20px] h-[20px]" /> Scan Receipt
-                </Link>
-                <Link href="/receipts/gallery" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/receipts/gallery')}>
-                  <FileText className="w-[20px] h-[20px]" /> Receipt Gallery
-                </Link>
-                <Link href="/recurring" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/recurring')}>
-                  <Repeat className="w-[20px] h-[20px]" /> Recurring
-                </Link>
-                <Link href="/accounts" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/accounts')}>
-                  <Wallet className="w-[20px] h-[20px]" /> Accounts
-                </Link>
-                <Link href="/rules" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/rules')}>
-                  <Award className="w-[20px] h-[20px]" /> Rules
-                </Link>
-                <Link href="/tags" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/tags')}>
-                  <Tag className="w-[20px] h-[20px]" /> Tags
-                </Link>
-                <Link href="/categories" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/categories')}>
-                  <Tag className="w-[20px] h-[20px]" /> Categories
-                </Link>
-                <hr className="border-slate-200/50 dark:border-dark-border/40 my-2" />
-                <Link href="/profile" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/profile')}>
-                  <User className="w-[20px] h-[20px]" /> Profile ({user.name})
-                </Link>
-                <hr className="border-slate-200/50 dark:border-dark-border/40 my-2" />
-                <button 
-                  onClick={() => { setMenuOpen(false); logout(); }}
-                  className="touch-target px-3 py-3 text-sm font-semibold bg-gradient-to-r from-primary to-primary-light text-white rounded-xl text-center shadow-md flex items-center justify-center gap-2 w-full cursor-pointer"
-                >
-                  <LogOut className="w-[20px] h-[20px]" /> Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/features" onClick={() => setMenuOpen(false)} className="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3">
-                  Features
-                </Link>
-                <Link href="/pricing" onClick={() => setMenuOpen(false)} className="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3">
-                  Pricing
-                </Link>
-                <Link href="/about" onClick={() => setMenuOpen(false)} className="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3">
-                  About
-                </Link>
-                <Link href="/login" onClick={() => setMenuOpen(false)} className="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3">
-                  Sign in
-                </Link>
-                <Link href="/register" onClick={() => setMenuOpen(false)} className="touch-target px-3 py-3 text-sm font-semibold bg-gradient-to-r from-primary to-primary-light text-white rounded-xl text-center shadow-md flex items-center justify-center gap-2 mt-2">
-                  Get started
-                </Link>
-              </>
-            )}
+      <div
+        id="mobile-nav-drawer"
+        className={`max-md:block md:!hidden fixed inset-0 z-40 transition-all duration-300 ${
+          menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
+      >
+        {/* Backdrop */}
+        <div 
+          className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
+            menuOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={() => setMenuOpen(false)}
+        />
+        {/* Drawer panel */}
+        <div className={`absolute top-16 left-0 right-0 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl border-t border-slate-200/50 dark:border-dark-border/40 shadow-lg max-h-[calc(100vh-5rem)] overflow-y-auto transition-all duration-300 pb-safe ${
+          menuOpen ? 'translate-y-0' : '-translate-y-3'
+        }`}>
+            <div className="flex flex-col px-4 py-3 space-y-1">
+              {user ? (
+                <>
+                  <Link href="/dashboard" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/dashboard')}>
+                    <Wallet className="w-[20px] h-[20px]" /> Dashboard
+                  </Link>
+                  <Link href="/reports" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/reports')}>
+                    <BarChart2 className="w-[20px] h-[20px]" /> Reports
+                  </Link>
+                  <Link href="/receipt/scan" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/receipt/scan')}>
+                    <Camera className="w-[20px] h-[20px]" /> Scan Receipt
+                  </Link>
+                  <Link href="/receipts/gallery" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/receipts/gallery')}>
+                    <FileText className="w-[20px] h-[20px]" /> Receipt Gallery
+                  </Link>
+                  <Link href="/recurring" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/recurring')}>
+                    <Repeat className="w-[20px] h-[20px]" /> Recurring
+                  </Link>
+                  <Link href="/accounts" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/accounts')}>
+                    <Wallet className="w-[20px] h-[20px]" /> Accounts
+                  </Link>
+                  <Link href="/rules" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/rules')}>
+                    <Award className="w-[20px] h-[20px]" /> Rules
+                  </Link>
+                  <Link href="/tags" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/tags')}>
+                    <Tag className="w-[20px] h-[20px]" /> Tags
+                  </Link>
+                  <Link href="/categories" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/categories')}>
+                    <Tag className="w-[20px] h-[20px]" /> Categories
+                  </Link>
+                  <hr className="border-slate-200/50 dark:border-dark-border/40 my-2" />
+                  <Link href="/profile" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass('/profile')}>
+                    <User className="w-[20px] h-[20px]" /> Profile ({user.name})
+                  </Link>
+                  <hr className="border-slate-200/50 dark:border-dark-border/40 my-2" />
+                  <button 
+                    onClick={() => { setMenuOpen(false); logout(); }}
+                    className="touch-target px-3 py-3 text-sm font-semibold bg-gradient-to-r from-primary to-primary-light text-white rounded-xl text-center shadow-md flex items-center justify-center gap-2 w-full cursor-pointer"
+                  >
+                    <LogOut className="w-[20px] h-[20px]" /> Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/features" onClick={() => setMenuOpen(false)} className="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3">
+                    Features
+                  </Link>
+                  <Link href="/pricing" onClick={() => setMenuOpen(false)} className="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3">
+                    Pricing
+                  </Link>
+                  <Link href="/about" onClick={() => setMenuOpen(false)} className="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3">
+                    About
+                  </Link>
+                  <Link href="/login" onClick={() => setMenuOpen(false)} className="touch-target px-3 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3">
+                    Sign in
+                  </Link>
+                  <Link href="/register" onClick={() => setMenuOpen(false)} className="touch-target px-3 py-3 text-sm font-semibold bg-gradient-to-r from-primary to-primary-light text-white rounded-xl text-center shadow-md flex items-center justify-center gap-2 mt-2">
+                    Get started
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
-      )}
     </header>
   );
 }

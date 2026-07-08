@@ -240,8 +240,8 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch max-w-2xl mx-auto">
                 <div className="card-apple p-8 flex flex-col justify-between hover-lift">
                   <div>
-                    <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-2">Hobby Sandbox</p>
-                    <p className="text-4xl font-extrabold text-slate-900 dark:text-white mb-6">₹0 <span className="text-sm font-normal text-slate-400">/ free</span></p>
+                    <p className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider mb-2">Hobby Sandbox</p>
+                    <p className="text-4xl font-extrabold text-slate-900 dark:text-white mb-6">₹0 <span className="text-sm font-normal text-slate-500">/ free</span></p>
                     <ul className="space-y-4 mb-8 flex-grow">
                       {["Up to 2 active accounts", "Up to 50 monthly manual entries", "Basic charts and aggregates", "No receipt scanning"].map((feat, i) => (
                         <li key={i} className="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">
@@ -257,7 +257,7 @@ export default function Home() {
                   <div className="absolute top-0 right-6 -translate-y-1/2 bg-primary text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Popular</div>
                   <div>
                     <p className="text-[10px] font-mono font-bold text-primary uppercase tracking-wider mb-2">Pro Ledger</p>
-                    <p className="text-4xl font-extrabold text-slate-900 dark:text-white mb-6">₹199 <span className="text-sm font-normal text-slate-400">/ month</span></p>
+                    <p className="text-4xl font-extrabold text-slate-900 dark:text-white mb-6">₹199 <span className="text-sm font-normal text-slate-500">/ month</span></p>
                     <ul className="space-y-4 mb-8 flex-grow">
                       {["Unlimited manual entries", "Unlimited Receipt OCR scans", "Custom budget alerts & forecasting", "CSV Data Export"].map((feat, i) => (
                         <li key={i} className="flex items-center gap-3 text-sm text-slate-600 dark:text-dark-mute">

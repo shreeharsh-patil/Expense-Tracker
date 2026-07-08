@@ -92,7 +92,7 @@ function DashboardContent() {
         <div className="card-apple p-6 md:p-8 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-white to-slate-50/50 dark:from-dark-card dark:to-dark-card/60 md:col-span-1">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none"></div>
           <div className="relative z-10">
-            <p className="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-[0.2em] mb-2">OPERATIONAL CONSOLE</p>
+            <p className="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-[0.2em] mb-2">OPERATIONAL CONSOLE</p>
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Welcome, {user?.name || 'User'}</h1>
             <p className="text-xs md:text-sm text-slate-500 dark:text-dark-mute mt-2 max-w-[320px]">Your financial ledger is synchronized and active for the current fiscal period.</p>
           </div>
@@ -116,7 +116,7 @@ function DashboardContent() {
           <div>
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Net Savings</p>
+                <p className="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Net Savings</p>
                 <p className={`text-2xl md:text-3xl font-mono font-bold ${net_savings >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
                   {net_savings >= 0 ? '' : '-'}₹{Math.abs(net_savings).toFixed(0)}
                 </p>
@@ -127,11 +127,11 @@ function DashboardContent() {
             </div>
             <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-slate-100 dark:border-dark-border/40">
               <div className="flex justify-between text-[10px]">
-                <span className="text-slate-400 dark:text-dark-mute">Income</span>
+                <span className="text-slate-500 dark:text-dark-mute">Income</span>
                 <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">₹{current_month_income.toFixed(0)}</span>
               </div>
               <div className="flex justify-between text-[10px] mt-1">
-                <span className="text-slate-400 dark:text-dark-mute">Spent</span>
+                <span className="text-slate-500 dark:text-dark-mute">Spent</span>
                 <span className="font-mono font-bold text-red-500">₹{current_month_spent.toFixed(0)}</span>
               </div>
             </div>
@@ -142,7 +142,7 @@ function DashboardContent() {
           <div>
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Monthly Burn</p>
+                <p className="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Monthly Burn</p>
                 <p className="text-2xl md:text-3xl font-mono font-bold text-slate-900 dark:text-white">₹{current_month_spent.toFixed(0)}</p>
               </div>
               <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
@@ -151,7 +151,7 @@ function DashboardContent() {
             </div>
             <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-slate-100 dark:border-dark-border/40">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-[10px] font-bold text-slate-400 dark:text-dark-mute uppercase tracking-tighter">Budget</span>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-dark-mute uppercase tracking-tighter">Budget</span>
                 <span className="text-[10px] font-mono font-bold text-slate-900 dark:text-white">{budget_pct}%</span>
               </div>
               <div className="h-1.5 w-full bg-slate-100 dark:bg-dark-border rounded-full overflow-hidden">
@@ -181,7 +181,7 @@ function DashboardContent() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-[0.2em] border-b border-slate-100 dark:border-dark-border/40">
+                  <tr className="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-[0.2em] border-b border-slate-100 dark:border-dark-border/40">
                     <th className="px-6 py-5 font-bold">Entry Date</th>
                     <th className="px-6 py-5 font-bold">Allocation & Memo</th>
                     <th className="px-6 py-5 font-bold text-right">Amount</th>
@@ -196,12 +196,12 @@ function DashboardContent() {
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-dark-mute transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                          <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-dark-mute transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                             <DollarSign className="w-5 h-5" />
                           </div>
                           <div>
                             <p className="text-sm font-bold text-slate-800 dark:text-white">{exp.description || exp.category}</p>
-                            <p className="text-[10px] text-slate-400 dark:text-dark-mute font-medium uppercase tracking-tight">{exp.category}</p>
+                            <p className="text-[10px] text-slate-500 dark:text-dark-mute font-medium uppercase tracking-tight">{exp.category}</p>
                           </div>
                         </div>
                       </td>
@@ -220,7 +220,7 @@ function DashboardContent() {
                     <tr>
                       <td colSpan="4" className="px-6 py-24 text-center">
                         <div className="flex flex-col items-center opacity-40">
-                          <BarChart3 className="w-16 h-16 mb-4 text-slate-300 dark:text-dark-border" />
+                          <BarChart3 className="w-16 h-16 mb-4 text-slate-400 dark:text-dark-border" />
                           <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">No Ledger Entries Found</p>
                           <p className="text-[10px] mt-2 max-w-[240px] mx-auto text-slate-400">Initialize your ledger by recording a new transaction or digitizing a voucher.</p>
                         </div>
@@ -237,12 +237,12 @@ function DashboardContent() {
                 <div key={exp._id || exp.id} className="p-4 space-y-3 hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-dark-mute shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-dark-mute shrink-0">
                         <DollarSign className="w-5 h-5" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{exp.description || exp.category}</p>
-                        <p className="text-[10px] text-slate-400 dark:text-dark-mute font-medium">{exp.category} &middot; {exp.date}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-dark-mute font-medium">{exp.category} &middot; {exp.date}</p>
                       </div>
                     </div>
                     <span className="text-sm font-mono font-bold text-slate-900 dark:text-white shrink-0">₹{exp.amount?.toFixed(2)}</span>
@@ -255,7 +255,7 @@ function DashboardContent() {
                 </div>
               )) : (
                 <div className="px-4 py-16 text-center">
-                  <BarChart3 className="w-12 h-12 mx-auto mb-4 text-slate-300 dark:text-dark-border" />
+                  <BarChart3 className="w-12 h-12 mx-auto mb-4 text-slate-400 dark:text-dark-border" />
                   <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">No Entries Found</p>
                   <p className="text-[10px] mt-2 max-w-[200px] mx-auto text-slate-400">Record a transaction to get started.</p>
                 </div>
@@ -336,7 +336,7 @@ function DashboardContent() {
                 </div>
               )) : (
                 <>
-                  <p className="text-xs text-slate-400 dark:text-dark-mute text-center py-4">No accounts set up yet.</p>
+                  <p className="text-xs text-slate-500 dark:text-dark-mute text-center py-4">No accounts set up yet.</p>
                   <Link href="/accounts" className="block text-center text-[10px] font-bold text-primary">Create Account →</Link>
                 </>
               )}

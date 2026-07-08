@@ -111,7 +111,7 @@ export default function FeaturesPage() {
                 ))}
               </div>
 
-              <div className="mt-16 md:mt-20 text-center animate-fade-in-up delay-300">
+              <div className="mt-20 md:mt-24 text-center animate-fade-in-up delay-300">
                 <div className="card-apple p-10 md:p-12 max-w-2xl mx-auto shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
                   <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">Ready to take control?</h2>
                   <p className="text-sm text-slate-500 dark:text-dark-mute mb-8 max-w-md mx-auto">Start tracking your expenses today with our free plan. No credit card required.</p>

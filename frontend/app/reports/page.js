@@ -224,7 +224,7 @@ function ReportsContent() {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 <h4 className="text-sm font-bold tracking-tight text-slate-100">Full Data Export</h4>
               </div>
-              <p className="text-[10px] text-slate-400 dark:text-slate-300 font-medium">Download CSV ledger for spreadsheets</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">Download CSV ledger for spreadsheets</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center transition-all group-hover:-translate-y-0.5 group-active:scale-95 shrink-0">
               <Download className="w-5 h-5" />

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Smart Rules | Spendly{% endblock %}
 
 {% block content %}
@@ -16,15 +16,15 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-2">Rule Name</label>
+          <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Rule Name</label>
           <input type="text" name="name" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 outline-none focus:border-primary text-sm text-slate-900 dark:text-white" placeholder="e.g. Zomato Orders" required>
         </div>
         <div>
-          <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-2">Pattern (regex)</label>
+          <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Pattern (regex)</label>
           <input type="text" name="pattern" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 outline-none focus:border-primary text-sm text-slate-900 dark:text-white font-mono" placeholder="zomato|swiggy" required>
         </div>
         <div>
-          <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-2">Auto-Category</label>
+          <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Auto-Category</label>
           <select name="category" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 outline-none focus:border-primary text-sm text-slate-800 dark:text-white">
             <option value="">Don't change</option>
             <option value="Food">Food</option>
@@ -39,7 +39,7 @@
       </div>
       {% if tags %}
       <div>
-        <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-2">Auto-Tags</label>
+        <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Auto-Tags</label>
         <div class="flex flex-wrap gap-2">
           {% for tag in tags %}
           <label class="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-slate-200 dark:border-white/10 text-[10px] font-bold cursor-pointer">
@@ -66,7 +66,7 @@
           <span class="tag-badge tag-{{ rule.category|lower }}">{{ rule.category }}</span>
           {% endif %}
           {% if not rule.is_active %}
-          <span class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Paused</span>
+          <span class="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Paused</span>
           {% endif %}
         </div>
         <code class="text-[10px] font-mono text-slate-500 dark:text-dark-mute mt-1 block">{{ rule.pattern }}</code>
@@ -74,13 +74,13 @@
       <div class="flex items-center gap-2">
         <form method="POST" action="{{ url_for('rules.toggle_rule', id=rule.id) }}" class="inline">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit" class="px-3 py-1 text-[9px] font-bold rounded-lg {% if rule.is_active %}bg-primary/10 text-primary{% else %}bg-slate-100 dark:bg-white/5 text-slate-400{% endif %} cursor-pointer">
+          <button type="submit" class="px-3 py-1 text-[9px] font-bold rounded-lg {% if rule.is_active %}bg-primary/10 text-primary{% else %}bg-slate-100 dark:bg-white/5 text-slate-500{% endif %} cursor-pointer">
             {{ 'Active' if rule.is_active else 'Paused' }}
           </button>
         </form>
         <form method="POST" action="{{ url_for('rules.delete_rule', id=rule.id) }}" class="inline" onsubmit="return confirm('Delete this rule?')">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit" class="text-slate-300 hover:text-accent-red transition-colors cursor-pointer">{{ icon('delete', 'text-[16px]') }}</button>
+          <button type="submit" class="text-slate-400 hover:text-accent-red transition-colors cursor-pointer">{{ icon('delete', 'text-[16px]') }}</button>
         </form>
       </div>
     </div>
@@ -88,7 +88,7 @@
   </div>
   {% else %}
   <div class="card-apple p-12 text-center">
-    {{ icon('auto-schedule', 'text-4xl text-slate-300 dark:text-dark-border mb-4') }}
+    {{ icon('auto-schedule', 'text-4xl text-slate-400 dark:text-dark-border mb-4') }}
     <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">No Rules Yet</h3>
     <p class="text-sm text-slate-500 dark:text-dark-mute max-w-xs mx-auto">Create rules like "if description contains 'zomato', set category to Food" to auto-categorize expenses as you add them.</p>
   </div>

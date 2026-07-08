@@ -154,15 +154,15 @@ function AccountsManager() {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-900 dark:text-white">{acc.name}</p>
-                      <p className="text-[9px] text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">{acc.type.replace('_', ' ')}</p>
+                      <p className="text-[9px] text-slate-500 dark:text-dark-mute uppercase tracking-widest font-bold">{acc.type.replace('_', ' ')}</p>
                     </div>
                   </div>
-                  <button onClick={() => { setEditingAccount(acc); setShowEditModal(true); }} className="text-slate-300 hover:text-primary transition-colors p-1 cursor-pointer">
+                  <button onClick={() => { setEditingAccount(acc); setShowEditModal(true); }} className="text-slate-400 hover:text-primary transition-colors p-1 cursor-pointer">
                     <Edit3 className="w-4 h-4" />
                   </button>
                 </div>
                 <div className="mt-auto pt-4 border-t border-slate-100 dark:border-dark-border/40">
-                  <p className="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Calculated Balance</p>
+                  <p className="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Calculated Balance</p>
                   <p className={`text-2xl font-mono font-bold ${(acc.calculated_balance || 0) >= 0 ? 'text-slate-900 dark:text-white' : 'text-accent-red'}`}>
                     {(acc.calculated_balance || 0) >= 0 ? '' : '-'}{(acc.currency || 'INR')} {Math.abs(acc.calculated_balance || 0).toFixed(2)}
                   </p>
@@ -191,11 +191,11 @@ function AccountsManager() {
       <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="New Account">
         <form onSubmit={handleAdd} className="space-y-4">
           <div className="space-y-2">
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Account Name</label>
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest">Account Name</label>
             <input type="text" name="name" className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-900 dark:text-white" placeholder="e.g. HDFC Savings" required />
           </div>
           <div className="space-y-2">
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Type</label>
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest">Type</label>
             <select name="type" className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-800 dark:text-white appearance-none cursor-pointer">
               {ACCOUNT_TYPES.map(t => (
                 <option key={t} value={t}>{t.replace('_', ' ')}</option>
@@ -203,7 +203,7 @@ function AccountsManager() {
             </select>
           </div>
           <div className="space-y-2">
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Currency</label>
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest">Currency</label>
             <select name="currency" className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-800 dark:text-white appearance-none cursor-pointer">
               {CURRENCIES.map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -223,12 +223,12 @@ function AccountsManager() {
           <>
             <form onSubmit={handleEdit} className="space-y-4">
               <div className="space-y-2">
-                <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Account Name</label>
+                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest">Account Name</label>
                 <input type="text" name="name" defaultValue={editingAccount.name}
                   className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-900 dark:text-white" required />
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Type</label>
+                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest">Type</label>
                 <select name="type" defaultValue={editingAccount.type}
                   className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-800 dark:text-white appearance-none cursor-pointer">
                   {ACCOUNT_TYPES.map(t => (
@@ -237,7 +237,7 @@ function AccountsManager() {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Currency</label>
+                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest">Currency</label>
                 <select name="currency" defaultValue={editingAccount.currency}
                   className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary transition-all text-sm text-slate-800 dark:text-white appearance-none cursor-pointer">
                   {CURRENCIES.map(c => (

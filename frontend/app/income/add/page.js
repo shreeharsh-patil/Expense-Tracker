@@ -82,11 +82,11 @@ function AddIncomeForm() {
       <div className="card-apple p-8 shadow-2xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2 group">
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
               Amount ({currency})
             </label>
             <div className="relative flex items-center">
-              <DollarSign className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+              <DollarSign className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
               <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)}
                 className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-mono font-bold text-slate-900 dark:text-white"
                 placeholder="0.00" required />
@@ -95,9 +95,9 @@ function AddIncomeForm() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2 group">
-              <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
+              <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
               <div className="relative flex items-center">
-                <CreditCard className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                <CreditCard className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                 <select value={currency} onChange={(e) => setCurrency(e.target.value)}
                   className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                   {['INR', 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'SGD'].map(c => (
@@ -108,9 +108,9 @@ function AddIncomeForm() {
             </div>
 
             <div className="space-y-2 group">
-              <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Source</label>
+              <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Source</label>
               <div className="relative flex items-center">
-                <TrendingUp className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                <TrendingUp className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                 <select value={source} onChange={(e) => setSource(e.target.value)}
                   className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
                   {INCOME_SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -120,18 +120,18 @@ function AddIncomeForm() {
           </div>
 
           <div className="space-y-2 group">
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Date</label>
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Date</label>
             <div className="relative flex items-center">
-              <Calendar className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+              <Calendar className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
                 className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" required />
             </div>
           </div>
 
           <div className="space-y-2 group">
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Description (Optional)</label>
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Description (Optional)</label>
             <div className="relative flex items-center">
-              <FileText className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+              <FileText className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
               <input type="text" value={description} onChange={(e) => setDescription(e.target.value)}
                 className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white"
                 placeholder="e.g. June salary payment" />
@@ -140,9 +140,9 @@ function AddIncomeForm() {
 
           {accounts.length > 0 && (
             <div className="space-y-2 group">
-              <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors">Account (Optional)</label>
+              <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors">Account (Optional)</label>
               <div className="relative flex items-center">
-                <CreditCard className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                <CreditCard className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                 <select value={accountId} onChange={(e) => setAccountId(e.target.value)}
                   className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                   <option value="">No account</option>

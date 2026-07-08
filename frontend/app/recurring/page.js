@@ -87,7 +87,7 @@ function RecurringManager() {
         </div>
         <div className="flex items-center gap-3 relative z-10">
           <div className="px-4 py-2 rounded-xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 backdrop-blur-sm flex items-center gap-3">
-            <span className="text-[10px] font-mono text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Total Monthly:</span>
+            <span className="text-[10px] font-mono text-slate-500 dark:text-dark-mute uppercase tracking-widest font-bold">Total Monthly:</span>
             <span className="text-sm font-bold text-primary dark:text-primary-light">{currency} {totalMonthly.toFixed(0)}</span>
           </div>
         </div>
@@ -103,7 +103,7 @@ function RecurringManager() {
         <div className="lg:col-span-8 space-y-6">
           <div className="card-apple p-0 overflow-hidden shadow-xl shadow-slate-200/40 dark:shadow-none border-white/60 dark:border-white/5">
             <div className="px-5 md:px-6 py-4 bg-slate-50/50 dark:bg-white/[0.02] border-b border-slate-100 dark:border-dark-border/40 flex items-center justify-between">
-              <h3 className="text-[10px] md:text-xs font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Active Schedules</h3>
+              <h3 className="text-[10px] md:text-xs font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest">Active Schedules</h3>
               <span className="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-dark-border text-[9px] font-bold text-slate-500 dark:text-dark-mute">{recurring.length} Items</span>
             </div>
 
@@ -118,12 +118,12 @@ function RecurringManager() {
                 {recurring.map((exp) => (
                   <div key={exp.id} className="p-4 flex items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors group">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-dark-mute group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-dark-mute group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
                         <Repeat className="w-[18px] h-[18px]" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{exp.description || exp.category}</p>
-                        <p className="text-[10px] text-slate-400 dark:text-dark-mute font-medium uppercase">
+                        <p className="text-[10px] text-slate-500 dark:text-dark-mute font-medium uppercase">
                           {exp.category} &bull; {exp.payment_method}
                         </p>
                       </div>
@@ -134,7 +134,7 @@ function RecurringManager() {
                         Day {exp.day_of_month}
                       </div>
                       <span className="text-sm font-mono font-bold text-slate-900 dark:text-white">{exp.currency || 'INR'} {exp.amount?.toFixed(2)}</span>
-                      <button onClick={() => handleDelete(exp.id)} className="text-slate-300 hover:text-accent-red transition-colors p-1 cursor-pointer">
+                      <button onClick={() => handleDelete(exp.id)} className="text-slate-400 hover:text-accent-red transition-colors p-1 cursor-pointer">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -144,9 +144,9 @@ function RecurringManager() {
             ) : (
               <div className="px-4 py-16 text-center">
                 <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-white/[0.02] flex items-center justify-center mx-auto mb-4 border border-dashed border-slate-200 dark:border-white/10">
-                  <Repeat className="w-8 h-8 text-slate-200 dark:text-dark-border" />
+                  <Repeat className="w-8 h-8 text-slate-400 dark:text-dark-border" />
                 </div>
-                <p className="text-sm font-medium text-slate-400 dark:text-dark-mute">No active recurring schedules found.</p>
+                <p className="text-sm font-medium text-slate-500 dark:text-dark-mute">No active recurring schedules found.</p>
               </div>
             )}
           </div>
@@ -163,11 +163,11 @@ function RecurringManager() {
 
             <form onSubmit={handleAdd} className="space-y-5">
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
+                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
                   Monthly Amount ({currency})
                 </label>
                 <div className="relative flex items-center">
-                  <DollarSign className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                  <DollarSign className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                   <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)}
                     className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-mono font-bold text-slate-900 dark:text-white"
                     placeholder="0.00" required />
@@ -175,9 +175,9 @@ function RecurringManager() {
               </div>
 
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
+                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
                 <div className="relative flex items-center">
-                  <CreditCard className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                  <CreditCard className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                   <select value={currency} onChange={(e) => setCurrency(e.target.value)}
                     className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                     {['INR', 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'SGD'].map(c => (
@@ -188,18 +188,18 @@ function RecurringManager() {
               </div>
 
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Billing Day (1-28)</label>
+                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Billing Day (1-28)</label>
                 <div className="relative flex items-center">
-                  <Calendar className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                  <Calendar className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                   <input type="number" min="1" max="28" value={dayOfMonth} onChange={(e) => setDayOfMonth(parseInt(e.target.value) || 1)}
                     className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" required />
                 </div>
               </div>
 
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
+                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
                 <div className="relative flex items-center">
-                  <Tag className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                  <Tag className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                   <select value={category} onChange={(e) => setCategory(e.target.value)}
                     className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
                     <option value="Bills">Bills & Rent</option>
@@ -213,9 +213,9 @@ function RecurringManager() {
               </div>
 
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Method</label>
+                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Method</label>
                 <div className="relative flex items-center">
-                  <CreditCard className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                  <CreditCard className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                   <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
                     className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                     <option value="Bank">Bank Transfer / UPI</option>
@@ -226,9 +226,9 @@ function RecurringManager() {
               </div>
 
               <div className="space-y-2 group">
-                <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Schedule Name</label>
+                <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Schedule Name</label>
                 <div className="relative flex items-center">
-                  <FileText className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                  <FileText className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                   <input type="text" value={description} onChange={(e) => setDescription(e.target.value)}
                     className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white"
                     placeholder="e.g. Netflix Monthly" />

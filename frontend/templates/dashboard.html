@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Ledger Terminal | Spendly{% endblock %}
 {% block head_scripts %}
   <script src="{{ url_for('static', filename='js/charts.js') }}?v=2" defer></script>
@@ -14,7 +14,7 @@
     <div class="stat-full card-apple p-6 md:p-8 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-white to-slate-50/50 dark:from-dark-card dark:to-dark-card/60">
       <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none"></div>
       <div>
-        <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-[0.2em] mb-2">OPERATIONAL CONSOLE</p>
+        <p class="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-[0.2em] mb-2">OPERATIONAL CONSOLE</p>
         <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Welcome, {{ session.user_name }}</h1>
         <p class="text-xs md:text-sm text-slate-500 dark:text-dark-mute mt-2 max-w-[320px]">Your financial ledger is synchronized and active for the current fiscal period.</p>
       </div>
@@ -39,7 +39,7 @@
         <div class="stat-content">
           <div class="flex justify-between items-start">
               <div>
-                  <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Net Savings</p>
+                  <p class="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Net Savings</p>
                   <p class="text-2xl md:text-3xl font-mono font-bold {% if net_savings >= 0 %}text-signature-forest dark:text-signature-mint{% else %}text-accent-red{% endif %}">{{ currency_symbol(preferred_currency) }}{{ "%.0f"|format(net_savings) }}</p>
               </div>
               <div class="w-10 h-10 rounded-xl {% if net_savings >= 0 %}bg-signature-mint/10 text-signature-mint{% else %}bg-accent-red/10 text-accent-red{% endif %} flex items-center justify-center shrink-0">
@@ -48,11 +48,11 @@
           </div>
           <div class="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-slate-100 dark:border-dark-border/40">
               <div class="flex justify-between text-[10px]">
-                  <span class="text-slate-400 dark:text-dark-mute">Income</span>
+                  <span class="text-slate-500 dark:text-dark-mute">Income</span>
                   <span class="font-mono font-bold text-signature-forest dark:text-signature-mint">{{ currency_symbol(preferred_currency) }}{{ "%.0f"|format(current_month_income) }}</span>
               </div>
               <div class="flex justify-between text-[10px] mt-1">
-                  <span class="text-slate-400 dark:text-dark-mute">Spent</span>
+                  <span class="text-slate-500 dark:text-dark-mute">Spent</span>
                   <span class="font-mono font-bold text-accent-red">{{ currency_symbol(preferred_currency) }}{{ "%.0f"|format(current_month_spent) }}</span>
               </div>
           </div>
@@ -77,7 +77,7 @@
         <div class="stat-content">
           <div class="flex justify-between items-start">
               <div>
-                  <p class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-1">Monthly Burn</p>
+                  <p class="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-1">Monthly Burn</p>
                   <p class="text-2xl md:text-3xl font-mono font-bold text-slate-900 dark:text-white">{{ currency_symbol(preferred_currency) }}{{ "%.0f"|format(current_month_spent) }}</p>
               </div>
               <div class="w-10 h-10 rounded-xl bg-accent-blue/10 text-accent-blue flex items-center justify-center shrink-0">
@@ -86,7 +86,7 @@
           </div>
           <div class="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-slate-100 dark:border-dark-border/40">
               <div class="flex justify-between items-center mb-2">
-                  <span class="text-[10px] font-bold text-slate-400 dark:text-dark-mute uppercase tracking-tighter">Budget</span>
+                  <span class="text-[10px] font-bold text-slate-500 dark:text-dark-mute uppercase tracking-tighter">Budget</span>
                   <span class="text-[10px] font-mono font-bold text-slate-900 dark:text-white">
                       {% if monthly_budget > 0 %}{{ (current_month_spent / monthly_budget * 100)|int }}%{% else %}0%{% endif %}
                   </span>
@@ -123,7 +123,7 @@
       <div class="card-apple p-4 flex flex-wrap items-center gap-4 bg-white/60 dark:bg-dark-card/60 backdrop-blur-md border-white/60 dark:border-white/5">
         <form action="{{ url_for('dashboard.dashboard') }}" method="GET" class="flex flex-1 items-center gap-3" id="filter-form">
           <div class="relative flex-1 max-w-sm group">
-            {{ icon('search', 'absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] group-focus-within:text-primary transition-colors') }}
+            {{ icon('search', 'absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[18px] group-focus-within:text-primary transition-colors') }}
             <input type="text" name="q" value="{{ request.args.get('q', '') }}" placeholder="Search ledger..." class="w-full bg-slate-100/50 dark:bg-white/5 border-none py-2.5 pl-10 pr-4 rounded-xl text-xs font-medium focus:ring-2 focus:ring-primary/20 transition-all outline-none">
           </div>
           <input type="hidden" name="category" id="hidden-category" value="{{ request.args.get('category', '') }}">
@@ -133,7 +133,7 @@
                 {{ icon('filter-list', 'text-[18px]') }}
             </button>
             {% if request.args.get('q') or request.args.get('category') %}
-            <a href="{{ url_for('dashboard.dashboard') }}" class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-accent-red transition-all">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-500 hover:text-accent-red transition-all">
                 {{ icon('close', 'text-[18px]') }}
             </a>
             {% endif %}
@@ -171,7 +171,7 @@
         <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-[0.2em] border-b border-slate-100 dark:border-dark-border/40">
+              <tr class="text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-[0.2em] border-b border-slate-100 dark:border-dark-border/40">
                 <th class="px-6 py-5 font-bold">Entry Date</th>
                 <th class="px-6 py-5 font-bold">Allocation & Memo</th>
                 <th class="px-6 py-5 font-bold text-right">Amount</th>
@@ -187,7 +187,7 @@
                 </td>
                 <td class="px-6 py-5">
                   <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-dark-mute transition-colors group-hover:bg-primary/10 group-hover:text-primary relative">
+                    <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-dark-mute transition-colors group-hover:bg-primary/10 group-hover:text-primary relative">
                         {% if exp.category == 'Food' %}
                         {{ icon('restaurant', 'text-[20px]') }}
                         {% elif exp.category == 'Transport' %}
@@ -211,7 +211,7 @@
                     </div>
                     <div>
                       <p class="text-sm font-bold text-slate-800 dark:text-white">{{ exp.description or exp.category }}</p>
-                      <p class="text-[10px] text-slate-400 dark:text-dark-mute font-medium uppercase tracking-tight">{{ exp.category }}</p>
+                      <p class="text-[10px] text-slate-500 dark:text-dark-mute font-medium uppercase tracking-tight">{{ exp.category }}</p>
                       {% if expense_tags.get(exp.id) %}
                       <div class="flex flex-wrap gap-1 mt-1">
                         {% for tag in expense_tags[exp.id] %}{% if loop.index0 < 3 %}
@@ -221,7 +221,7 @@
                         </span>
                         {% endif %}{% endfor %}
                         {% if expense_tags[exp.id]|length > 3 %}
-                        <span class="text-[8px] text-slate-400 dark:text-dark-mute">+{{ expense_tags[exp.id]|length - 3 }}</span>
+                        <span class="text-[8px] text-slate-500 dark:text-dark-mute">+{{ expense_tags[exp.id]|length - 3 }}</span>
                         {% endif %}
                       </div>
                       {% endif %}
@@ -236,12 +236,12 @@
                 </td>
                 <td class="px-6 py-5 text-right">
                   <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <a href="{{ url_for('expenses.edit_expense', id=exp.id) }}" class="p-1.5 rounded-lg text-slate-300 hover:text-primary hover:bg-primary/10 transition-all">
+                    <a href="{{ url_for('expenses.edit_expense', id=exp.id) }}" class="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all">
                       {{ icon('edit', 'text-[18px]') }}
                     </a>
                     <form method="POST" action="{{ url_for('expenses.delete_expense', id=exp.id) }}" class="inline">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                      <button type="button" data-confirm-delete="Confirm permanent deletion of this ledger entry?" class="p-1.5 rounded-lg text-slate-300 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer">
+                      <button type="button" data-confirm-delete="Confirm permanent deletion of this ledger entry?" class="p-1.5 rounded-lg text-slate-400 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer">
                         {{ icon('delete', 'text-[18px]') }}
                       </button>
                     </form>
@@ -269,7 +269,7 @@
           <div class="p-4 space-y-3 hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors">
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-dark-mute shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-dark-mute shrink-0">
                   {% if exp.category == 'Food' %}
                   {{ icon('restaurant', 'text-[20px]') }}
                   {% elif exp.category == 'Transport' %}
@@ -289,9 +289,9 @@
                 <div class="min-w-0">
                   <p class="text-sm font-bold text-slate-800 dark:text-white truncate">{{ exp.description or exp.category }}</p>
                   <div class="flex items-center gap-2 mt-0.5">
-                    <span class="text-[10px] text-slate-400 dark:text-dark-mute font-medium">{{ exp.category }}</span>
-                    <span class="text-[10px] text-slate-300 dark:text-dark-border">&middot;</span>
-                    <span class="text-[10px] text-slate-400 dark:text-dark-mute">{{ exp.date }}</span>
+                    <span class="text-[10px] text-slate-500 dark:text-dark-mute font-medium">{{ exp.category }}</span>
+                    <span class="text-[10px] text-slate-400 dark:text-dark-border">&middot;</span>
+                    <span class="text-[10px] text-slate-500 dark:text-dark-mute">{{ exp.date }}</span>
                   </div>
                   {% if expense_tags.get(exp.id) %}
                   <div class="flex flex-wrap gap-1 mt-1.5">
@@ -302,7 +302,7 @@
                     </span>
                     {% endif %}{% endfor %}
                     {% if expense_tags[exp.id]|length > 2 %}
-                    <span class="text-[8px] text-slate-400 dark:text-dark-mute">+{{ expense_tags[exp.id]|length - 2 }}</span>
+                    <span class="text-[8px] text-slate-500 dark:text-dark-mute">+{{ expense_tags[exp.id]|length - 2 }}</span>
                     {% endif %}
                   </div>
                   {% endif %}
@@ -313,12 +313,12 @@
             <div class="flex items-center justify-between">
               <span class="px-2 py-1 rounded bg-slate-100 dark:bg-white/5 text-[9px] font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest border border-slate-200/50 dark:border-white/5">{{ exp.payment_method }}</span>
               <div class="flex items-center gap-2">
-                <a href="{{ url_for('expenses.edit_expense', id=exp.id) }}" class="touch-target w-9 h-9 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all">
+                <a href="{{ url_for('expenses.edit_expense', id=exp.id) }}" class="touch-target w-9 h-9 rounded-lg text-slate-500 hover:text-primary hover:bg-primary/10 transition-all">
                   {{ icon('edit', 'text-[20px]') }}
                 </a>
                 <form method="POST" action="{{ url_for('expenses.delete_expense', id=exp.id) }}" class="inline">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <button type="button" data-confirm-delete="Delete this expense?" class="touch-target w-9 h-9 rounded-lg text-slate-400 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer">
+                  <button type="button" data-confirm-delete="Delete this expense?" class="touch-target w-9 h-9 rounded-lg text-slate-500 hover:text-accent-red hover:bg-accent-red/10 transition-all cursor-pointer">
                     {{ icon('delete', 'text-[20px]') }}
                   </button>
                 </form>
@@ -339,7 +339,7 @@
         <!-- Pagination Controls -->
         {% if total_pages > 1 %}
         <div class="px-6 py-4 border-t border-slate-100 dark:border-dark-border/40 flex items-center justify-between">
-          <span class="text-[10px] text-slate-400 dark:text-dark-mute font-medium">{{ total_expenses }} total entries</span>
+          <span class="text-[10px] text-slate-500 dark:text-dark-mute font-medium">{{ total_expenses }} total entries</span>
           <div class="flex items-center gap-2">
             {% if page > 1 %}
             <a href="{{ url_for('dashboard.dashboard', page=page-1, q=request.args.get('q', ''), category=request.args.get('category', ''), tag=request.args.get('tag', '')) }}" class="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-primary hover:bg-primary/10 border border-slate-200 dark:border-white/10 transition-all">
@@ -352,7 +352,7 @@
               {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
               <a href="{{ url_for('dashboard.dashboard', page=p, q=request.args.get('q', ''), category=request.args.get('category', ''), tag=request.args.get('tag', '')) }}" class="w-7 h-7 rounded-lg text-[10px] font-bold text-slate-500 hover:text-primary hover:bg-primary/10 flex items-center justify-center transition-all">{{ p }}</a>
               {% elif p == 4 and page > 5 %}
-              <span class="text-slate-300">...</span>
+              <span class="text-slate-400 dark:text-dark-mute">...</span>
               {% endif %}
             {% endfor %}
             {% if page < total_pages %}
@@ -463,10 +463,10 @@
               </span>
             </div>
             {% endif %}{% endfor %}
-            <a href="{{ url_for('accounts.list_accounts') }}" class="block text-center text-[10px] font-bold text-primary hover:text-primary-light pt-2 transition-colors">Manage Accounts →</a>
+            <a href="{{ url_for('accounts.list_accounts') }}" class="block text-center text-[10px] font-bold text-primary hover:text-primary-light pt-2 transition-colors">Manage Accounts â†’</a>
           {% else %}
-            <p class="text-xs text-slate-400 dark:text-dark-mute text-center py-4">No accounts set up yet.</p>
-            <a href="{{ url_for('accounts.list_accounts') }}" class="block text-center text-[10px] font-bold text-primary">Create Account →</a>
+            <p class="text-xs text-slate-500 dark:text-dark-mute text-center py-4">No accounts set up yet.</p>
+            <a href="{{ url_for('accounts.list_accounts') }}" class="block text-center text-[10px] font-bold text-primary">Create Account â†’</a>
           {% endif %}
         </div>
       </div>

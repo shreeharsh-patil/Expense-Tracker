@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Modify Entry | Spendly{% endblock %}
 
 {% block content %}
@@ -22,29 +22,29 @@
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
           <div class="space-y-2 group">
-            <label for="amount" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Amount ({{ currency_symbol(expense.currency or 'INR') }})</label>
+            <label for="amount" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Amount ({{ currency_symbol(expense.currency or 'INR') }})</label>
             <div class="relative flex items-center">
-              {{ icon('payments', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
+              {{ icon('payments', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
               <input type="number" step="0.01" id="amount" name="amount" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-mono font-bold text-slate-900 dark:text-white" value="{{ expense.amount }}" required autofocus>
             </div>
           </div>
 
           <div class="space-y-2 group">
-            <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
+            <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors">Currency</label>
             <div class="relative flex items-center">
-              {{ icon('currency-exchange', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
+              {{ icon('currency-exchange', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
               <select name="currency" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                 {% for c in currencies %}
-                <option value="{{ c }}" {% if c == (expense.currency or 'INR') %}selected{% endif %}>{{ c }} — {{ currency_symbol(c) }}</option>
+                <option value="{{ c }}" {% if c == (expense.currency or 'INR') %}selected{% endif %}>{{ c }} â€” {{ currency_symbol(c) }}</option>
                 {% endfor %}
               </select>
             </div>
           </div>
 
           <div class="space-y-2 group">
-            <label for="date" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Transaction Date</label>
+            <label for="date" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Transaction Date</label>
             <div class="relative flex items-center">
-              {{ icon('calendar-today', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
+              {{ icon('calendar-today', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
               <input type="date" id="date" name="date" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" value="{{ expense.date }}" required>
             </div>
           </div>
@@ -52,9 +52,9 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
           <div class="space-y-2 group">
-            <label for="category" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
+            <label for="category" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Allocation</label>
             <div class="relative flex items-center">
-              {{ icon('category', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
+              {{ icon('category', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
               <select id="category" name="category" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer" required>
                 <optgroup label="Default">
                   <option value="Food" {% if expense.category == 'Food' %}selected{% endif %}>Food & Dining</option>
@@ -77,9 +77,9 @@
           </div>
 
           <div class="space-y-2 group">
-            <label for="payment_method" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Channel</label>
+            <label for="payment_method" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Payment Channel</label>
             <div class="relative flex items-center">
-              {{ icon('credit-card', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
+              {{ icon('credit-card', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
               <select id="payment_method" name="payment_method" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                 <option value="Cash" {% if expense.payment_method == 'Cash' %}selected{% endif %}>Physical Cash</option>
                 <option value="Bank" {% if expense.payment_method == 'Bank' %}selected{% endif %}>Bank Transfer / UPI</option>
@@ -89,9 +89,9 @@
           </div>
 
           <div class="space-y-2 group">
-            <label for="account_id" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Account</label>
+            <label for="account_id" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Account</label>
             <div class="relative flex items-center">
-              {{ icon('account_balance_wallet', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
+              {{ icon('account_balance_wallet', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
               <select id="account_id" name="account_id" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white appearance-none cursor-pointer">
                 <option value="">No account</option>
                 {% for acc in accounts %}
@@ -103,16 +103,16 @@
         </div>
 
         <div class="space-y-2 group">
-          <label for="description" class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Memo / Description</label>
+          <label for="description" class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">Memo / Description</label>
           <div class="relative flex items-center">
-            {{ icon('description', 'absolute left-0 text-slate-300 dark:text-dark-border text-[18px]') }}
+            {{ icon('description', 'absolute left-0 text-slate-400 dark:text-dark-border text-[18px]') }}
             <input type="text" id="description" name="description" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-3 md:py-2.5 pl-7 outline-none focus:border-primary dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white" value="{{ expense.description }}" placeholder="Enter transaction details...">
           </div>
         </div>
 
         <!-- Tags Selector -->
         <div class="space-y-2 group">
-          <label class="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors">Tags</label>
+          <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors">Tags</label>
           <div class="flex flex-wrap gap-2 tag-pills" id="tag-selector">
             {% for tag in tags %}
             <label class="tag-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 text-[10px] font-bold cursor-pointer transition-all hover:border-primary/50" data-tag-id="{{ tag.id }}">

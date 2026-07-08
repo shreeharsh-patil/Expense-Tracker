@@ -245,11 +245,11 @@ function ScanReceiptForm() {
             {ocrResult ? (
               <form onSubmit={handleCommit} className="space-y-6 flex-1">
                 <div className="space-y-2 group">
-                  <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
+                  <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
                     Detected Amount
                   </label>
                   <div className="relative flex items-center">
-                    <CreditCard className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                    <CreditCard className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                     <input
                       type="number"
                       step="0.01"
@@ -264,11 +264,11 @@ function ScanReceiptForm() {
                 </div>
 
                 <div className="space-y-2 group">
-                  <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
+                  <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
                     Classified Category
                   </label>
                   <div className="relative flex items-center">
-                    <Tags className="absolute left-0 text-slate-300 dark:text-dark-border w-[18px] h-[18px]" />
+                    <Tags className="absolute left-0 text-slate-400 dark:text-dark-border w-[18px] h-[18px]" />
                     <select
                       name="category"
                       defaultValue={ocrResult.category || ''}
@@ -286,7 +286,7 @@ function ScanReceiptForm() {
                 </div>
 
                 <div className="space-y-2 group">
-                  <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
+                  <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest transition-colors group-focus-within:text-primary">
                     Confidence Log
                   </label>
                   <div className="bg-slate-50 dark:bg-white/[0.02] rounded-xl p-4 border border-slate-100 dark:border-white/5 font-mono text-[9px] text-slate-500 dark:text-dark-mute leading-relaxed max-h-[120px] overflow-y-auto">
@@ -314,7 +314,7 @@ function ScanReceiptForm() {
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center">
                 <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-white/[0.02] flex items-center justify-center mb-4 border border-dashed border-slate-200 dark:border-white/10 opacity-50">
-                  <Database className="w-8 h-8 text-slate-300 dark:text-dark-border" />
+                  <Database className="w-8 h-8 text-slate-400 dark:text-dark-border" />
                 </div>
                 <p className="text-xs font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest">Pending Acquisition</p>
                 <p className="text-[10px] text-slate-400 dark:text-dark-mute mt-2 max-w-[200px]">Upload a voucher to initiate automated data extraction protocols.</p>

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Operational Terms | Spendly{% endblock %}
 
 {% block content %}
@@ -15,7 +15,7 @@
         Terms of Service
       </h1>
       <p class="body-text text-slate-500 dark:text-dark-mute max-w-2xl">Governing the utilization of the Spendly personal finance ledger and its associated data services.</p>
-      <p class="text-[10px] font-mono text-slate-400 dark:text-dark-mute mt-6 uppercase tracking-widest">Version 2026.04 &bull; Legal Framework</p>
+      <p class="text-[10px] font-mono text-slate-500 dark:text-dark-mute mt-6 uppercase tracking-widest">Version 2026.04 &bull; Legal Framework</p>
     </div>
   </section>
 
@@ -62,7 +62,7 @@
     </section>
 
     <div class="pt-10 border-t border-slate-100 dark:border-dark-border/40 flex flex-col md:flex-row items-center justify-between gap-6">
-        <p class="text-[10px] text-slate-400 dark:text-dark-mute max-w-[320px]">Spendly is a product of Editorial Finance Labs. All rights reserved. &copy; {{ now_year }}</p>
+        <p class="text-[10px] text-slate-500 dark:text-dark-mute max-w-[320px]">Spendly is a product of Editorial Finance Labs. All rights reserved. &copy; {{ now_year }}</p>
         <a href="{{ url_for('main.landing') }}" class="btn-primary px-8 py-2.5 text-xs font-bold shadow-lg shadow-primary/20 flex items-center gap-2">
             Return to Terminal
             {{ icon('arrow-forward', 'text-[16px]') }}

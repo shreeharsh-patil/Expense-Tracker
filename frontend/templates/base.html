@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Spendly — Personal Expense Tracker{% endblock %}</title>
+  <title>{% block title %}Spendly â€” Personal Expense Tracker{% endblock %}</title>
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
 
@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
-  <!-- CSS loaded first — blocking to prevent FOUC -->
+  <!-- CSS loaded first â€” blocking to prevent FOUC -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=11">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fragment+Mono&display=swap" rel="stylesheet">
@@ -71,7 +71,7 @@
           </button>
           {% if session.user_id %}
           <a href="{{ url_for('profile.profile') }}" class="hidden md:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-dark-mute dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
-            {{ icon('person', 'text-[16px] text-slate-400') }}
+            {{ icon('person', 'text-[16px] text-slate-500') }}
             {{ session.user_name }}
           </a>
           <a href="{{ url_for('auth.logout') }}" class="hidden md:inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary to-primary-light hover:brightness-110 text-white text-xs font-semibold rounded-lg transition-all active:scale-95 shadow-[0_4px_12px_-4px_rgba(79,70,229,0.3)]">Logout</a>
@@ -80,7 +80,7 @@
           <a href="{{ url_for('auth.register') }}" class="hidden md:inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary to-primary-light hover:brightness-110 text-white text-xs font-semibold rounded-lg transition-all active:scale-95 shadow-[0_4px_12px_-4px_rgba(79,70,229,0.3)]">Get started</a>
           {% endif %}
 
-          <button class="md:hidden touch-target w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-dark-mute" id="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+          <button class="md:!hidden w-10 h-10 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 dark:text-dark-mute flex items-center justify-center" id="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
             {{ icon('menu', 'text-[22px]') }}
           </button>
         </div>
@@ -159,12 +159,12 @@
         <p class="text-xs leading-relaxed text-slate-500 dark:text-dark-mute max-w-xs">
           Track expenses, set budgets, and take control of your finances.
         </p>
-        <p class="text-[10px] text-slate-400 dark:text-dark-mute mt-1">
+        <p class="text-[10px] text-slate-500 dark:text-dark-mute mt-1">
           &copy; {{ now_year }} Spendly. All rights reserved.
         </p>
       </div>
       <div>
-        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Product</p>
+        <p class="text-[10px] text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Product</p>
         <ul class="space-y-2 text-xs" style="line-height: 2.41">
           <li><a href="{{ url_for('main.features') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Features</a></li>
           <li><a href="{{ url_for('main.pricing') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</a></li>
@@ -173,7 +173,7 @@
         </ul>
       </div>
       <div>
-        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Company</p>
+        <p class="text-[10px] text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Company</p>
         <ul class="space-y-2 text-xs" style="line-height: 2.41">
           <li><a href="{{ url_for('main.about') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">About</a></li>
           <li><a href="{{ url_for('main.blog') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Blog</a></li>
@@ -181,7 +181,7 @@
         </ul>
       </div>
       <div>
-        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Support</p>
+        <p class="text-[10px] text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Support</p>
         <ul class="space-y-2 text-xs" style="line-height: 2.41">
           <li><a href="{{ url_for('main.privacy') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</a></li>
           <li><a href="{{ url_for('main.terms') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</a></li>
@@ -201,12 +201,12 @@
         <p class="text-xs leading-relaxed text-slate-500 dark:text-dark-mute max-w-xs">
           Track expenses, set budgets, and take control of your finances.
         </p>
-        <p class="text-[10px] text-slate-400 dark:text-dark-mute mt-1">
+        <p class="text-[10px] text-slate-500 dark:text-dark-mute mt-1">
           &copy; {{ now_year }} Spendly. All rights reserved.
         </p>
       </div>
       <div>
-        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Product</p>
+        <p class="text-[10px] text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Product</p>
         <ul class="space-y-2 text-xs" style="line-height: 2.41">
           <li><a href="{{ url_for('main.features') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Features</a></li>
           <li><a href="{{ url_for('main.pricing') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Pricing</a></li>
@@ -215,7 +215,7 @@
         </ul>
       </div>
       <div>
-        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Company</p>
+        <p class="text-[10px] text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Company</p>
         <ul class="space-y-2 text-xs" style="line-height: 2.41">
           <li><a href="{{ url_for('main.about') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">About</a></li>
           <li><a href="{{ url_for('main.blog') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Blog</a></li>
@@ -223,7 +223,7 @@
         </ul>
       </div>
       <div>
-        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Support</p>
+        <p class="text-[10px] text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-3 font-semibold">Support</p>
         <ul class="space-y-2 text-xs" style="line-height: 2.41">
           <li><a href="{{ url_for('main.privacy') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</a></li>
           <li><a href="{{ url_for('main.terms') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</a></li>
@@ -259,28 +259,28 @@
 
   {% if session.user_id %}
   <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 bottom-nav-safe pt-2 bg-white/95 dark:bg-dark-card/95 backdrop-blur-xl border-t border-slate-200 dark:border-dark-border transition-colors shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.3)]" role="navigation" aria-label="Main navigation">
-    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('dashboard.dashboard') %}text-primary mobile-nav-active{% else %}text-slate-400 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('dashboard.dashboard') }}">
+    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('dashboard.dashboard') %}text-primary mobile-nav-active{% else %}text-slate-500 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('dashboard.dashboard') }}">
       {{ icon('account_balance_wallet', 'text-[22px]') }}
       <span class="font-sans text-[9px] font-semibold mt-0.5">Dashboard</span>
     </a>
-    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('dashboard.reports') %}text-primary mobile-nav-active{% else %}text-slate-400 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('dashboard.reports') }}">
+    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('dashboard.reports') %}text-primary mobile-nav-active{% else %}text-slate-500 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('dashboard.reports') }}">
       {{ icon('query_stats', 'text-[22px]') }}
       <span class="font-sans text-[9px] font-semibold mt-0.5">Reports</span>
     </a>
-    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('expenses.scan_receipt') %}text-primary mobile-nav-active{% else %}text-slate-400 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('expenses.scan_receipt') }}">
+    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('expenses.scan_receipt') %}text-primary mobile-nav-active{% else %}text-slate-500 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('expenses.scan_receipt') }}">
       {{ icon('center_focus_strong', 'text-[22px]') }}
       <span class="font-sans text-[9px] font-semibold mt-0.5">Scan</span>
     </a>
-    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('profile.profile') %}text-primary mobile-nav-active{% else %}text-slate-400 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('profile.profile') }}">
+    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('profile.profile') %}text-primary mobile-nav-active{% else %}text-slate-500 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('profile.profile') }}">
       {{ icon('person', 'text-[22px]') }}
       <span class="font-sans text-[9px] font-semibold mt-0.5">Profile</span>
     </a>
     <!-- Plus button to open quick-add sheet -->
-    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('expenses.receipt_gallery') %}text-primary mobile-nav-active{% else %}text-slate-400 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('expenses.receipt_gallery') }}">
+    <a class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative {% if request.path == url_for('expenses.receipt_gallery') %}text-primary mobile-nav-active{% else %}text-slate-500 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300{% endif %}" href="{{ url_for('expenses.receipt_gallery') }}">
       {{ icon('photo-camera', 'text-[22px]') }}
       <span class="font-sans text-[9px] font-semibold mt-0.5">Receipts</span>
     </a>
-    <button class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 text-slate-400 dark:text-dark-mute hover:text-primary dark:hover:text-primary-light" id="nav-plus-btn" aria-label="Quick add">
+    <button class="mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 text-slate-500 dark:text-dark-mute hover:text-primary dark:hover:text-primary-light" id="nav-plus-btn" aria-label="Quick add">
       {{ icon('add_circle', 'text-[26px]') }}
       <span class="font-sans text-[9px] font-semibold mt-0.5">Add</span>
     </button>
@@ -290,7 +290,7 @@
   <div class="md:hidden mobile-overlay" id="quickAddOverlay"></div>
   <div class="md:hidden mobile-sheet" id="quickAddSheet">
     <div class="mobile-sheet-handle"></div>
-    <p class="text-xs font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest text-center mb-6">Quick Actions</p>
+    <p class="text-xs font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest text-center mb-6">Quick Actions</p>
     <div class="grid grid-cols-3 gap-4 text-center">
       <a href="{{ url_for('expenses.add_expense') }}" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-white/5 hover:bg-primary/10 dark:hover:bg-primary/10 transition-all active:scale-95">
         <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">

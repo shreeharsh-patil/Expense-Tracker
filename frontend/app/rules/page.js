@@ -112,19 +112,19 @@ function RulesManager() {
         <form onSubmit={handleAdd} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-2">Rule Name</label>
+              <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Rule Name</label>
               <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)}
                 className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 outline-none focus:border-primary text-sm text-slate-900 dark:text-white"
                 placeholder="e.g. Zomato Orders" required />
             </div>
             <div>
-              <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-2">Pattern (regex)</label>
+              <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Pattern (regex)</label>
               <input type="text" value={newPattern} onChange={(e) => setNewPattern(e.target.value)}
                 className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 outline-none focus:border-primary text-sm text-slate-900 dark:text-white font-mono"
                 placeholder="zomato|swiggy" required />
             </div>
             <div>
-              <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-2">Auto-Category</label>
+              <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Auto-Category</label>
               <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}
                 className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 outline-none focus:border-primary text-sm text-slate-800 dark:text-white cursor-pointer">
                 <option value="">Don&apos;t change</option>
@@ -140,7 +140,7 @@ function RulesManager() {
           </div>
           {tags.length > 0 && (
             <div>
-              <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-2">Auto-Tags</label>
+              <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Auto-Tags</label>
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag) => (
                   <label key={tag.id} onClick={() => toggleTagId(tag.id)}
@@ -182,7 +182,7 @@ function RulesManager() {
                     <span className="tag-badge tag-other text-[9px]">{rule.category}</span>
                   )}
                   {!rule.is_active && (
-                    <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Paused</span>
+                    <span className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Paused</span>
                   )}
                 </div>
                 <code className="text-[10px] font-mono text-slate-500 dark:text-dark-mute mt-1 block">{rule.pattern}</code>
@@ -192,11 +192,11 @@ function RulesManager() {
                   className={`px-3 py-1 text-[9px] font-bold rounded-lg cursor-pointer transition-all ${
                     rule.is_active
                       ? 'bg-primary/10 text-primary'
-                      : 'bg-slate-100 dark:bg-white/5 text-slate-400'
+                      : 'bg-slate-100 dark:bg-white/5 text-slate-500'
                   }`}>
                   {rule.is_active ? 'Active' : 'Paused'}
                 </button>
-                <button onClick={() => handleDelete(rule.id)} className="text-slate-300 hover:text-accent-red transition-colors cursor-pointer p-1">
+                <button onClick={() => handleDelete(rule.id)} className="text-slate-400 hover:text-accent-red transition-colors cursor-pointer p-1">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -205,7 +205,7 @@ function RulesManager() {
         </div>
       ) : (
         <div className="card-apple p-12 text-center border-white/60 dark:border-white/5">
-          <Zap className="w-12 h-12 text-slate-300 dark:text-dark-border mx-auto mb-4" />
+          <Zap className="w-12 h-12 text-slate-400 dark:text-dark-border mx-auto mb-4" />
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No Rules Yet</h3>
           <p className="text-sm text-slate-500 dark:text-dark-mute max-w-xs mx-auto">
             Create rules like &quot;if description contains &apos;zomato&apos;, set category to Food&quot; to auto-categorize expenses as you add them.

@@ -77,7 +77,7 @@ function TagsManager() {
       <div className="card-apple p-6 mb-8 border-white/60 dark:border-white/5">
         <form onSubmit={handleAdd} className="flex items-end gap-4">
           <div className="flex-1">
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-2">New Tag</label>
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">New Tag</label>
             <input
               type="text"
               value={newName}
@@ -88,7 +88,7 @@ function TagsManager() {
             />
           </div>
           <div>
-            <label className="block text-[10px] font-mono font-bold text-slate-400 dark:text-dark-mute uppercase tracking-widest mb-2">Color</label>
+            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Color</label>
             <input
               type="color"
               value={newColor}
@@ -118,9 +118,9 @@ function TagsManager() {
               <div className="flex items-center gap-3">
                 <span className="w-4 h-4 rounded-full" style={{ backgroundColor: tag.color }}></span>
                 <span className="text-sm font-bold text-slate-900 dark:text-white">{tag.name}</span>
-                <span className="text-[10px] text-slate-400 dark:text-dark-mute">({tag.usage_count || 0} expenses)</span>
+                <span className="text-[10px] text-slate-500 dark:text-dark-mute">({tag.usage_count || 0} expenses)</span>
               </div>
-              <button onClick={() => handleDelete(tag.id)} className="text-slate-300 hover:text-accent-red transition-colors cursor-pointer p-1">
+              <button onClick={() => handleDelete(tag.id)} className="text-slate-400 hover:text-accent-red transition-colors cursor-pointer p-1">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
@@ -128,7 +128,7 @@ function TagsManager() {
         </div>
       ) : (
         <div className="card-apple p-12 text-center border-white/60 dark:border-white/5">
-          <Tag className="w-12 h-12 text-slate-300 dark:text-dark-border mx-auto mb-4" />
+          <Tag className="w-12 h-12 text-slate-400 dark:text-dark-border mx-auto mb-4" />
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No Tags Yet</h3>
           <p className="text-sm text-slate-500 dark:text-dark-mute">Create tags to organize your expenses (e.g., &quot;Tax Deductible&quot;, &quot;Business&quot;, &quot;Gift&quot;).</p>
         </div>
