@@ -1,0 +1,138 @@
+<footer class="relative overflow-hidden bg-slate-50/50 dark:bg-dark-card/30 backdrop-blur-md border-t border-slate-200/80 dark:border-dark-border/40 px-4 sm:px-6 lg:px-8 py-16 transition-all duration-300 {{ footer_classes }}">
+  <!-- Background Glows for visual depth -->
+  <div class="absolute -top-24 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-24 right-1/4 w-96 h-96 bg-primary-light/5 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="max-w-7xl mx-auto relative z-10">
+    <div class="grid grid-cols-12 gap-y-12 gap-x-8">
+      
+      <!-- Brand & Socials -->
+      <div class="col-span-12 md:col-span-6 lg:col-span-3 flex flex-col items-start gap-4">
+        <a href="{{ url_for('main.landing') }}" class="flex items-center gap-2.5 group cursor-pointer">
+          <span class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/40 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-gradient-to-tr from-primary to-primary-light shadow-[0_0_10px_rgba(79,70,229,0.5)]"></span>
+          </span>
+          <span class="font-sans font-bold text-xl text-slate-900 dark:text-white tracking-tight group-hover:text-primary dark:group-hover:text-primary-light transition-colors duration-300">Spendly</span>
+        </a>
+        <p class="text-xs leading-relaxed text-slate-500 dark:text-dark-mute max-w-xs">
+          Track expenses, set budgets, and unlock deep financial telemetry with a privacy-first personal ledger.
+        </p>
+        
+        <!-- Social Icons -->
+        <div class="flex items-center gap-2.5 mt-2">
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-xl border border-slate-200/60 dark:border-dark-border/40 hover:border-primary dark:hover:border-primary-light flex items-center justify-center text-slate-500 dark:text-dark-mute hover:text-primary dark:hover:text-primary-light hover:bg-white dark:hover:bg-dark-elevated transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm" aria-label="GitHub">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          </a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-xl border border-slate-200/60 dark:border-dark-border/40 hover:border-primary dark:hover:border-primary-light flex items-center justify-center text-slate-500 dark:text-dark-mute hover:text-primary dark:hover:text-primary-light hover:bg-white dark:hover:bg-dark-elevated transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm" aria-label="Twitter">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
+          </a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-xl border border-slate-200/60 dark:border-dark-border/40 hover:border-primary dark:hover:border-primary-light flex items-center justify-center text-slate-500 dark:text-dark-mute hover:text-primary dark:hover:text-primary-light hover:bg-white dark:hover:bg-dark-elevated transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm" aria-label="LinkedIn">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+          </a>
+        </div>
+
+        <!-- System Status Badge -->
+        <div class="flex items-center gap-2 mt-1 text-[10px] font-semibold text-slate-500 dark:text-dark-mute bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-full border border-slate-200/60 dark:border-dark-border/30 w-fit select-none">
+          <span class="relative flex h-1.5 w-1.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+          </span>
+          <span>All Systems Operational</span>
+        </div>
+      </div>
+
+      <!-- Product Columns -->
+      <div class="col-span-6 md:col-span-4 lg:col-span-2 lg:col-start-5 flex flex-col gap-4">
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Product</p>
+        <ul class="space-y-3 text-xs">
+          <li><a href="{{ url_for('main.features') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Features</a></li>
+          <li><a href="{{ url_for('main.pricing') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Pricing</a></li>
+          <li><a href="{{ url_for('main.ocr_scanning') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">OCR Ingestion</a></li>
+          <li><a href="{{ url_for('main.export_info') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Data Export</a></li>
+        </ul>
+      </div>
+
+      <!-- Company Column -->
+      <div class="col-span-6 md:col-span-4 lg:col-span-2 flex flex-col gap-4">
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Company</p>
+        <ul class="space-y-3 text-xs">
+          <li><a href="{{ url_for('main.about') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">About Us</a></li>
+          <li><a href="{{ url_for('main.blog') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Developer Blog</a></li>
+          <li><a href="{{ url_for('main.careers') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Careers</a></li>
+        </ul>
+      </div>
+
+      <!-- Support & Legal Column -->
+      <div class="col-span-6 md:col-span-4 lg:col-span-2 flex flex-col gap-4">
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Trust & Legal</p>
+        <ul class="space-y-3 text-xs">
+          <li><a href="{{ url_for('main.privacy') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Data Protocol</a></li>
+          <li><a href="{{ url_for('main.terms') }}" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Operational Terms</a></li>
+          <li><a href="mailto:support@spendly.app" class="text-slate-500 dark:text-dark-mute hover:text-slate-900 dark:hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Contact Console</a></li>
+        </ul>
+      </div>
+
+      <!-- Newsletter Box -->
+      <div class="col-span-12 md:col-span-6 lg:col-span-3 lg:col-start-10 flex flex-col gap-4 border-t md:border-t-0 border-slate-200 dark:border-dark-border/40 pt-8 md:pt-0">
+        <p class="text-[10px] text-slate-400 dark:text-dark-mute uppercase tracking-widest font-bold">Stay Updated</p>
+        <p class="text-xs leading-relaxed text-slate-500 dark:text-dark-mute">
+          Subscribe to get product updates and financial intelligence.
+        </p>
+        
+        <!-- Interactive Newsletter Form -->
+        <form id="newsletter-form" class="flex flex-col gap-2 w-full max-w-sm" onsubmit="handleNewsletterSubmit(event)">
+          <div class="relative">
+            <input type="email" required placeholder="name@domain.com" 
+              class="w-full bg-white dark:bg-dark-card/50 border border-slate-200 dark:border-dark-border/40 focus:border-primary dark:focus:border-primary-light rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary/20 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-dark-mute/50 transition-all duration-200" />
+          </div>
+          <button type="submit" 
+            class="w-full bg-gradient-to-r from-primary to-primary-light hover:brightness-110 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md shadow-primary/20 dark:shadow-none">
+            Subscribe
+          </button>
+        </form>
+        
+        <!-- Success State -->
+        <div id="newsletter-success" class="hidden flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold py-2.5 px-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-xl transition-all duration-300 animate-fade-in">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span>Subscription active! Welcome aboard.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Divider Line -->
+    <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-slate-200 dark:via-dark-border/40 to-transparent my-10"></div>
+
+    <!-- Bottom Footer bar -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p class="text-[10px] text-slate-400 dark:text-dark-mute text-center sm:text-left">
+        &copy; {{ now_year }} Spendly. Designed for modern builders. All rights reserved.
+      </p>
+      
+      <!-- Tiny links -->
+      <div class="flex gap-4 text-[10px]">
+        <a href="{{ url_for('main.privacy') }}" class="text-slate-400 dark:text-dark-mute hover:text-slate-600 dark:hover:text-white transition-colors">Privacy</a>
+        <span class="text-slate-200 dark:text-dark-border/30">&middot;</span>
+        <a href="{{ url_for('main.terms') }}" class="text-slate-400 dark:text-dark-mute hover:text-slate-600 dark:hover:text-white transition-colors">Terms</a>
+        <span class="text-slate-200 dark:text-dark-border/30">&middot;</span>
+        <a href="mailto:support@spendly.app" class="text-slate-400 dark:text-dark-mute hover:text-slate-600 dark:hover:text-white transition-colors">Security</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function handleNewsletterSubmit(event) {
+    event.preventDefault();
+    const form = document.getElementById('newsletter-form');
+    const successDiv = document.getElementById('newsletter-success');
+    
+    // Simulate success transition
+    form.style.opacity = '0';
+    setTimeout(() => {
+      form.classList.add('hidden');
+      successDiv.classList.remove('hidden');
+    }, 200);
+  }
+</script>
