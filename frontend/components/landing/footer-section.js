@@ -13,14 +13,14 @@ const footerLinks = {
   Resources: [
     { name: 'Blog', href: '/blog' },
     { name: 'Export Data', href: '/export' },
-    { name: 'API Docs', href: '#' },
-    { name: 'Status', href: '#' },
+    { name: 'API Docs', href: '/api-docs' },
+    { name: 'Status', href: '/status' },
   ],
   Company: [
     { name: 'About', href: '/about' },
     { name: 'Blog', href: '/blog' },
     { name: 'Careers', href: '/careers', badge: 'Hiring' },
-    { name: 'Contact', href: '#' },
+    { name: 'Contact', href: '/contact' },
   ],
   Legal: [
     { name: 'Privacy', href: '/privacy' },

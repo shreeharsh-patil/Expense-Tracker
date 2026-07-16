@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth, api } from '../../components/AuthContext';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import { Tag, Plus, Trash2, Palette } from 'lucide-react';
+import { Navigation } from '../../components/landing/navigation';
+import { FooterSection } from '../../components/landing/footer-section';
+import { Tag, Plus, Trash2 } from 'lucide-react';
 import ConfirmDialog from '../../components/ConfirmDialog';
 
 function TagsManager() {
@@ -29,7 +29,6 @@ function TagsManager() {
     }
   }
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => { loadTags(); }, [user]);
 
   const handleAdd = async (e) => {
@@ -37,7 +36,7 @@ function TagsManager() {
     if (!newName.trim()) return;
     setError('');
     try {
-      const res = await api.post('/tags/add', { name: newName.trim(), color: newColor });
+      await api.post('/tags/add', { name: newName.trim(), color: newColor });
       setNewName('');
       setNewColor('#6366f1');
       loadTags();
@@ -58,111 +57,113 @@ function TagsManager() {
   if (!user) {
     return (
       <div className="max-w-2xl mx-auto text-center py-20">
-        <p className="text-sm text-slate-500 dark:text-dark-mute">Sign in to manage tags.</p>
+        <p className="text-sm text-muted-foreground">Sign in to manage tags.</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl md:text-3xl text-slate-900 dark:text-white font-extrabold tracking-tight mb-1">Tags</h1>
-          <p className="text-sm text-slate-500 dark:text-dark-mute">Organize expenses with custom tags and labels.</p>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-medium">
-          {error}
-        </div>
-      )}
-
-      <div className="card-apple p-6 mb-8 border-white/60 dark:border-white/5">
-        <form onSubmit={handleAdd} className="flex items-end gap-4">
-          <div className="flex-1">
-            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">New Tag</label>
-            <input
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              className="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2.5 outline-none focus:border-primary text-sm text-slate-900 dark:text-white"
-              placeholder="e.g. 'Tax Deductible'"
-              required
-            />
+    <main className="relative min-h-screen overflow-x-hidden bg-background">
+      <Navigation />
+      <div className="pt-32 pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-10">
+            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+              <span className="w-8 h-px bg-foreground/30" />
+              Labels
+            </span>
+            <h1 className="text-4xl md:text-5xl font-display tracking-tight leading-[0.95] mb-2">
+              Tags
+            </h1>
+            <p className="text-base text-muted-foreground">Organize expenses with custom tags and labels.</p>
           </div>
-          <div>
-            <label className="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Color</label>
-            <input
-              type="color"
-              value={newColor}
-              onChange={(e) => setNewColor(e.target.value)}
-              className="w-10 h-10 rounded-lg border border-slate-200 dark:border-dark-border cursor-pointer"
-            />
-          </div>
-          <button type="submit" className="btn-primary px-5 py-2.5 text-xs font-bold flex items-center gap-2 cursor-pointer">
-            <Plus className="w-4 h-4" />
-            Add Tag
-          </button>
-        </form>
-      </div>
 
-      {loading ? (
-        <div className="space-y-2">
-          {[1,2,3].map(i => (
-            <div key={i} className="card-apple p-4 animate-pulse">
-              <div className="h-4 bg-slate-200 dark:bg-dark-border rounded w-1/3"></div>
+          {error && (
+            <div className="mb-4 p-3 border border-foreground/10 text-muted-foreground text-xs font-medium">
+              {error}
             </div>
-          ))}
-        </div>
-      ) : tags.length > 0 ? (
-        <div className="space-y-2">
-          {tags.map((tag) => (
-            <div key={tag.id} className="card-apple p-4 flex items-center justify-between border-white/60 dark:border-white/5">
-              <div className="flex items-center gap-3">
-                <span className="w-4 h-4 rounded-full" style={{ backgroundColor: tag.color }}></span>
-                <span className="text-sm font-bold text-slate-900 dark:text-white">{tag.name}</span>
-                <span className="text-[10px] text-slate-500 dark:text-dark-mute">({tag.usage_count || 0} expenses)</span>
+          )}
+
+          <div className="border border-foreground/10 bg-foreground/[0.02] p-6 mb-8">
+            <form onSubmit={handleAdd} className="flex items-end gap-4">
+              <div className="flex-1">
+                <label className="block text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">New Tag</label>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="w-full bg-transparent border-b border-foreground/10 py-2.5 outline-none focus:border-foreground/40 text-sm text-foreground"
+                  placeholder="e.g. 'Tax Deductible'"
+                  required
+                />
               </div>
-              <button onClick={() => setDeleteConfirm(tag.id)} className="text-slate-400 hover:text-accent-red transition-colors cursor-pointer p-1">
-                <Trash2 className="w-4 h-4" />
+              <div>
+                <label className="block text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">Color</label>
+                <input
+                  type="color"
+                  value={newColor}
+                  onChange={(e) => setNewColor(e.target.value)}
+                  className="w-10 h-10 border border-foreground/10 cursor-pointer bg-transparent"
+                />
+              </div>
+              <button type="submit" className="px-5 py-2.5 text-xs font-medium bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all flex items-center gap-2 cursor-pointer">
+                <Plus className="w-4 h-4" />
+                Add Tag
               </button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="card-apple p-12 text-center border-white/60 dark:border-white/5">
-          <Tag className="w-12 h-12 text-slate-400 dark:text-dark-border mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No Tags Yet</h3>
-          <p className="text-sm text-slate-500 dark:text-dark-mute">Create tags to organize your expenses (e.g., &quot;Tax Deductible&quot;, &quot;Business&quot;, &quot;Gift&quot;).</p>
-        </div>
-      )}
+            </form>
+          </div>
 
-      <ConfirmDialog
-        open={!!deleteConfirm}
-        onClose={() => setDeleteConfirm(null)}
-        onConfirm={() => {
-          if (deleteConfirm) handleDelete(deleteConfirm);
-          setDeleteConfirm(null);
-        }}
-        title="Delete Tag"
-        message={`Delete tag "${tags.find(t => t.id === deleteConfirm)?.name || ''}"? This cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="danger"
-      />
-    </div>
+          {loading ? (
+            <div className="space-y-2">
+              {[1,2,3].map(i => (
+                <div key={i} className="border border-foreground/10 p-4 animate-pulse">
+                  <div className="h-4 bg-foreground/10 rounded w-1/3"></div>
+                </div>
+              ))}
+            </div>
+          ) : tags.length > 0 ? (
+            <div className="space-y-2">
+              {tags.map((tag) => (
+                <div key={tag.id} className="border border-foreground/10 bg-foreground/[0.02] p-4 flex items-center justify-between hover:border-foreground/30 transition-all">
+                  <div className="flex items-center gap-3">
+                    <span className="w-4 h-4 rounded-full" style={{ backgroundColor: tag.color }}></span>
+                    <span className="text-sm text-foreground">{tag.name}</span>
+                    <span className="text-[10px] text-muted-foreground">({tag.usage_count || 0} expenses)</span>
+                  </div>
+                  <button onClick={() => setDeleteConfirm(tag.id)} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer p-1">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="border border-foreground/10 bg-foreground/[0.02] p-12 text-center">
+              <Tag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-display mb-2">No Tags Yet</h3>
+              <p className="text-sm text-muted-foreground">Create tags to organize your expenses (e.g., &quot;Tax Deductible&quot;, &quot;Business&quot;, &quot;Gift&quot;).</p>
+            </div>
+          )}
+
+          <ConfirmDialog
+            open={!!deleteConfirm}
+            onClose={() => setDeleteConfirm(null)}
+            onConfirm={() => {
+              if (deleteConfirm) handleDelete(deleteConfirm);
+              setDeleteConfirm(null);
+            }}
+            title="Delete Tag"
+            message={`Delete tag "${tags.find(t => t.id === deleteConfirm)?.name || ''}"? This cannot be undone.`}
+            confirmText="Delete"
+            cancelText="Cancel"
+            variant="danger"
+          />
+        </div>
+      </div>
+      <FooterSection />
+    </main>
   );
 }
 
 export default function TagsPage() {
-  return (
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-grow">
-          <TagsManager />
-        </main>
-        <Footer />
-      </div>
-  );
+  return <TagsManager />;
 }

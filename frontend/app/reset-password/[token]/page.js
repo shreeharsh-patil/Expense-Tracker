@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '../../../components/AuthContext';
-import Header from '../../../components/Header';
-import Footer from '../../../components/Footer';
+import { Navigation } from '../../../components/landing/navigation';
+import { FooterSection } from '../../../components/landing/footer-section';
 import { Key, Eye, EyeOff, ArrowLeft, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function ResetPasswordPage() {
@@ -69,150 +69,149 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
+    <main className="relative min-h-screen overflow-x-hidden bg-background">
+      <Navigation />
 
-      <main className="flex-grow flex items-center justify-center px-4 py-24 relative overflow-hidden">
-        <div className="glow-blob top-1/4 -right-20 w-72 h-72 bg-primary/5"></div>
-        <div className="glow-blob bottom-1/4 -left-20 w-72 h-72 bg-signature-peach/5"></div>
-
-        <div className="max-w-[420px] w-full relative z-10 animate-fade-in-up">
-          <div className="mb-8 flex flex-col items-center text-center">
-            <div className="w-14 h-14 rounded-2xl bg-signature-forest/10 text-signature-forest dark:text-signature-mint flex items-center justify-center mb-5 shadow-sm border border-signature-forest/20 -rotate-3">
-              <ShieldCheck className="w-7 h-7" />
-            </div>
-            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">
-              {success ? 'Password updated' : 'New password'}
-            </h1>
-            <p className="text-sm text-slate-500 dark:text-dark-mute max-w-[300px]">
-              {success
-                ? 'Your vault key has been rotated successfully.'
-                : 'Define a secure new passphrase for your account.'}
-            </p>
-          </div>
-
-          <div className="card-apple p-8 md:p-10 shadow-2xl shadow-slate-200/50 dark:shadow-none border-white/60 dark:border-white/5 !rounded-2xl md:!rounded-3xl">
-            {error && (
-              <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-medium text-center">
-                {error}
+      <div className="pt-32 pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="max-w-[420px] w-full">
+            <div className="text-center mb-10">
+              <div className="w-14 h-14 mx-auto border border-foreground/10 flex items-center justify-center mb-5">
+                <ShieldCheck className="w-7 h-7 text-muted-foreground" />
               </div>
-            )}
+              <h1 className="text-3xl font-display tracking-tight mb-2">
+                {success ? 'Password updated' : 'New password'}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {success
+                  ? 'Your vault key has been rotated successfully.'
+                  : 'Define a secure new passphrase for your account.'}
+              </p>
+            </div>
 
-            {success ? (
-              <div className="text-center space-y-6">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
-                  <ShieldCheck className="w-8 h-8" />
+            <div className="border border-foreground/10 bg-foreground/[0.02] p-8 md:p-10">
+              {error && (
+                <div className="mb-6 p-3 border border-foreground/10 text-muted-foreground text-xs font-medium text-center">
+                  {error}
                 </div>
-                <p className="text-sm text-slate-500 dark:text-dark-mute">
-                  Your password has been reset. You can now sign in with your new credentials.
-                </p>
-                <Link
-                  href="/login"
-                  className="btn-primary w-full inline-flex items-center justify-center gap-2 py-3.5 text-sm font-bold shadow-xl shadow-primary/20 !rounded-full cursor-pointer"
-                >
-                  Sign in
-                  <ArrowRight className="w-[18px] h-[18px]" />
+              )}
+
+              {success ? (
+                <div className="text-center space-y-6">
+                  <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
+                    <ShieldCheck className="w-8 h-8" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Your password has been reset. You can now sign in with your new credentials.
+                  </p>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center justify-center gap-2 w-full py-3.5 text-sm font-medium bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all cursor-pointer"
+                  >
+                    Sign in
+                    <ArrowRight className="w-[18px] h-[18px]" />
+                  </Link>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                  <div className="space-y-2 group">
+                    <label htmlFor="reset-password" className="block text-xs font-medium text-foreground/70 transition-colors group-focus-within:text-foreground">
+                      New Passphrase
+                    </label>
+                    <div className="relative">
+                      <Key className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+                      <input
+                        id="reset-password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 pr-8 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                        placeholder="Min. 6 characters"
+                        autoComplete="new-password"
+                        minLength={6}
+                        required
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-muted-foreground hover:text-foreground transition-colors absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
+                        aria-label="Toggle password visibility"
+                      >
+                        {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+                      </button>
+                    </div>
+                    {password && (
+                      <div className="mt-2 space-y-1">
+                        <div className="w-full h-1.5 bg-foreground/10 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full transition-all duration-300 ${strength.color}`} style={{ width: strength.width }}></div>
+                        </div>
+                        <p className="text-[10px] font-medium text-muted-foreground">{strength.label}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 group">
+                    <label htmlFor="reset-confirm" className="block text-xs font-medium text-foreground/70 transition-colors group-focus-within:text-foreground">
+                      Confirm Passphrase
+                    </label>
+                    <div className="relative">
+                      <ShieldCheck className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+                      <input
+                        id="reset-confirm"
+                        type={showConfirm ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 pr-8 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                        placeholder="Re-enter password"
+                        autoComplete="new-password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm(!showConfirm)}
+                        className="text-muted-foreground hover:text-foreground transition-colors absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
+                        aria-label="Toggle confirm visibility"
+                      >
+                        {showConfirm ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+                      </button>
+                    </div>
+                    {confirmPassword && password !== confirmPassword && (
+                      <p className="text-[10px] font-medium text-red-500 mt-1">Passwords do not match</p>
+                    )}
+                  </div>
+
+                  <div className="pt-4">
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-3.5 text-sm font-medium bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {loading ? (
+                        <span className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin"></span>
+                      ) : (
+                        <>
+                          <span>Update Vault Key</span>
+                          <ArrowRight className="w-[18px] h-[18px] transition-transform group-hover:translate-x-1" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              <div className="mt-8 pt-6 border-t border-foreground/10 text-center">
+                <Link href="/login" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors inline-flex items-center gap-1 group">
+                  <ArrowLeft className="w-[16px] h-[16px] transition-transform group-hover:-translate-x-0.5" />
+                  Return to sign in
                 </Link>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-                <div className="space-y-2 group">
-                  <label htmlFor="reset-password" className="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">
-                    New Passphrase
-                  </label>
-                  <div className="relative">
-                    <Key className="text-slate-400 dark:text-dark-border w-[18px] h-[18px] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
-                    <input
-                      id="reset-password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white bg-slate-50/50 dark:bg-dark-bg/50 py-3 pl-11 pr-11"
-                      placeholder="Min. 6 characters"
-                      autoComplete="new-password"
-                      minLength={6}
-                      required
-                      autoFocus
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
-                      aria-label="Toggle password visibility"
-                    >
-                      {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
-                    </button>
-                  </div>
-                  {password && (
-                    <div className="mt-2 space-y-1">
-                      <div className="w-full h-1.5 bg-slate-100 dark:bg-dark-border rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full transition-all duration-300 ${strength.color}`} style={{ width: strength.width }}></div>
-                      </div>
-                      <p className="text-[10px] font-medium text-slate-400 dark:text-dark-mute">{strength.label}</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2 group">
-                  <label htmlFor="reset-confirm" className="block text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-primary">
-                    Confirm Passphrase
-                  </label>
-                  <div className="relative">
-                    <ShieldCheck className="text-slate-400 dark:text-dark-border w-[18px] h-[18px] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
-                    <input
-                      id="reset-confirm"
-                      type={showConfirm ? 'text' : 'password'}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:focus:border-primary-light transition-all text-sm font-medium text-slate-800 dark:text-white bg-slate-50/50 dark:bg-dark-bg/50 py-3 pl-11 pr-11"
-                      placeholder="Re-enter password"
-                      autoComplete="new-password"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirm(!showConfirm)}
-                      className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors absolute right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
-                      aria-label="Toggle confirm visibility"
-                    >
-                      {showConfirm ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
-                    </button>
-                  </div>
-                  {confirmPassword && password !== confirmPassword && (
-                    <p className="text-[10px] font-medium text-red-500 mt-1">Passwords do not match</p>
-                  )}
-                </div>
-
-                <div className="pt-4">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="btn-primary w-full py-3.5 text-sm font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-2 !rounded-full disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    {loading ? (
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    ) : (
-                      <>
-                        <span>Update Vault Key</span>
-                        <ArrowRight className="w-[18px] h-[18px] transition-transform group-hover:translate-x-1" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            )}
-
-            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-dark-border/40 text-center">
-              <Link href="/login" className="text-sm font-bold text-slate-500 dark:text-dark-mute hover:text-primary dark:hover:text-primary-light transition-colors inline-flex items-center gap-1 group">
-                <ArrowLeft className="w-[16px] h-[16px] transition-transform group-hover:-translate-x-0.5" />
-                Return to sign in
-              </Link>
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
-      <Footer />
-    </div>
+      <FooterSection />
+    </main>
   );
 }
