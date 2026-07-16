@@ -1,54 +1,38 @@
-import { Inter, Fragment_Mono } from "next/font/google";
+import { Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import "../static/css/tailwind.css";
 import "../static/css/style.css";
 import { Providers } from "./providers";
 import MobileBottomNav from "../components/MobileBottomNav";
 
-const inter = Inter({
+const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-instrument",
 });
 
-const fragmentMono = Fragment_Mono({
-  weight: "400",
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  variable: "--font-mono",
+  weight: "400",
+  variable: "--font-instrument-serif",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
 });
 
 export const metadata = {
   title: "Spendly — Track Smarter. Spend Wiser.",
-  description: "Minimalist, privacy-first personal expense tracker designed to sync with your financial ledger.",
+  description: "Minimalist, privacy-first personal expense tracker. Scan receipts, forecast monthly burn, track subscriptions, and visualize cash flow securely.",
   icons: {
     icon: '/images/favicon.svg',
     apple: '/images/favicon.svg',
-  },
-  openGraph: {
-    title: "Spendly — Personal Ledger Terminal",
-    description: "Scan receipts, forecast monthly burn, track subscriptions, and visualize cash flow securely.",
-    url: "https://your-app.vercel.app",
-    siteName: "Spendly",
-    images: [
-      {
-        url: "/images/spendly_hero_dashboard.png",
-        width: 1200,
-        height: 630,
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Spendly — Personal Ledger Terminal",
-    images: ["/images/spendly_hero_dashboard.png"],
   },
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${fragmentMono.variable}`}>
-      <body suppressHydrationWarning className="bg-canvas dark:bg-dark-bg text-slate-700 dark:text-dark-text font-sans antialiased min-h-screen pb-20 md:pb-0 transition-colors duration-200 bg-grid-pattern">
+    <html lang="en" className={`${instrumentSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}>
+      <body suppressHydrationWarning className="font-sans antialiased min-h-screen">
         <Providers>
           {children}
           <MobileBottomNav />
