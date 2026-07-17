@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '../AuthContext';
 import { Button } from '@/components/ui/button';
 import { Menu, X, LogOut, User } from 'lucide-react';
@@ -25,42 +26,64 @@ const appNavLinks = [
 ];
 
 export function Navigation() {
-  const { user, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
+  const pathname = usePathname();
+  const isLanding = pathname === '/';
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // On non-landing pages, always use scrolled/app styling
+  const showScrolled = !isLanding || isScrolled;
+
   useEffect(() => {
+    if (!isLanding) return;
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isLanding]);
+
+  // While checking auth, show minimal nav to avoid flashing wrong state
+  if (loading) {
+    return (
+      <header className="fixed z-50 top-0 left-0 right-0">
+        <nav className="mx-auto bg-background/80 backdrop-blur-xl border-b border-foreground/10 max-w-full">
+          <div className="flex items-center justify-between px-6 lg:px-8 h-14">
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-gradient-to-tr from-[#eca8d6] to-[#a78bfa] rounded-full"></span>
+              <span className="text-xl font-display text-foreground">Spendly</span>
+            </span>
+          </div>
+        </nav>
+      </header>
+    );
+  }
 
   return (
-    <header
-      className={`fixed z-50 transition-all duration-500 ${
-        isScrolled 
-          ? 'top-4 left-4 right-4' 
-          : 'top-0 left-0 right-0'
-      }`}
-    >
+<header
+        className={`fixed z-50 transition-all duration-500 ${
+          showScrolled 
+            ? 'top-4 left-4 right-4' 
+            : 'top-0 left-0 right-0'
+        }`}
+      >
       <nav 
         className={`mx-auto transition-all duration-500 ${
-          isScrolled || isMobileMenuOpen
+          showScrolled || isMobileMenuOpen
             ? 'bg-background/80 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-lg max-w-[1200px]'
             : 'bg-transparent max-w-[1400px]'
         }`}
       >
         <div 
           className={`flex items-center justify-between transition-all duration-500 px-6 lg:px-8 ${
-            isScrolled ? 'h-14' : 'h-20'
+            showScrolled ? 'h-14' : 'h-20'
           }`}
         >
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
             <span className="w-2 h-2 bg-gradient-to-tr from-[#eca8d6] to-[#a78bfa] rounded-full shadow-[0_0_10px_rgba(236,168,214,0.4)] transition-transform duration-300 group-hover:scale-125"></span>
-            <span className={`font-display tracking-tight transition-all duration-500 ${isScrolled ? 'text-xl text-foreground' : 'text-2xl text-white'}`}>Spendly</span>
+            <span className={`font-display tracking-tight transition-all duration-500 ${showScrolled ? 'text-xl text-foreground' : 'text-2xl text-white'}`}>Spendly</span>
           </a>
 
           {/* Desktop Navigation */}
@@ -69,10 +92,10 @@ export function Navigation() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`text-sm transition-colors duration-300 relative group ${isScrolled ? 'text-foreground/70 hover:text-foreground' : 'text-white/70 hover:text-white'}`}
+                className={`text-sm transition-colors duration-300 relative group ${showScrolled ? 'text-foreground/70 hover:text-foreground' : 'text-white/70 hover:text-white'}`}
               >
                 {link.name}
-                <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${isScrolled ? 'bg-foreground' : 'bg-white'}`} />
+                <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${showScrolled ? 'bg-foreground' : 'bg-white'}`} />
               </Link>
             ))}
           </div>
@@ -81,7 +104,7 @@ export function Navigation() {
           <div className="hidden md:flex items-center gap-4">
             {user ? (
               <>
-                <Link href="/profile" className={`flex items-center gap-2 transition-all duration-500 group ${isScrolled ? 'text-xs text-foreground/70 hover:text-foreground' : 'text-sm text-white/70 hover:text-white'}`}>
+                <Link href="/profile" className={`flex items-center gap-2 transition-all duration-500 group ${showScrolled ? 'text-xs text-foreground/70 hover:text-foreground' : 'text-sm text-white/70 hover:text-white'}`}>
                   <div className="w-7 h-7 rounded-full border border-foreground/20 flex items-center justify-center text-[10px] font-medium bg-foreground/5 group-hover:border-foreground/40 transition-colors">
                     {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : <User className="w-3.5 h-3.5" />}
                   </div>
@@ -89,7 +112,7 @@ export function Navigation() {
                 </Link>
                 <button
                   onClick={logout}
-                  className={`transition-all duration-500 cursor-pointer ${isScrolled ? 'text-foreground/50 hover:text-foreground' : 'text-white/50 hover:text-white'}`}
+                  className={`transition-all duration-500 cursor-pointer ${showScrolled ? 'text-foreground/50 hover:text-foreground' : 'text-white/50 hover:text-white'}`}
                   title="Sign out"
                 >
                   <LogOut className="w-4 h-4" />
@@ -97,12 +120,12 @@ export function Navigation() {
               </>
             ) : (
               <>
-                <a href="/login" className={`transition-all duration-500 ${isScrolled ? 'text-xs text-foreground/70 hover:text-foreground' : 'text-sm text-white/70 hover:text-white'}`}>
+                <a href="/login" className={`transition-all duration-500 ${showScrolled ? 'text-xs text-foreground/70 hover:text-foreground' : 'text-sm text-white/70 hover:text-white'}`}>
                   Sign in
                 </a>
                 <Button
                   size="sm"
-                  className={`rounded-full transition-all duration-500 ${isScrolled ? 'bg-foreground hover:bg-foreground/90 text-background px-4 h-8 text-xs' : 'bg-white hover:bg-white/90 text-black px-6'}`}
+                  className={`rounded-full transition-all duration-500 ${showScrolled ? 'bg-foreground hover:bg-foreground/90 text-background px-4 h-8 text-xs' : 'bg-white hover:bg-white/90 text-black px-6'}`}
                   asChild
                 >
                   <a href="/register">Get started free</a>
@@ -111,18 +134,20 @@ export function Navigation() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`md:hidden p-2 transition-colors duration-500 ${isScrolled || isMobileMenuOpen ? 'text-foreground' : 'text-white'}`}
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
+          {/* Mobile Menu Button — only for non-logged-in users */}
+          {!user && (
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={`md:hidden p-2 transition-colors duration-500 ${showScrolled || isMobileMenuOpen ? 'text-foreground' : 'text-white'}`}
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          )}
         </div>
 
       </nav>

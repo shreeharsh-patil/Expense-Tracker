@@ -61,7 +61,7 @@ export default function MobileBottomNav() {
     <>
       <nav
         id="mobile-bottom-nav"
-        className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 bottom-nav-safe pt-2 bg-white/95 dark:bg-dark-card/95 backdrop-blur-xl border-t border-slate-200 dark:border-dark-border transition-colors shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.3)]"
+        className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe pt-2 bg-background/95 backdrop-blur-xl border-t border-border shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.5)]"
         role="navigation"
         aria-label="Main navigation"
       >
@@ -73,21 +73,24 @@ export default function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative ${
+              className={`flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative ${
                 active
-                  ? 'text-primary mobile-nav-active'
-                  : 'text-slate-500 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300'
+                  ? 'text-foreground'
+                  : 'text-muted-foreground/60 hover:text-muted-foreground'
               }`}
             >
               <IconComponent className="w-[22px] h-[22px]" />
               <span className="font-sans text-[9px] font-semibold mt-0.5">{item.label}</span>
+              {active && (
+                <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-foreground" />
+              )}
             </Link>
           );
         })}
 
         {/* Plus button to open quick-add sheet */}
         <button
-          className={`flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-primary to-primary-light text-white shadow-lg shadow-primary/30 active:scale-95 transition-all duration-200 focus:outline-none -translate-y-2.5 border-4 border-canvas dark:border-dark-bg ${
+          className={`flex items-center justify-center w-12 h-12 rounded-full bg-foreground text-background shadow-lg shadow-foreground/20 active:scale-95 transition-all duration-200 focus:outline-none -translate-y-2.5 border-4 border-background ${
             sheetOpen ? 'rotate-45' : ''
           }`}
           onClick={() => setSheetOpen(!sheetOpen)}
@@ -105,14 +108,17 @@ export default function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`mobile-nav-item flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative ${
+              className={`flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 relative ${
                 active
-                  ? 'text-primary mobile-nav-active'
-                  : 'text-slate-500 dark:text-dark-mute hover:text-slate-600 dark:hover:text-slate-300'
+                  ? 'text-foreground'
+                  : 'text-muted-foreground/60 hover:text-muted-foreground'
               }`}
             >
               <IconComponent className="w-[22px] h-[22px]" />
               <span className="font-sans text-[9px] font-semibold mt-0.5">{item.label}</span>
+              {active && (
+                <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-foreground" />
+              )}
             </Link>
           );
         })}
@@ -120,38 +126,38 @@ export default function MobileBottomNav() {
 
       {/* Mobile quick-add bottom sheet */}
       <div
-        className={`md:hidden mobile-overlay ${sheetOpen ? 'open' : ''}`}
+        className={`md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+          sheetOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
         onClick={() => setSheetOpen(false)}
         role="presentation"
       />
-      <div className={`md:hidden mobile-sheet ${sheetOpen ? 'open' : ''}`} role="dialog" aria-label="Quick actions" aria-modal={sheetOpen}>
-        <div className="mobile-sheet-handle" />
-        <p className="text-xs font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest text-center mb-6">Quick Actions</p>
-        <div className="grid grid-cols-3 gap-4 text-center">
+      <div
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border rounded-t-2xl transition-transform duration-300 pb-safe ${
+          sheetOpen ? 'translate-y-0' : 'translate-y-full'
+        }`}
+        role="dialog"
+        aria-label="Quick actions"
+        aria-modal={sheetOpen}
+      >
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full bg-border" />
+        </div>
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest text-center mb-6">Quick Actions</p>
+        <div className="grid grid-cols-3 gap-4 text-center px-6 pb-8">
           {QUICK_ACTIONS.map((action) => {
             const IconComponent = action.icon;
-            const hoverColor = action.color === 'primary'
-              ? 'hover:bg-primary/10 dark:hover:bg-primary/10'
-              : action.color === 'signature-mint'
-              ? 'hover:bg-signature-mint/10 dark:hover:bg-signature-mint/10'
-              : 'hover:bg-signature-coral/10 dark:hover:bg-signature-coral/10';
-            const iconBg = action.color === 'primary'
-              ? 'bg-primary/10 text-primary'
-              : action.color === 'signature-mint'
-              ? 'bg-signature-mint/10 text-signature-mint'
-              : 'bg-signature-coral/10 text-signature-coral';
-
             return (
               <Link
                 key={action.href}
                 href={action.href}
                 onClick={() => setSheetOpen(false)}
-                className={`flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-white/5 ${hoverColor} transition-all active:scale-95`}
+                className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-muted hover:bg-accent transition-all active:scale-95"
               >
-                <div className={`w-12 h-12 rounded-xl ${iconBg} flex items-center justify-center`}>
+                <div className="w-12 h-12 rounded-xl bg-foreground/10 text-foreground flex items-center justify-center">
                   <IconComponent className="w-[24px] h-[24px]" />
                 </div>
-                <span className="text-[10px] font-bold text-slate-600 dark:text-dark-mute">{action.label}</span>
+                <span className="text-[10px] font-bold text-muted-foreground">{action.label}</span>
               </Link>
             );
           })}

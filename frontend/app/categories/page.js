@@ -125,9 +125,7 @@ function CategoriesManager() {
 
   if (!user) {
     return (
-      <div className="max-w-2xl mx-auto text-center py-20">
-        <p className="text-sm text-muted-foreground">Sign in to manage categories.</p>
-      </div>
+      <main className="bg-background min-h-screen"><Navigation /><div className="pt-32 max-w-2xl mx-auto text-center py-20"><p className="text-sm text-muted-foreground">Sign in to manage categories.</p></div><FooterSection /></main>
     );
   }
 

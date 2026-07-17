@@ -206,3 +206,8 @@
 * {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Bottom safe area for mobile nav */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

@@ -1,3 +1,7 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../components/AuthContext';
 import { Navigation } from "../components/landing/navigation";
 import { HeroSection } from "../components/landing/hero-section";
 import { FeaturesSection } from "../components/landing/features-section";
@@ -13,6 +17,20 @@ import { CtaSection } from "../components/landing/cta-section";
 import { FooterSection } from "../components/landing/footer-section";
 
 export default function Home() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  // Don't flash landing content or wrong nav while checking auth
+  if (loading) {
+    return <main className="relative min-h-screen bg-background" />;
+  }
+
+  // Redirect logged-in users to dashboard
+  if (user) {
+    router.replace('/dashboard');
+    return <main className="relative min-h-screen bg-background" />;
+  }
+
   return (
     <main className="relative min-h-screen overflow-x-hidden">
       <Navigation />

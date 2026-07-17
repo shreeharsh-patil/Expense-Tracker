@@ -172,7 +172,7 @@ function ReportsContent() {
               </div>
 
               <div className="border border-foreground/20 bg-foreground/[0.04] hover:bg-foreground/[0.06] p-6 flex items-center justify-between group cursor-pointer transition-all duration-300 active:scale-[0.98]"
-                onClick={() => window.location = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/expenses/export`}>
+                onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/expenses/export`}>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>

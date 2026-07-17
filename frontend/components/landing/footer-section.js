@@ -2,6 +2,7 @@
 
 import { ArrowUpRight } from 'lucide-react';
 import { useEffect, useRef } from 'react';
+import { useAuth } from '../AuthContext';
 
 const footerLinks = {
   Product: [
@@ -36,6 +37,12 @@ const socialLinks = [
 ];
 
 export function FooterSection() {
+  const { user, loading } = useAuth();
+
+  // Hide footer entirely when user is logged in
+  if (loading) return null;
+  if (user) return null;
+
   return (
     <footer className="relative bg-black">
       {/* Panoramic banner image */}
