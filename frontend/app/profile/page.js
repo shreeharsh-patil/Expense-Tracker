@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useAuth, api } from '../../components/AuthContext';
 import { Navigation } from '../../components/landing/navigation';
 import { FooterSection } from '../../components/landing/footer-section';
-import { User, Mail, Phone, Save, Lock, Shield } from 'lucide-react';
+import { User, Mail, Phone, Save, Lock, Shield, LogOut } from 'lucide-react';
 
 function ProfileSettings() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -185,6 +185,14 @@ function ProfileSettings() {
               <Shield className="w-[18px] h-[18px]" />
               Privacy Policy
             </Link>
+          </div>
+
+          <div className="md:hidden mt-8 flex justify-center">
+            <button onClick={logout}
+              className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-red-500 hover:text-red-400 border border-red-500/20 hover:border-red-500/40 rounded-full transition-all cursor-pointer">
+              <LogOut className="w-[18px] h-[18px]" />
+              Log Out
+            </button>
           </div>
         </div>
       </div>
