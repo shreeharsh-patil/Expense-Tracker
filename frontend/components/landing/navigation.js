@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useAuth } from '../AuthContext';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
 
 const navLinks = [
   { name: 'Features',     href: '#features'      },
@@ -12,6 +14,7 @@ const navLinks = [
 ];
 
 export function Navigation() {
+  const { user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -65,16 +68,38 @@ export function Navigation() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <a href="/login" className={`transition-all duration-500 ${isScrolled ? 'text-xs text-foreground/70 hover:text-foreground' : 'text-sm text-white/70 hover:text-white'}`}>
-              Sign in
-            </a>
-            <Button
-              size="sm"
-              className={`rounded-full transition-all duration-500 ${isScrolled ? 'bg-foreground hover:bg-foreground/90 text-background px-4 h-8 text-xs' : 'bg-white hover:bg-white/90 text-black px-6'}`}
-              asChild
-            >
-              <a href="/register">Get started free</a>
-            </Button>
+            {user ? (
+              <>
+                <Link href="/dashboard" className={`transition-all duration-500 ${isScrolled ? 'text-xs text-foreground/70 hover:text-foreground' : 'text-sm text-white/70 hover:text-white'}`}>
+                  Dashboard
+                </Link>
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full border border-foreground/20 flex items-center justify-center text-[10px] font-medium bg-foreground/5">
+                    {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : <User className="w-3.5 h-3.5" />}
+                  </div>
+                  <button
+                    onClick={logout}
+                    className={`transition-all duration-500 cursor-pointer ${isScrolled ? 'text-foreground/50 hover:text-foreground' : 'text-white/50 hover:text-white'}`}
+                    title="Sign out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <a href="/login" className={`transition-all duration-500 ${isScrolled ? 'text-xs text-foreground/70 hover:text-foreground' : 'text-sm text-white/70 hover:text-white'}`}>
+                  Sign in
+                </a>
+                <Button
+                  size="sm"
+                  className={`rounded-full transition-all duration-500 ${isScrolled ? 'bg-foreground hover:bg-foreground/90 text-background px-4 h-8 text-xs' : 'bg-white hover:bg-white/90 text-black px-6'}`}
+                  asChild
+                >
+                  <a href="/register">Get started free</a>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -122,27 +147,47 @@ export function Navigation() {
           </div>
           
           <div className={`flex gap-4 pt-8 border-t border-foreground/10 transition-all duration-500 ${
-            isMobileMenuOpen 
-              ? 'opacity-100 translate-y-0' 
+            isMobileMenuOpen
+              ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4'
           }`}
           style={{ transitionDelay: isMobileMenuOpen ? '300ms' : '0ms' }}
           >
-            <Button 
-              variant="outline" 
-              className="flex-1 rounded-full h-14 text-base"
-              onClick={() => setIsMobileMenuOpen(false)}
-              asChild
-            >
-              <a href="/login">Sign in</a>
-            </Button>
-            <Button 
-              className="flex-1 bg-foreground text-background rounded-full h-14 text-base"
-              onClick={() => setIsMobileMenuOpen(false)}
-              asChild
-            >
-              <a href="/register">Get started</a>
-            </Button>
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="flex-1 rounded-full h-14 text-base border border-foreground/20 flex items-center justify-center text-sm font-medium hover:bg-foreground/5 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => { setIsMobileMenuOpen(false); logout(); }}
+                  className="flex-1 bg-red-500/10 text-red-500 rounded-full h-14 text-base flex items-center justify-center gap-2 font-medium hover:bg-red-500/20 transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" /> Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="flex-1 rounded-full h-14 text-base"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  asChild
+                >
+                  <a href="/login">Sign in</a>
+                </Button>
+                <Button
+                  className="flex-1 bg-foreground text-background rounded-full h-14 text-base"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  asChild
+                >
+                  <a href="/register">Get started</a>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
