@@ -33,13 +33,6 @@ export default function StatusPage() {
 
       <div className="pt-32 pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto">
         <div className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <span className="flex items-center gap-2 px-3 py-1 bg-[#eca8d6]/10 text-[#eca8d6] text-xs font-mono">
-              <span className="w-2 h-2 rounded-full bg-[#eca8d6] animate-pulse" />
-              ALL SYSTEMS OPERATIONAL
-            </span>
-          </div>
           
           <h1 className="text-6xl md:text-7xl lg:text-[100px] font-display tracking-tight leading-[0.9] mb-8">
             System
