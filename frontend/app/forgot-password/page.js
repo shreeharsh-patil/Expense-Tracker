@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="max-w-[420px] w-full">
             <div className="text-center mb-10">
-              <div className="w-14 h-14 mx-auto border border-foreground/10 flex items-center justify-center mb-5">
+              <div className="w-14 h-14 mx-auto border border-foreground/10 rounded-xl flex items-center justify-center mb-5">
                 <Mail className="w-7 h-7 text-muted-foreground" />
               </div>
               <h1 className="text-3xl font-display tracking-tight mb-2">Forgot password?</h1>
@@ -50,9 +50,9 @@ export default function ForgotPasswordPage() {
               </p>
             </div>
 
-            <div className="border border-foreground/10 bg-foreground/[0.02] p-8 md:p-10">
+            <div className="border border-foreground/10 bg-foreground/[0.02] p-8 md:p-10 rounded-2xl">
               {error && (
-                <div className="mb-4 p-3 border border-foreground/10 text-muted-foreground text-xs font-medium text-center">
+                <div className="mb-4 p-3 border border-foreground/10 text-muted-foreground text-xs font-medium text-center rounded-xl">
                   {error}
                 </div>
               )}
@@ -64,13 +64,13 @@ export default function ForgotPasswordPage() {
                       Email Address
                     </label>
                     <div className="relative">
-                      <Mail className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+                      <Mail className="text-muted-foreground w-[18px] h-[18px] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                       <input
                         id="reset-email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                        className="w-full bg-foreground/[0.02] border border-foreground/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-foreground/30 focus:bg-foreground/[0.04] transition-all text-sm text-foreground"
                         placeholder="email@address.com"
                         required
                         autoFocus

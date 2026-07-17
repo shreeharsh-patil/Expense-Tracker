@@ -76,7 +76,7 @@ export default function ResetPasswordPage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="max-w-[420px] w-full">
             <div className="text-center mb-10">
-              <div className="w-14 h-14 mx-auto border border-foreground/10 flex items-center justify-center mb-5">
+              <div className="w-14 h-14 mx-auto border border-foreground/10 rounded-xl flex items-center justify-center mb-5">
                 <ShieldCheck className="w-7 h-7 text-muted-foreground" />
               </div>
               <h1 className="text-3xl font-display tracking-tight mb-2">
@@ -89,9 +89,9 @@ export default function ResetPasswordPage() {
               </p>
             </div>
 
-            <div className="border border-foreground/10 bg-foreground/[0.02] p-8 md:p-10">
+            <div className="border border-foreground/10 bg-foreground/[0.02] p-8 md:p-10 rounded-2xl">
               {error && (
-                <div className="mb-6 p-3 border border-foreground/10 text-muted-foreground text-xs font-medium text-center">
+                <div className="mb-6 p-3 border border-foreground/10 text-muted-foreground text-xs font-medium text-center rounded-xl">
                   {error}
                 </div>
               )}
@@ -119,13 +119,13 @@ export default function ResetPasswordPage() {
                       New Passphrase
                     </label>
                     <div className="relative">
-                      <Key className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+                      <Key className="text-muted-foreground w-[18px] h-[18px] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                       <input
                         id="reset-password"
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 pr-8 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                        className="w-full bg-foreground/[0.02] border border-foreground/10 rounded-xl py-3 pl-10 pr-10 outline-none focus:border-foreground/30 focus:bg-foreground/[0.04] transition-all text-sm text-foreground"
                         placeholder="Min. 6 characters"
                         autoComplete="new-password"
                         minLength={6}
@@ -135,7 +135,7 @@ export default function ResetPasswordPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="text-muted-foreground hover:text-foreground transition-colors absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
+                        className="text-muted-foreground hover:text-foreground transition-colors absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
                         aria-label="Toggle password visibility"
                       >
                         {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
@@ -156,13 +156,13 @@ export default function ResetPasswordPage() {
                       Confirm Passphrase
                     </label>
                     <div className="relative">
-                      <ShieldCheck className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+                      <ShieldCheck className="text-muted-foreground w-[18px] h-[18px] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                       <input
                         id="reset-confirm"
                         type={showConfirm ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 pr-8 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                        className="w-full bg-foreground/[0.02] border border-foreground/10 rounded-xl py-3 pl-10 pr-10 outline-none focus:border-foreground/30 focus:bg-foreground/[0.04] transition-all text-sm text-foreground"
                         placeholder="Re-enter password"
                         autoComplete="new-password"
                         required
@@ -170,7 +170,7 @@ export default function ResetPasswordPage() {
                       <button
                         type="button"
                         onClick={() => setShowConfirm(!showConfirm)}
-                        className="text-muted-foreground hover:text-foreground transition-colors absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
+                        className="text-muted-foreground hover:text-foreground transition-colors absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
                         aria-label="Toggle confirm visibility"
                       >
                         {showConfirm ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}

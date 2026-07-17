@@ -134,16 +134,16 @@ function RegisterForm() {
   return (
     <div className="w-full max-w-[440px] mx-auto">
       <div className="text-center mb-10">
-        <div className="w-14 h-14 mx-auto border border-foreground/10 flex items-center justify-center mb-4">
+        <div className="w-14 h-14 mx-auto border border-foreground/10 rounded-xl flex items-center justify-center mb-4">
           <UserPlus className="w-7 h-7 text-muted-foreground" />
         </div>
         <h1 className="text-3xl font-display tracking-tight mb-2">Create your account</h1>
         <p className="text-sm text-muted-foreground">Join Spendly to start tracking your expenses smarter and simpler.</p>
       </div>
 
-      <div className="border border-foreground/10 bg-foreground/[0.02] p-8 md:p-10">
+      <div className="border border-foreground/10 bg-foreground/[0.02] p-8 md:p-10 rounded-2xl">
         {error && (
-          <div className="mb-6 p-3 border border-foreground/10 text-muted-foreground text-xs font-medium text-center">
+          <div className="mb-6 p-3 border border-foreground/10 text-muted-foreground text-xs font-medium text-center rounded-xl">
             {error}
           </div>
         )}
@@ -153,9 +153,9 @@ function RegisterForm() {
             <div className="space-y-2 group">
               <label htmlFor="name" className="block text-xs font-medium text-foreground/70 transition-colors group-focus-within:text-foreground">Full Name</label>
               <div className="relative">
-                <User className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+                <User className="text-muted-foreground w-[18px] h-[18px] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                 <input id="name" type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                  className="w-full bg-foreground/[0.02] border border-foreground/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-foreground/30 focus:bg-foreground/[0.04] transition-all text-sm text-foreground"
                   placeholder="Your full name" required autoFocus />
               </div>
             </div>
@@ -163,9 +163,9 @@ function RegisterForm() {
             <div className="space-y-2 group">
               <label htmlFor="reg-email" className="block text-xs font-medium text-foreground/70 transition-colors group-focus-within:text-foreground">Email Address</label>
               <div className="relative">
-                <Mail className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+                <Mail className="text-muted-foreground w-[18px] h-[18px] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                 <input id="reg-email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                  className="w-full bg-foreground/[0.02] border border-foreground/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-foreground/30 focus:bg-foreground/[0.04] transition-all text-sm text-foreground"
                   placeholder="email@address.com" required />
               </div>
             </div>
@@ -176,12 +176,12 @@ function RegisterForm() {
                 <span className="text-[10px] text-muted-foreground">{passwordStrength(formData.password).label}</span>
               </div>
               <div className="relative">
-                <Key className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+                <Key className="text-muted-foreground w-[18px] h-[18px] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                 <input id="reg-password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 pr-8 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                  className="w-full bg-foreground/[0.02] border border-foreground/10 rounded-xl py-3 pl-10 pr-10 outline-none focus:border-foreground/30 focus:bg-foreground/[0.04] transition-all text-sm text-foreground"
                   placeholder="Min. 6 characters" required minLength={6} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="text-muted-foreground hover:text-foreground transition-colors absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
+                  className="text-muted-foreground hover:text-foreground transition-colors absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
                   aria-label="Toggle password visibility">
                   {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
                 </button>
@@ -198,12 +198,12 @@ function RegisterForm() {
             <div className="space-y-2 group">
               <label htmlFor="reg-confirm-password" className="block text-xs font-medium text-foreground/70 transition-colors group-focus-within:text-foreground">Confirm Password</label>
               <div className="relative">
-                <Lock className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+                <Lock className="text-muted-foreground w-[18px] h-[18px] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                 <input id="reg-confirm-password" type={showConfirmPassword ? 'text' : 'password'} value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 pr-8 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                  className="w-full bg-foreground/[0.02] border border-foreground/10 rounded-xl py-3 pl-10 pr-10 outline-none focus:border-foreground/30 focus:bg-foreground/[0.04] transition-all text-sm text-foreground"
                   placeholder="Re-enter your password" required />
                 <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="text-muted-foreground hover:text-foreground transition-colors absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
+                  className="text-muted-foreground hover:text-foreground transition-colors absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
                   aria-label="Toggle password visibility">
                   {showConfirmPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
                 </button>
@@ -225,7 +225,7 @@ function RegisterForm() {
 
         {step === 2 && (
           <div className="text-center">
-            <div className="w-14 h-14 mx-auto border border-foreground/10 flex items-center justify-center mb-4">
+            <div className="w-14 h-14 mx-auto border border-foreground/10 rounded-xl flex items-center justify-center mb-4">
               <MailCheck className="w-7 h-7 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-display mb-2">Check your email</h3>
@@ -243,7 +243,7 @@ function RegisterForm() {
                       type="text" maxLength={1} value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                      className="w-9 sm:w-11 h-10 sm:h-12 text-center border border-foreground/10 outline-none focus:border-foreground/40 transition-all text-base sm:text-lg font-mono text-foreground bg-transparent"
+                      className="w-9 sm:w-11 h-10 sm:h-12 text-center border border-foreground/10 rounded-lg outline-none focus:border-foreground/30 transition-all text-base sm:text-lg font-mono text-foreground bg-foreground/[0.02]"
                       inputMode="numeric" pattern="[0-9]*" required autoFocus={index === 0} />
                   ))}
                 </div>

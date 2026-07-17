@@ -44,16 +44,16 @@ function LoginForm() {
   return (
     <div className="w-full max-w-[420px] mx-auto">
       <div className="text-center mb-10">
-        <div className="w-14 h-14 mx-auto border border-foreground/10 flex items-center justify-center mb-4">
+        <div className="w-14 h-14 mx-auto border border-foreground/10 rounded-xl flex items-center justify-center mb-4">
           <LogIn className="w-7 h-7 text-muted-foreground" />
         </div>
         <h1 className="text-3xl font-display tracking-tight mb-2">Welcome back</h1>
         <p className="text-sm text-muted-foreground">Sign in to your Spendly account to manage your expenses.</p>
       </div>
 
-      <div className="border border-foreground/10 bg-foreground/[0.02] p-8 md:p-10">
+      <div className="border border-foreground/10 bg-foreground/[0.02] p-8 md:p-10 rounded-2xl">
         {error && (
-          <div className="mb-6 p-3 border border-foreground/10 text-muted-foreground text-xs font-medium text-center">
+          <div className="mb-6 p-3 border border-foreground/10 text-muted-foreground text-xs font-medium text-center rounded-xl">
             {error}
           </div>
         )}
@@ -61,7 +61,7 @@ function LoginForm() {
         <div className="space-y-3">
           <button
             onClick={() => handleOAuthLogin('google')}
-            className="w-full flex items-center justify-center gap-3 border border-foreground/10 py-2.5 px-4 text-sm font-medium hover:bg-foreground/[0.02] transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center gap-3 border border-foreground/10 rounded-xl py-2.5 px-4 text-sm font-medium hover:bg-foreground/[0.02] transition-colors cursor-pointer"
           >
             <svg className="shrink-0" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -73,7 +73,7 @@ function LoginForm() {
           </button>
           <button
             onClick={() => handleOAuthLogin('github')}
-            className="w-full flex items-center justify-center gap-3 border border-foreground/10 py-2.5 px-4 text-sm font-medium hover:bg-foreground/[0.02] transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center gap-3 border border-foreground/10 rounded-xl py-2.5 px-4 text-sm font-medium hover:bg-foreground/[0.02] transition-colors cursor-pointer"
           >
             <svg className="shrink-0" viewBox="0 0 98 96" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
               <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z" />
@@ -94,13 +94,13 @@ function LoginForm() {
               Email Address
             </label>
             <div className="relative">
-              <Mail className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+              <Mail className="text-muted-foreground w-[18px] h-[18px] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
               <input
                 id="login-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                className="w-full bg-foreground/[0.02] border border-foreground/10 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-foreground/30 focus:bg-foreground/[0.04] transition-all text-sm text-foreground"
                 placeholder="email@address.com"
                 autoComplete="email"
                 required
@@ -119,13 +119,13 @@ function LoginForm() {
               </Link>
             </div>
             <div className="relative">
-              <Key className="text-muted-foreground w-[18px] h-[18px] absolute left-0 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+              <Key className="text-muted-foreground w-[18px] h-[18px] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
               <input
                 id="login-password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-b border-foreground/10 py-3 pl-7 pr-8 outline-none focus:border-foreground/40 transition-all text-sm text-foreground"
+                className="w-full bg-foreground/[0.02] border border-foreground/10 rounded-xl py-3 pl-10 pr-10 outline-none focus:border-foreground/30 focus:bg-foreground/[0.04] transition-all text-sm text-foreground"
                 placeholder="Enter your password"
                 autoComplete="current-password"
                 required
@@ -133,7 +133,7 @@ function LoginForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-muted-foreground hover:text-foreground transition-colors absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
+                className="text-muted-foreground hover:text-foreground transition-colors absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-1 cursor-pointer"
                 aria-label="Toggle password visibility"
               >
                 {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}

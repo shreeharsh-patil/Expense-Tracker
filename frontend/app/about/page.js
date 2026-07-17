@@ -8,7 +8,8 @@ export default function AboutPage() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setIsVisible(true);
+    const timer = setTimeout(() => setIsVisible(true), 50);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -18,8 +19,9 @@ export default function AboutPage() {
       <div className="pt-32 pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto">
         <div className={`max-w-3xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {/* Logo */}
-          <div className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-[#eca8d6]/20 to-[#a78bfa]/20 border border-foreground/10 flex items-center justify-center">
-            <span className="text-3xl font-display text-foreground">S</span>
+          <div className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-[#eca8d6]/20 to-[#a78bfa]/20 border border-foreground/10 flex items-center justify-center p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/favicon.svg" alt="Spendly Logo" className="w-full h-full object-contain" />
           </div>
 
           <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
