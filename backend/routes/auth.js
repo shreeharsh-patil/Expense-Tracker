@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const axios = require('axios');
 const { User, EmailOtp } = require('../models');
 const {
     is_rate_limited, record_login_attempt,
     generate_reset_token, verify_reset_token, consume_reset_token,
-    generate_otp, get_otp_remaining_cooldown
+    generate_otp, get_otp_remaining_cooldown,
+    cache_get, cache_set
 } = require('../src/helpers');
 const {
     send_otp_email, send_signin_confirmation, send_password_reset_email
@@ -429,7 +430,7 @@ router.post('/login', async (req, res, next) => {
             return res.status(429).render('login.html');
         }
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).lean();
         if (user && user.password_hash && await bcrypt.compare(password, user.password_hash)) {
             req.session.user_id = user._id.toString();
             req.session.user_name = user.name;
@@ -534,12 +535,19 @@ router.get('/api/auth/me', async (req, res) => {
     if (!req.session.user_id) {
         return res.json({ user: null });
     }
+
+    const cacheKey = `auth_me:${req.session.user_id}`;
+    const cached = cache_get(cacheKey, 5); // 5-second cache
+    if (cached) {
+        return res.json(cached);
+    }
+
     try {
-        const user = await User.findById(req.session.user_id);
+        const user = await User.findById(req.session.user_id).lean();
         if (!user) {
             return res.json({ user: null });
         }
-        res.json({
+        const result = {
             user: {
                 id: user._id.toString(),
                 name: user.name,
@@ -547,7 +555,9 @@ router.get('/api/auth/me', async (req, res) => {
                 avatar_url: user.avatar_url || '',
                 oauth_provider: user.oauth_provider || ''
             }
-        });
+        };
+        cache_set(cacheKey, result);
+        res.json(result);
     } catch (err) {
         res.json({ user: null });
     }
@@ -567,19 +577,13 @@ router.post('/api/auth/login', async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).lean();
         if (user && user.password_hash && await bcrypt.compare(password, user.password_hash)) {
             req.session.user_id = user._id.toString();
             req.session.user_name = user.name;
 
-            const now_str = formatCurrentTime();
-            const ip_addr = req.ip || 'Unknown';
-            send_signin_confirmation(email, user.name, now_str, ip_addr, 'email').catch(err => {
-                console.error('Sign-in confirmation email failed:', err.message);
-            });
-
-            return res.json({
-                success: true,
+            // Pre-warm the auth/me cache so subsequent checkAuth returns instantly
+            const authMeResult = {
                 user: {
                     id: user._id.toString(),
                     name: user.name,
@@ -587,6 +591,19 @@ router.post('/api/auth/login', async (req, res) => {
                     avatar_url: user.avatar_url || '',
                     oauth_provider: user.oauth_provider || ''
                 }
+            };
+            cache_set(`auth_me:${user._id.toString()}`, authMeResult);
+
+            const now_str = formatCurrentTime();
+            const ip_addr = req.ip || 'Unknown';
+            // Fire-and-forget email — don't delay the response
+            send_signin_confirmation(email, user.name, now_str, ip_addr, 'email').catch(err => {
+                console.error('Sign-in confirmation email failed:', err.message);
+            });
+
+            return res.json({
+                success: true,
+                user: authMeResult.user
             });
         }
         record_login_attempt(ip);

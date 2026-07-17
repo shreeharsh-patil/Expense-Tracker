@@ -10,24 +10,31 @@ export default function Header() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const [theme, setTheme] = useState('light');
-
-  // Hydrate theme from localStorage after mount (avoids hydration mismatch)
-  useEffect(() => {
-    const stored = localStorage.getItem('theme') ||
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTheme(stored);
-  }, []);
+  const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Initialize theme
+  // Hydrate theme from localStorage immediately on mount (before paint)
   useEffect(() => {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setTheme('dark');
+      document.documentElement.classList.add('dark');
+    } else {
+      setTheme('light');
+      document.documentElement.classList.remove('dark');
+    }
+    setMounted(true);
+  }, []);
+
+  // Keep in sync if theme state changes outside of mount
+  useEffect(() => {
+    if (!mounted) return;
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [theme]);
+  }, [theme, mounted]);
 
   // Close menu on Escape key
   useEffect(() => {
@@ -63,6 +70,27 @@ export default function Header() {
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
   };
+
+  // Don't render theme-dependent UI until mounted to avoid hydration mismatch
+  if (!mounted) {
+    // Render a placeholder header with same structure but no theme-dependent icons
+    return (
+      <header className="w-full sticky top-0 z-50 bg-white/70 dark:bg-dark-bg/75 backdrop-blur-md border-b border-slate-200/50 dark:border-dark-border/40 transition-all h-16 flex items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="flex items-center justify-between h-full">
+            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+              <span className="w-3 h-3 bg-gradient-to-tr from-primary to-primary-light rounded-full shadow-[0_0_10px_rgba(79,70,229,0.4)] transition-transform duration-300 group-hover:scale-125"></span>
+              <span className="font-sans font-bold text-lg tracking-tight text-slate-900 dark:text-white hover:text-transparent hover:bg-gradient-to-r hover:from-primary hover:to-primary-light transition-all duration-300">Spendly</span>
+            </Link>
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8" />
+              <div className="w-10 h-10" />
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   const navLinkClass = (path) => {
     const active = pathname === path;

@@ -62,7 +62,7 @@ export default function PricingPage() {
     <main className="relative min-h-screen overflow-x-hidden bg-background">
       <Navigation />
 
-      <section className="pt-32 pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto">
+      <section className="pt-32 pb-32 md:pb-24 px-4 sm:px-6 lg:px-12 max-w-[1400px] mx-auto has-bottom-nav">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">

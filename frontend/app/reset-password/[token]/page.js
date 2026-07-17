@@ -72,7 +72,7 @@ export default function ResetPasswordPage() {
     <main className="relative min-h-screen overflow-x-hidden bg-background">
       <Navigation />
 
-      <div className="pt-32 pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto">
+      <div className="pt-32 pb-32 md:pb-24 px-4 sm:px-6 lg:px-12 max-w-[1400px] mx-auto has-bottom-nav">
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="max-w-[420px] w-full">
             <div className="text-center mb-10">

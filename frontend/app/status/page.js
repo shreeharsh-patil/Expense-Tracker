@@ -28,10 +28,10 @@ export default function StatusPage() {
   }, []);
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden">
+    <main className="relative min-h-screen overflow-x-hidden bg-background">
       <Navigation />
 
-      <div className="pt-32 pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto">
+      <div className="pt-32 pb-32 md:pb-24 px-4 sm:px-6 lg:px-12 max-w-[1400px] mx-auto">
         <div className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           
           <h1 className="text-6xl md:text-7xl lg:text-[100px] font-display tracking-tight leading-[0.9] mb-8">

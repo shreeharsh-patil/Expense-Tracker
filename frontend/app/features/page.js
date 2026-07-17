@@ -125,7 +125,7 @@ export default function FeaturesPage() {
       <Navigation />
 
       {/* ─── Hero Section ─── */}
-      <section className="relative pt-32 pb-16 px-6 lg:px-12 max-w-[1400px] mx-auto overflow-hidden">
+      <section className="relative pt-32 pb-16 px-4 sm:px-6 lg:px-12 max-w-[1400px] mx-auto overflow-hidden">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-6">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">

@@ -30,7 +30,7 @@ mongoose.connect(MONGODB_URI)
 // Seeding function matching Flask seed-db command
 async function seed_db() {
     const { User, Expense } = require('../models');
-    const bcrypt = require('bcryptjs');
+    const bcrypt = require('bcrypt');
 
     try {
         const password_hash = await bcrypt.hash('demo123', 10);

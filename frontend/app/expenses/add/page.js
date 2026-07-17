@@ -64,7 +64,7 @@ function AddExpenseForm() {
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-background">
       <Navigation />
-      <div className="pt-32 pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto">
+      <div className="pt-32 pb-32 md:pb-24 px-4 sm:px-6 lg:px-12 max-w-[1400px] mx-auto has-bottom-nav">
         <div className="max-w-2xl mx-auto">
           <div className="mb-10">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">

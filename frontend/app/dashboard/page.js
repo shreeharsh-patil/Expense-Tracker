@@ -63,24 +63,24 @@ function DashboardContent() {
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-background">
       <Navigation />
-      <div className="pt-32 pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto">
+      <div className="pt-32 pb-32 md:pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto has-bottom-nav">
         <div className="max-w-7xl mx-auto">
           {/* Top Stats Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div className="border border-foreground/10 bg-foreground/[0.02] p-8 flex flex-col justify-between relative overflow-hidden md:col-span-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-10">
+            <div className="border border-foreground/10 bg-foreground/[0.02] p-6 md:p-8 flex flex-col justify-between relative overflow-hidden md:col-span-1">
               <div className="relative z-10">
                 <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">OPERATIONAL CONSOLE</p>
                 <h1 className="text-2xl md:text-3xl font-display tracking-tight">Welcome, {user?.name || 'User'}</h1>
                 <p className="text-xs md:text-sm text-muted-foreground mt-2 max-w-[320px]">Your financial ledger is synchronized and active for the current fiscal period.</p>
               </div>
-              <div className="mt-8 flex gap-3 relative z-10">
-                <Link href="/expenses/add" className="flex-1 md:flex-none px-3 md:px-6 py-3 md:py-2.5 text-xs font-medium bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all flex items-center justify-center gap-2">
+              <div className="mt-6 md:mt-8 flex flex-wrap gap-2 md:gap-3 relative z-10">
+                <Link href="/expenses/add" className="flex-1 md:flex-none px-3 md:px-6 py-3 md:py-2.5 text-xs font-medium bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap">
                   <Plus className="w-[18px] h-[18px]" /><span className="hidden sm:inline">Record</span> Entry
                 </Link>
-                <Link href="/income/add" className="flex-1 md:flex-none px-3 md:px-6 py-3 md:py-2.5 text-xs font-medium border border-foreground/20 hover:border-foreground/40 rounded-full transition-all flex items-center justify-center gap-2">
+                <Link href="/income/add" className="flex-1 md:flex-none px-3 md:px-6 py-3 md:py-2.5 text-xs font-medium border border-foreground/20 hover:border-foreground/40 rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap">
                   <TrendingUp className="w-[18px] h-[18px]" /><span className="hidden sm:inline">Record</span> Income
                 </Link>
-                <Link href="/receipt/scan" className="hidden sm:flex px-6 py-2.5 text-xs font-medium border border-foreground/20 hover:border-foreground/40 rounded-full transition-all items-center gap-2">
+                <Link href="/receipt/scan" className="hidden sm:flex px-6 py-2.5 text-xs font-medium border border-foreground/20 hover:border-foreground/40 rounded-full transition-all items-center gap-2 whitespace-nowrap">
                   <Receipt className="w-[18px] h-[18px]" />Digitize
                 </Link>
               </div>
@@ -112,7 +112,7 @@ function DashboardContent() {
               </div>
             </div>
 
-            <div className="border border-foreground/10 bg-foreground/[0.02] p-8 flex flex-col justify-between hover:border-foreground/30 transition-all">
+            <div className="border border-foreground/10 bg-foreground/[0.02] p-6 md:p-8 flex flex-col justify-between hover:border-foreground/30 transition-all">
               <div>
                 <div className="flex justify-between items-start">
                   <div>
@@ -140,7 +140,7 @@ function DashboardContent() {
             {/* Left Column - Expenses Table */}
             <div className="lg:col-span-8 space-y-6">
               {/* Quick actions bar */}
-              <div className="border border-foreground/10 bg-foreground/[0.02] p-4 flex flex-wrap items-center gap-4">
+              <div className="border border-foreground/10 bg-foreground/[0.02] p-3 md:p-4 flex flex-wrap items-center gap-4">
                 <div className="flex gap-2 items-center flex-1">
                   <div className="relative flex-1 max-w-sm group">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-[18px] h-[18px]" />

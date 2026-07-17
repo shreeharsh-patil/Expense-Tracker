@@ -349,7 +349,7 @@ export default function ScanReceiptPage() {
   return (
     <main className={`relative min-h-screen overflow-x-hidden bg-background transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <Navigation />
-      <div className="pt-28 pb-12">
+      <div className="pt-28 pb-16 md:pb-12 has-bottom-nav">
         <ScanReceiptForm />
       </div>
       <FooterSection />

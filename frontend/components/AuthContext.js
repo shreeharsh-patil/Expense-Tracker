@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -50,6 +50,13 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+  const initialCheckDone = useRef(false);
+
+  // Public auth pages where initial auth check is unnecessary
+  const isPublicAuthPage = ['/login', '/register', '/forgot-password'].some(
+    (path) => pathname === path || pathname.startsWith('/reset-password/')
+  );
 
   const checkAuth = useCallback(async () => {
     try {
@@ -67,11 +74,24 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Check auth status on mount
+  // Check auth status only once on mount — skip for public auth pages
+  // Skip if user was already set (e.g. after login/register) to avoid redundant API calls
   useEffect(() => {
+    if (isPublicAuthPage) {
+      setLoading(false);
+      return;
+    }
+    if (initialCheckDone.current) {
+      return;
+    }
+    initialCheckDone.current = true;
+    if (user) {
+      setLoading(false);
+      return;
+    }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     checkAuth();
-  }, [checkAuth]);
+  }, [checkAuth, isPublicAuthPage, user]);
 
   const login = async (email, password) => {
     try {

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Webhooks | Spendly{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl md:text-3xl text-slate-900 dark:text-white font-extrabold tracking-tight mb-1">Webhooks</h1>
+      <p class="text-sm text-slate-500 dark:text-dark-mute">Receive real-time expense notifications via HTTP callbacks.</p>
+    </div>
+  </div>
+
+  <!-- Add Webhook Form -->
+  <div class="card-apple p-6 mb-8">
+    <form method="POST" action="/webhooks/add" class="space-y-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Webhook Name</label>
+          <input type="text" name="name" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 outline-none focus:border-primary text-sm text-slate-900 dark:text-white" placeholder="e.g. Slack Notifier" required>
+        </div>
+        <div>
+          <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">URL</label>
+          <input type="url" name="url" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 outline-none focus:border-primary text-sm text-slate-900 dark:text-white font-mono" placeholder="https://hooks.example.com/..." required>
+        </div>
+      </div>
+      <div>
+        <label class="block text-[10px] font-mono font-bold text-slate-500 dark:text-dark-mute uppercase tracking-widest mb-2">Events</label>
+        <select name="events" class="w-full bg-transparent border-b border-slate-200 dark:border-dark-border py-2 outline-none focus:border-primary text-sm text-slate-800 dark:text-white">
+          <option value="expense.created">expense.created</option>
+          <option value="expense.updated">expense.updated</option>
+          <option value="expense.deleted">expense.deleted</option>
+          <option value="expense.created,expense.updated,expense.deleted">All Events</option>
+        </select>
+      </div>
+      <div class="pt-2">
+        <button type="submit" class="btn-primary px-6 py-2.5 text-xs font-bold">
+          {{ icon('add', 'text-[18px]') }}
+          Create Webhook
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Webhooks List -->
+  {% if webhooks|length > 0 %}
+  <div class="card-apple overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="text-[10px] font-mono text-slate-500 dark:text-dark-mute uppercase tracking-widest border-b border-slate-200 dark:border-dark-border">
+            <th class="px-6 py-4 font-medium">Name</th>
+            <th class="px-6 py-4 font-medium">URL</th>
+            <th class="px-6 py-4 font-medium">Events</th>
+            <th class="px-6 py-4 font-medium text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-dark-border">
+          {% for hook in webhooks %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+            <td class="px-6 py-4">
+              <span class="text-sm font-semibold text-slate-900 dark:text-white">{{ hook.name }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-xs font-mono text-slate-500 dark:text-dark-mute truncate max-w-[200px] inline-block">{{ hook.url }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 text-[10px] font-mono bg-slate-100 dark:bg-white/5 rounded text-slate-600 dark:text-dark-mute">
+                {{ hook.events }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <form method="POST" action="/webhooks/{{ hook.id }}/delete" class="inline" onsubmit="return confirm('Delete this webhook?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="text-xs text-accent-red hover:underline font-semibold">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="card-apple p-12 text-center">
+    <div class="w-16 h-16 mx-auto bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
+      {{ icon('webhook', 'text-2xl text-slate-400 dark:text-dark-mute') }}
+    </div>
+    <p class="text-sm font-semibold text-slate-500 dark:text-dark-mute mb-1">No Webhooks Configured</p>
+    <p class="text-xs text-slate-400 dark:text-dark-mute">Create your first webhook to receive real-time expense notifications.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

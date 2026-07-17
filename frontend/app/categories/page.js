@@ -132,7 +132,7 @@ function CategoriesManager() {
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-background">
       <Navigation />
-      <div className="pt-32 pb-24 px-6 lg:px-12 max-w-[1400px] mx-auto">
+      <div className="pt-32 pb-32 md:pb-24 px-4 sm:px-6 lg:px-12 max-w-[1400px] mx-auto has-bottom-nav">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-10">
             <div>

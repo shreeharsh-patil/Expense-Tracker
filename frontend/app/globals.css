@@ -5,6 +5,43 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --background: oklch(0.985 0.002 260);
+  --foreground: oklch(0.145 0.01 260);
+  --card: oklch(0.97 0.002 260);
+  --card-foreground: oklch(0.145 0.01 260);
+  --popover: oklch(0.985 0.002 260);
+  --popover-foreground: oklch(0.145 0.01 260);
+  --primary: oklch(0.145 0.01 260);
+  --primary-foreground: oklch(0.985 0.002 260);
+  --secondary: oklch(0.92 0.004 260);
+  --secondary-foreground: oklch(0.145 0.01 260);
+  --muted: oklch(0.95 0.003 260);
+  --muted-foreground: oklch(0.55 0.01 260);
+  --accent: oklch(0.92 0.004 260);
+  --accent-foreground: oklch(0.145 0.01 260);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0.002 260);
+  --border: oklch(0.88 0.005 260);
+  --input: oklch(0.75 0.01 260);
+  --ring: oklch(0.145 0.01 260);
+  --chart-1: oklch(0.6 0.1 260);
+  --chart-2: oklch(0.5 0.08 200);
+  --chart-3: oklch(0.5 0.07 30);
+  --chart-4: oklch(0.6 0.09 100);
+  --chart-5: oklch(0.5 0.06 330);
+  --radius: 0.25rem;
+  --sidebar: oklch(0.97 0.002 260);
+  --sidebar-foreground: oklch(0.145 0.01 260);
+  --sidebar-primary: oklch(0.145 0.01 260);
+  --sidebar-primary-foreground: oklch(0.985 0.002 260);
+  --sidebar-accent: oklch(0.92 0.004 260);
+  --sidebar-accent-foreground: oklch(0.145 0.01 260);
+  --sidebar-border: oklch(0.88 0.005 260);
+  --sidebar-ring: oklch(0.55 0.01 260);
+}
+
+/* Dark mode overrides - applied when `.dark` class is present on <html> */
+html.dark {
   --background: oklch(0.06 0.008 260);
   --foreground: oklch(0.94 0.005 90);
   --card: oklch(0.09 0.008 260);
@@ -29,7 +66,6 @@
   --chart-3: oklch(0.52 0.015 90);
   --chart-4: oklch(0.35 0.01 90);
   --chart-5: oklch(0.20 0.008 90);
-  --radius: 0.25rem;
   --sidebar: oklch(0.06 0.008 260);
   --sidebar-foreground: oklch(0.94 0.005 90);
   --sidebar-primary: oklch(0.94 0.005 90);
@@ -210,4 +246,40 @@
 /* Bottom safe area for mobile nav */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Theme transition - smooth color/border/background changes on html and body */
+html, body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Mobile bottom nav offset - ensures content isn't hidden behind the fixed bottom nav */
+@media (max-width: 767px) {
+  .has-bottom-nav {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Ensure interactive elements are accessible on mobile (min 44px touch target) */
+@media (max-width: 767px) {
+  .mobile-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent horizontal overflow on small screens */
+  .mobile-no-overflow {
+    overflow-x: hidden;
+  }
+  
+  /* Full-width form content on mobile */
+  .mobile-form-full {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+}
+
+/* Prevent text size adjustment on orientation change */
+html {
+  -webkit-text-size-adjust: 100%;
 }
