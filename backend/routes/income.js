@@ -187,4 +187,36 @@ router.post('/income/:id/delete', async (req, res, next) => {
     }
 });
 
+router.post('/api/income', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+
+    const [valid, result] = validate_amount(req.body.amount);
+    if (!valid) {
+        return res.status(400).json({ error: result });
+    }
+
+    const amount = result;
+    const source = req.body.source || 'Other';
+    const description = req.body.description || '';
+    const date = req.body.date;
+    const currency = req.body.currency;
+    const account_id = req.body.account_id && mongoose.isValidObjectId(req.body.account_id) ? req.body.account_id : null;
+
+    if (!is_valid_date(date)) {
+        return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD.' });
+    }
+
+    try {
+        const newIncome = new Income({ user_id, amount, source, description, date, currency, account_id });
+        await newIncome.save();
+        cache_clear_user(user_id);
+        return res.json({ success: true, id: newIncome._id.toString() });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

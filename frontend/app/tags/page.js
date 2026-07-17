@@ -36,7 +36,7 @@ function TagsManager() {
     if (!newName.trim()) return;
     setError('');
     try {
-      await api.post('/tags/add', { name: newName.trim(), color: newColor });
+      await api.post('/api/tags', { name: newName.trim(), color: newColor });
       setNewName('');
       setNewColor('#6366f1');
       loadTags();
@@ -47,7 +47,7 @@ function TagsManager() {
 
   const handleDelete = async (id) => {
     try {
-      await api.post(`/tags/${id}/delete`);
+      await api.delete(`/api/tags/${id}`);
       loadTags();
     } catch (err) {
       setError('Failed to delete tag');

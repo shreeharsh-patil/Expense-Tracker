@@ -21,6 +21,45 @@ const ICON_OPTIONS = [
 
 const DEFAULT_CATEGORIES = ['Food', 'Transport', 'Shopping', 'Bills', 'Entertainment', 'Health', 'Other'];
 
+function EditForm({ cat, onCancel, onEdit }) {
+  const [name, setName] = useState(cat.name);
+  const [icon, setIcon] = useState(cat.icon || 'category');
+  const [color, setColor] = useState(cat.color || '#6366f1');
+
+  return (
+    <form
+      onSubmit={(e) => { e.preventDefault(); onEdit(cat.id, { name: name.trim(), icon, color }); }}
+      className="flex flex-wrap items-end gap-3"
+    >
+      <div className="flex-1 min-w-[160px]">
+        <label className="block text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Name</label>
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)}
+          className="w-full bg-transparent border border-foreground/10 px-4 py-2 text-sm text-foreground outline-none focus:border-foreground/40 transition-all" required />
+      </div>
+      <div className="w-24">
+        <label className="block text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Icon</label>
+        <select value={icon} onChange={(e) => setIcon(e.target.value)}
+          className="w-full bg-transparent border border-foreground/10 px-3 py-2 text-sm text-foreground outline-none focus:border-foreground/40 transition-all appearance-none cursor-pointer">
+          {ICON_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
+      <div className="w-20">
+        <label className="block text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Color</label>
+        <input type="color" value={color} onChange={(e) => setColor(e.target.value)}
+          className="w-full h-[38px] border border-foreground/10 cursor-pointer bg-transparent" />
+      </div>
+      <div className="flex gap-2">
+        <button type="submit" className="px-4 py-2 text-[11px] font-medium bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all cursor-pointer">
+          <Save className="w-3.5 h-3.5 inline-block mr-1" />Save
+        </button>
+        <button type="button" onClick={onCancel} className="px-4 py-2 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-all cursor-pointer">
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function CategoriesManager() {
   const { user } = useAuth();
   const [categories, setCategories] = useState([]);
@@ -55,7 +94,7 @@ function CategoriesManager() {
     }
     setError('');
     try {
-      await api.post('/categories/add', { name: newName.trim(), icon: newIcon, color: newColor });
+      await api.post('/api/categories', { name: newName.trim(), icon: newIcon, color: newColor });
       setNewName('');
       setNewIcon('category');
       setNewColor('#6366f1');
@@ -67,7 +106,7 @@ function CategoriesManager() {
 
   const handleEdit = async (id, data) => {
     try {
-      await api.post(`/categories/${id}/edit`, data);
+      await api.put(`/api/categories/${id}`, data);
       setEditId(null);
       loadCategories();
     } catch (err) {
@@ -77,7 +116,7 @@ function CategoriesManager() {
 
   const handleDelete = async (id) => {
     try {
-      await api.post(`/categories/${id}/delete`);
+      await api.delete(`/api/categories/${id}`);
       loadCategories();
     } catch (err) {
       setError('Failed to delete category');
@@ -91,45 +130,6 @@ function CategoriesManager() {
       </div>
     );
   }
-
-  const EditForm = ({ cat, onCancel }) => {
-    const [name, setName] = useState(cat.name);
-    const [icon, setIcon] = useState(cat.icon || 'category');
-    const [color, setColor] = useState(cat.color || '#6366f1');
-
-    return (
-      <form
-        onSubmit={(e) => { e.preventDefault(); handleEdit(cat.id, { name: name.trim(), icon, color }); }}
-        className="flex flex-wrap items-end gap-3"
-      >
-        <div className="flex-1 min-w-[160px]">
-          <label className="block text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Name</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-            className="w-full bg-transparent border border-foreground/10 px-4 py-2 text-sm text-foreground outline-none focus:border-foreground/40 transition-all" required />
-        </div>
-        <div className="w-24">
-          <label className="block text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Icon</label>
-          <select value={icon} onChange={(e) => setIcon(e.target.value)}
-            className="w-full bg-transparent border border-foreground/10 px-3 py-2 text-sm text-foreground outline-none focus:border-foreground/40 transition-all appearance-none cursor-pointer">
-            {ICON_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-        </div>
-        <div className="w-20">
-          <label className="block text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">Color</label>
-          <input type="color" value={color} onChange={(e) => setColor(e.target.value)}
-            className="w-full h-[38px] border border-foreground/10 cursor-pointer bg-transparent" />
-        </div>
-        <div className="flex gap-2">
-          <button type="submit" className="px-4 py-2 text-[11px] font-medium bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all cursor-pointer">
-            <Save className="w-3.5 h-3.5 inline-block mr-1" />Save
-          </button>
-          <button type="button" onClick={onCancel} className="px-4 py-2 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-all cursor-pointer">
-            Cancel
-          </button>
-        </div>
-      </form>
-    );
-  };
 
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-background">
@@ -207,7 +207,7 @@ function CategoriesManager() {
                     </div>
                     {editId === cat.id && (
                       <div className="px-4 pb-4 pt-0 bg-foreground/[0.01]">
-                        <EditForm cat={cat} onCancel={() => setEditId(null)} />
+                        <EditForm cat={cat} onCancel={() => setEditId(null)} onEdit={handleEdit} />
                       </div>
                     )}
                   </div>

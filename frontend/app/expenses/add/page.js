@@ -44,7 +44,7 @@ function AddExpenseForm() {
     if (!amount || parseFloat(amount) <= 0) { setError('Please enter a valid amount.'); return; }
     setLoading(true);
     try {
-      await api.post('/expenses/add', {
+      await api.post('/api/expenses', {
         amount: parseFloat(amount), category, description, payment_method: paymentMethod,
         date, currency, account_id: accountId || null, tag_ids: selectedTags,
       });

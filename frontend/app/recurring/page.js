@@ -43,7 +43,7 @@ function RecurringManager() {
       return;
     }
     try {
-      await api.post('/recurring/add', {
+      await api.post('/api/recurring', {
         amount: parseFloat(amount), category, payment_method: paymentMethod,
         description, day_of_month: dayOfMonth, currency,
       });
@@ -56,10 +56,9 @@ function RecurringManager() {
 
   const handleDelete = async (id) => {
     try {
-      await api.post(`/recurring/${id}/delete`);
+      await api.post(`/api/recurring/${id}/delete`);
       loadRecurring();
     } catch (err) { setError('Failed to delete recurring expense'); }
-    setAmount(''); setDescription('');
   };
 
   const totalMonthly = recurring.reduce((sum, r) => sum + (r.amount || 0), 0);

@@ -195,5 +195,73 @@ router.get('/api/rules', async (req, res) => {
     }
 });
 
+router.post('/api/rules', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const name = (req.body.name || '').trim();
+    const pattern = (req.body.pattern || '').trim();
+    const category = req.body.category || '';
+    let tag_ids = req.body.tag_ids || [];
+    if (!Array.isArray(tag_ids)) tag_ids = [tag_ids];
+    const tags_str = tag_ids.length > 0 ? tag_ids.join(',') : null;
+
+    if (!name || !pattern) {
+        return res.status(400).json({ error: 'Rule name and pattern are required.' });
+    }
+    if (pattern.length > 200) {
+        return res.status(400).json({ error: 'Pattern must be 200 characters or fewer.' });
+    }
+    try { new RegExp(pattern, 'i'); } catch (e) {
+        return res.status(400).json({ error: 'Invalid regex pattern.' });
+    }
+    if (/\(.[*+?]\)[+*?]/.test(pattern)) {
+        return res.status(400).json({ error: 'Pattern uses nested quantifiers.' });
+    }
+
+    try {
+        const newRule = new SmartRule({ user_id, name, pattern, category: category || null, tags: tags_str });
+        await newRule.save();
+        return res.json({ success: true, id: newRule._id.toString() });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/api/rules/:id/toggle', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(404).json({ error: 'Rule not found.' });
+    }
+    try {
+        const rule = await SmartRule.findOne({ _id: req.params.id, user_id: req.session.user_id });
+        if (rule) {
+            rule.is_active = !rule.is_active;
+            await rule.save();
+        }
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.delete('/api/rules/:id', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(404).json({ error: 'Rule not found.' });
+    }
+    try {
+        await SmartRule.deleteOne({ _id: req.params.id, user_id: req.session.user_id });
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
 module.exports.apply_smart_rules = apply_smart_rules;

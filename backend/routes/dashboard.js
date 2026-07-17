@@ -339,7 +339,8 @@ router.get('/dashboard', async (req, res, next) => {
                             send_weekly_summary(user.email, user.name, week_total, daily_avg, week_expenses.length, top_expenses)
                                 .catch(err => console.error("Async weekly summary error:", err));
                         }
-                    });
+                    })
+                    .catch(err => console.error("Async weekly expenses query error:", err));
             }
         }
 

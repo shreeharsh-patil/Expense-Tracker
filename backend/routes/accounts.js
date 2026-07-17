@@ -203,4 +203,93 @@ router.get('/api/accounts', async (req, res) => {
     }
 });
 
+router.post('/api/accounts', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const name = (req.body.name || '').trim();
+    let acc_type = req.body.type || 'bank';
+    const currency = req.body.currency || 'INR';
+
+    if (!name || name.length < 1) {
+        return res.status(400).json({ error: 'Account name is required.' });
+    }
+    if (!ACCOUNT_TYPES.includes(acc_type)) {
+        acc_type = 'bank';
+    }
+
+    try {
+        const newAcc = new Account({ user_id, name, type: acc_type, currency });
+        await newAcc.save();
+        return res.json({ success: true, id: newAcc._id.toString() });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.put('/api/accounts/:id', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const account_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(account_id)) {
+        return res.status(404).json({ error: 'Account not found.' });
+    }
+
+    const name = (req.body.name || '').trim();
+    let acc_type = req.body.type || 'bank';
+    const currency = req.body.currency || 'INR';
+    const is_active = !!req.body.is_active;
+
+    if (!name) {
+        return res.status(400).json({ error: 'Account name is required.' });
+    }
+    if (!ACCOUNT_TYPES.includes(acc_type)) {
+        acc_type = 'bank';
+    }
+
+    try {
+        const account = await Account.findOne({ _id: account_id, user_id });
+        if (!account) {
+            return res.status(404).json({ error: 'Account not found.' });
+        }
+        account.name = name;
+        account.type = acc_type;
+        account.currency = currency;
+        account.is_active = is_active;
+        await account.save();
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.delete('/api/accounts/:id', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const account_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(account_id)) {
+        return res.status(404).json({ error: 'Account not found.' });
+    }
+
+    try {
+        const account = await Account.findOne({ _id: account_id, user_id });
+        if (!account) {
+            return res.status(404).json({ error: 'Account not found.' });
+        }
+        await Expense.updateMany({ account_id, user_id }, { account_id: null });
+        await Income.updateMany({ account_id, user_id }, { account_id: null });
+        await Account.deleteOne({ _id: account_id, user_id });
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

@@ -123,6 +123,56 @@ router.get('/api/tags', async (req, res) => {
     }
 });
 
+router.post('/api/tags', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const name = (req.body.name || '').trim();
+    const color = req.body.color || '#6366f1';
+
+    if (!name) {
+        return res.status(400).json({ error: 'Tag name is required.' });
+    }
+    if (!is_valid_hex_color(color)) {
+        return res.status(400).json({ error: 'Invalid tag color.' });
+    }
+
+    try {
+        const newTag = new Tag({ user_id, name, color });
+        await newTag.save();
+        return res.json({ success: true, id: newTag._id.toString() });
+    } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({ error: `Tag "${name}" already exists.` });
+        }
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.delete('/api/tags/:id', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const tag_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(tag_id)) {
+        return res.status(404).json({ error: 'Tag not found.' });
+    }
+
+    try {
+        await Expense.updateMany(
+            { user_id: new mongoose.Types.ObjectId(user_id) },
+            { $pull: { tags: new mongoose.Types.ObjectId(tag_id) } }
+        );
+        await Tag.deleteOne({ _id: tag_id, user_id });
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 router.post('/tags/expense/:expense_id/set', async (req, res, next) => {
     if (!req.session.user_id) {
         return res.redirect('/login');

@@ -34,7 +34,7 @@ function AddIncomeForm() {
     if (!amount || parseFloat(amount) <= 0) { setError('Please enter a valid amount.'); return; }
     setLoading(true);
     try {
-      await api.post('/income/add', { amount: parseFloat(amount), source, description, date, currency, account_id: accountId || null });
+      await api.post('/api/income', { amount: parseFloat(amount), source, description, date, currency, account_id: accountId || null });
       router.push('/dashboard');
     } catch (err) { setError(err.response?.data?.error || 'Failed to add income.'); }
     finally { setLoading(false); }

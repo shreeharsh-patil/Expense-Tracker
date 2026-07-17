@@ -137,4 +137,52 @@ router.get('/api/profile', async (req, res) => {
     }
 });
 
+router.post('/api/profile', profileUpload.single('profile_photo'), async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+
+    const new_name = (req.body.name || '').trim();
+    const new_email = (req.body.email || '').trim().toLowerCase();
+    const new_phone = (req.body.phone || '').trim();
+    const new_currency = (req.body.preferred_currency || 'INR').trim();
+
+    if (!new_name || new_name.length < 2) {
+        return res.status(400).json({ error: 'Name must be at least 2 characters.' });
+    }
+    if (!/^[^@]+@[^@]+\.[^@]+$/.test(new_email)) {
+        return res.status(400).json({ error: 'Invalid email address.' });
+    }
+
+    try {
+        const user = await User.findById(user_id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const conflict = await User.findOne({ email: new_email, _id: { $ne: user_id } });
+        if (conflict) {
+            return res.status(400).json({ error: 'Email address already in use.' });
+        }
+
+        let new_avatar_url = user.avatar_url;
+        if (req.file) {
+            new_avatar_url = `/uploads/profile_pics/${req.file.filename}`;
+        }
+
+        user.name = new_name;
+        user.email = new_email;
+        user.phone = new_phone;
+        user.avatar_url = new_avatar_url;
+        user.preferred_currency = new_currency;
+        await user.save();
+
+        req.session.user_name = new_name;
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

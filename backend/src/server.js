@@ -33,34 +33,34 @@ async function seed_db() {
     const bcrypt = require('bcryptjs');
 
     try {
-        const existing = await User.countDocuments();
-        if (existing > 0) {
-            return;
-        }
-
         const password_hash = await bcrypt.hash('demo123', 10);
-        const demoUser = new User({
-            name: "Demo User",
-            email: "demo@spendly.com",
-            password_hash,
-            email_verified: true
-        });
-        await demoUser.save();
+        const demoUser = await User.findOneAndUpdate(
+            { email: 'demo@spendly.com' },
+            {
+                name: 'Demo User',
+                email: 'demo@spendly.com',
+                password_hash,
+                email_verified: true
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
 
         const user_id = demoUser._id;
-        const sample_expenses = [
-            { user_id, amount: 850.00,  category: "Food",          date: "2026-04-01", description: "Grocery run - weekly vegetables and dairy" },
-            { user_id, amount: 320.00,  category: "Transport",     date: "2026-04-03", description: "Ola cab - commute to office" },
-            { user_id, amount: 1500.00, category: "Bills",         date: "2026-04-05", description: "Electricity bill for March" },
-            { user_id, amount: 600.00,  category: "Health",        date: "2026-04-08", description: "Pharmacy - vitamins and medicines" },
-            { user_id, amount: 450.00,  category: "Entertainment", date: "2026-04-10", description: "Netflix + Spotify subscriptions" },
-            { user_id, amount: 2200.00, category: "Shopping",      date: "2026-04-13", description: "Myntra order - summer clothing haul" },
-            { user_id, amount: 780.00,  category: "Food",          date: "2026-04-15", description: "Zomato orders for the week" },
-            { user_id, amount: 300.00,  category: "Other",         date: "2026-04-17", description: "Miscellaneous - stationery and home supplies" }
-        ];
-
-        await Expense.insertMany(sample_expenses);
-        console.log('Database seeded with demo data.');
+        const existingExpenses = await Expense.countDocuments({ user_id });
+        if (existingExpenses === 0) {
+            const sample_expenses = [
+                { user_id, amount: 850.00,  category: "Food",          date: "2026-04-01", description: "Grocery run - weekly vegetables and dairy" },
+                { user_id, amount: 320.00,  category: "Transport",     date: "2026-04-03", description: "Ola cab - commute to office" },
+                { user_id, amount: 1500.00, category: "Bills",         date: "2026-04-05", description: "Electricity bill for March" },
+                { user_id, amount: 600.00,  category: "Health",        date: "2026-04-08", description: "Pharmacy - vitamins and medicines" },
+                { user_id, amount: 450.00,  category: "Entertainment", date: "2026-04-10", description: "Netflix + Spotify subscriptions" },
+                { user_id, amount: 2200.00, category: "Shopping",      date: "2026-04-13", description: "Myntra order - summer clothing haul" },
+                { user_id, amount: 780.00,  category: "Food",          date: "2026-04-15", description: "Zomato orders for the week" },
+                { user_id, amount: 300.00,  category: "Other",         date: "2026-04-17", description: "Miscellaneous - stationery and home supplies" }
+            ];
+            await Expense.insertMany(sample_expenses);
+            console.log('Database seeded with demo data.');
+        }
     } catch (err) {
         console.error('Error seeding database:', err);
     }
@@ -365,15 +365,6 @@ env.addFilter('substring', (str, start, end) => {
     if (!str) return '';
     return str.substring(start, end);
 });
-env.addFilter('format', (fmt, val) => {
-    if (typeof fmt === 'string' && val !== undefined) {
-        if (fmt.includes('%s')) return fmt.replace('%s', String(val));
-        if (fmt.includes('%d')) return fmt.replace('%d', String(Math.round(val)));
-        if (fmt.includes('%f')) return fmt.replace(/%([.\d]+)f/, (m, dec) => Number(val).toFixed(parseInt(dec) || 0));
-    }
-    return String(val);
-});
-
 // Flask url_for replacement
 env.addGlobal('url_for', (dest, options = {}) => {
     if (dest === 'static') {
@@ -497,13 +488,18 @@ app.use((req, res) => {
     if (req.path.startsWith('/api/')) {
         return res.status(404).json({ error: 'Not found' });
     }
-    res.status(404).render('500.html');
+    try {
+        res.status(404).render('404.html');
+    } catch {
+        res.status(404).send('Page not found');
+    }
 });
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
     if (req.path.startsWith('/api/')) {
-        return res.status(500).json({ error: err.message || 'Internal server error' });
+        const message = process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message;
+        return res.status(500).json({ error: message });
     }
     try {
         res.status(500).render('500.html');

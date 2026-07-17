@@ -48,7 +48,7 @@ function AccountsManager() {
     e.preventDefault();
     const data = new FormData(e.target);
     try {
-      await api.post('/accounts/add', Object.fromEntries(data));
+      await api.post('/api/accounts', Object.fromEntries(data));
       setShowAddModal(false);
       api.get('/api/accounts').then(res => setAccounts(res.data || [])).catch(() => {});
     } catch (err) { setError(err.response?.data?.error || 'Failed to add account'); }
@@ -59,7 +59,7 @@ function AccountsManager() {
     if (!editingAccount) return;
     const data = new FormData(e.target);
     try {
-      await api.post(`/accounts/${editingAccount.id}/edit`, { name: data.get('name'), type: data.get('type'), currency: data.get('currency'), is_active: data.get('is_active') === '1' });
+      await api.put(`/api/accounts/${editingAccount.id}`, { name: data.get('name'), type: data.get('type'), currency: data.get('currency'), is_active: data.get('is_active') === '1' });
       setShowEditModal(false); setEditingAccount(null);
       api.get('/api/accounts').then(res => setAccounts(res.data || [])).catch(() => {});
     } catch (err) { setError(err.response?.data?.error || 'Failed to update account'); }
@@ -67,7 +67,7 @@ function AccountsManager() {
 
   const handleDelete = async (id) => {
     try {
-      await api.post(`/accounts/${id}/delete`);
+      await api.delete(`/api/accounts/${id}`);
       api.get('/api/accounts').then(res => setAccounts(res.data || [])).catch(() => {});
     } catch (err) { setError('Failed to delete account'); }
   };

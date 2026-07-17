@@ -566,6 +566,34 @@ router.post('/receipts/:id/delete', async (req, res, next) => {
     }
 });
 
+router.delete('/api/receipts/:id', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const receipt_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(receipt_id)) {
+        return res.status(404).json({ error: 'Receipt not found.' });
+    }
+
+    try {
+        const receipt = await Receipt.findOne({ _id: receipt_id, user_id });
+        if (!receipt) {
+            return res.status(404).json({ error: 'Receipt not found.' });
+        }
+        if (receipt.filepath && receipt.filepath.startsWith(receiptFolder)) {
+            try { await fs.promises.unlink(receipt.filepath); } catch (e) {
+                if (e.code !== 'ENOENT') console.error("Error deleting receipt file:", e);
+            }
+        }
+        await Receipt.deleteOne({ _id: receipt_id, user_id });
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 // ------------------------------------------------------------------ //
 // JSON API Endpoints                                                 //
 // ------------------------------------------------------------------ //
@@ -635,6 +663,171 @@ router.get('/api/receipts', async (req, res) => {
 // ------------------------------------------------------------------ //
 // Single Expense JSON API Endpoint                                   //
 // ------------------------------------------------------------------ //
+router.post('/api/expenses', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+
+    const [valid, result] = validate_amount(req.body.amount);
+    if (!valid) {
+        return res.status(400).json({ error: result });
+    }
+
+    const amount = result;
+    let category = req.body.category;
+    const payment_method = req.body.payment_method || 'Cash';
+    const description = req.body.description || '';
+    const date = req.body.date;
+    const currency = req.body.currency;
+    const account_id = req.body.account_id && mongoose.isValidObjectId(req.body.account_id) ? req.body.account_id : null;
+
+    if (!is_valid_date(date)) {
+        return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD.' });
+    }
+
+    let tag_ids = req.body.tag_ids || [];
+    if (!Array.isArray(tag_ids)) tag_ids = [tag_ids];
+
+    try {
+        const rulesResult = await apply_smart_rules(user_id, description, category, tag_ids);
+        category = rulesResult.category;
+        tag_ids = rulesResult.tag_ids;
+
+        const newExpense = new Expense({
+            user_id, amount, category, payment_method, description, date, currency, account_id,
+            tags: tag_ids.filter(t => mongoose.isValidObjectId(t))
+        });
+        await newExpense.save();
+        cache_clear_user(user_id);
+        return res.json({ success: true, id: newExpense._id.toString() });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/api/expenses/:id/edit', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const expense_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(expense_id)) {
+        return res.status(404).json({ error: 'Expense not found.' });
+    }
+
+    const [valid, result] = validate_amount(req.body.amount);
+    if (!valid) {
+        return res.status(400).json({ error: result });
+    }
+
+    const amount = result;
+    const category = req.body.category;
+    const payment_method = req.body.payment_method || 'Cash';
+    const description = req.body.description || '';
+    const date = req.body.date;
+    const currency = req.body.currency;
+    const account_id = req.body.account_id && mongoose.isValidObjectId(req.body.account_id) ? req.body.account_id : null;
+    let tag_ids = req.body.tag_ids || [];
+    if (!Array.isArray(tag_ids)) tag_ids = [tag_ids];
+
+    try {
+        const expense = await Expense.findOne({ _id: expense_id, user_id });
+        if (!expense) {
+            return res.status(404).json({ error: 'Expense not found.' });
+        }
+        expense.amount = amount;
+        expense.category = category;
+        expense.payment_method = payment_method;
+        expense.description = description;
+        expense.date = date;
+        expense.currency = currency;
+        expense.account_id = account_id;
+        expense.tags = tag_ids.filter(t => mongoose.isValidObjectId(t));
+        await expense.save();
+        cache_clear_user(user_id);
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/api/expenses/:id/delete', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const expense_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(expense_id)) {
+        return res.status(404).json({ error: 'Expense not found.' });
+    }
+
+    try {
+        await Expense.deleteOne({ _id: expense_id, user_id });
+        await Receipt.updateMany({ expense_id }, { expense_id: null });
+        await mongoose.model('BillSplit').deleteMany({ expense_id });
+        cache_clear_user(user_id);
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+// ------------------------------------------------------------------ //
+// Recurring API Endpoints                                             //
+// ------------------------------------------------------------------ //
+router.post('/api/recurring', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+
+    const [valid, result] = validate_amount(req.body.amount);
+    if (!valid) {
+        return res.status(400).json({ error: result });
+    }
+    const amount = result;
+    const category = req.body.category;
+    const payment_method = req.body.payment_method || 'Cash';
+    const description = req.body.description || '';
+    const day = parseInt(req.body.day_of_month || '', 10);
+    const currency = req.body.currency;
+
+    if (isNaN(day) || day < 1 || day > 28) {
+        return res.status(400).json({ error: 'Day of month must be between 1 and 28.' });
+    }
+
+    try {
+        const newRec = new RecurringExpense({ user_id, amount, category, payment_method, description, day_of_month: day, currency });
+        await newRec.save();
+        cache_clear_user(user_id);
+        return res.json({ success: true, id: newRec._id.toString() });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/api/recurring/:id/delete', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const rec_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(rec_id)) {
+        return res.status(404).json({ error: 'Recurring expense not found.' });
+    }
+
+    try {
+        await RecurringExpense.deleteOne({ _id: rec_id, user_id: req.session.user_id });
+        cache_clear_user(req.session.user_id);
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 router.get('/api/expenses/:id', async (req, res) => {
     if (!req.session.user_id) {
         return res.status(401).json({ error: 'Not authenticated' });

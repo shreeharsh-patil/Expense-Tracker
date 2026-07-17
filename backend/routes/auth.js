@@ -107,7 +107,9 @@ async function handleOAuthAuthorize(req, res, provider, code, redirect_uri) {
             req.session.user_id = user._id.toString();
             req.session.user_name = user.name;
             await user.save();
-            await send_signin_confirmation(email, user.name, now_str, ip_addr, provider);
+            send_signin_confirmation(email, user.name, now_str, ip_addr, provider).catch(err => {
+                console.error('Sign-in confirmation email failed:', err.message);
+            });
             req.flash('success', `Welcome back, ${user.name}!`);
             return res.redirect('/dashboard');
         }
@@ -121,7 +123,9 @@ async function handleOAuthAuthorize(req, res, provider, code, redirect_uri) {
             await existing.save();
             req.session.user_id = existing._id.toString();
             req.session.user_name = existing.name;
-            await send_signin_confirmation(email, existing.name, now_str, ip_addr, provider);
+            send_signin_confirmation(email, existing.name, now_str, ip_addr, provider).catch(err => {
+                console.error('Sign-in confirmation email failed:', err.message);
+            });
             req.flash('success', 'Linked OAuth account. Welcome back!');
             return res.redirect('/dashboard');
         }
@@ -139,7 +143,9 @@ async function handleOAuthAuthorize(req, res, provider, code, redirect_uri) {
 
         req.session.user_id = newUser._id.toString();
         req.session.user_name = newUser.name;
-        await send_signin_confirmation(email, name, now_str, ip_addr, provider);
+        send_signin_confirmation(email, name, now_str, ip_addr, provider).catch(err => {
+            console.error('Sign-in confirmation email failed:', err.message);
+        });
         req.flash('success', 'Account created successfully!');
         return res.redirect('/dashboard');
 
@@ -214,7 +220,7 @@ router.get('/register', (req, res) => {
     });
 });
 
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
     if (req.session.user_id) {
         return res.redirect('/dashboard');
     }
@@ -228,89 +234,151 @@ router.post('/register', async (req, res) => {
             return res.redirect('/register');
         }
 
-        const stored = await EmailOtp.findOne({
-            email: reg_data.email,
-            otp: otp_code,
-            used: false,
-            expires_at: { $gt: new Date() }
-        }).sort({ _id: -1 });
-
-        if (!stored) {
-            req.flash('danger', 'Invalid or expired OTP. Please try again.');
-            return res.render('register.html', {
-                otp_sent: true,
-                otp_email: reg_data.email,
-                otp_name: reg_data.name
-            });
-        }
-
-        // Mark OTP as used
-        stored.used = true;
-        await stored.save();
-
         try {
-            const newUser = new User({
-                name: reg_data.name,
+            const stored = await EmailOtp.findOne({
                 email: reg_data.email,
-                password_hash: reg_data.password_hash,
-                email_verified: true
-            });
-            await newUser.save();
-            delete req.session.pending_registration;
+                otp: otp_code,
+                used: false,
+                expires_at: { $gt: new Date() }
+            }).sort({ _id: -1 });
 
-            req.session.user_id = newUser._id.toString();
-            req.session.user_name = newUser.name;
-            req.flash('success', 'Account created and verified! Welcome!');
-            return res.redirect('/dashboard');
-        } catch (err) {
-            if (err.code === 11000) {
-                req.flash('danger', 'Email already registered. Please log in.');
-                return res.redirect('/login');
+            if (!stored) {
+                req.flash('danger', 'Invalid or expired OTP. Please try again.');
+                return res.render('register.html', {
+                    otp_sent: true,
+                    otp_email: reg_data.email,
+                    otp_name: reg_data.name
+                });
             }
+
+            // Mark OTP as used
+            stored.used = true;
+            await stored.save();
+
+            try {
+                const newUser = new User({
+                    name: reg_data.name,
+                    email: reg_data.email,
+                    password_hash: reg_data.password_hash,
+                    email_verified: true
+                });
+                await newUser.save();
+                delete req.session.pending_registration;
+
+                req.session.user_id = newUser._id.toString();
+                req.session.user_name = newUser.name;
+                req.flash('success', 'Account created and verified! Welcome!');
+                return res.redirect('/dashboard');
+            } catch (err) {
+                if (err.code === 11000) {
+                    req.flash('danger', 'Email already registered. Please log in.');
+                    return res.redirect('/login');
+                }
+                return next(err);
+            }
+        } catch (err) {
             return next(err);
         }
     } else {
         // --- Initial Registration Step ---
-        const name = (req.body.name || '').trim();
-        const email = (req.body.email || '').trim().toLowerCase();
-        const password = req.body.password || '';
-        const confirm_password = req.body.confirm_password || '';
+        try {
+            const name = (req.body.name || '').trim();
+            const email = (req.body.email || '').trim().toLowerCase();
+            const password = req.body.password || '';
+            const confirm_password = req.body.confirm_password || '';
 
-        if (!name || name.length < 2) {
-            req.flash('danger', 'Name must be at least 2 characters.');
-            return res.render('register.html');
+            if (!name || name.length < 2) {
+                req.flash('danger', 'Name must be at least 2 characters.');
+                return res.render('register.html');
+            }
+            if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+                req.flash('danger', 'Invalid email address.');
+                return res.render('register.html');
+            }
+            if (password.length < 6) {
+                req.flash('danger', 'Password must be at least 6 characters.');
+                return res.render('register.html');
+            }
+            if (password !== confirm_password) {
+                req.flash('danger', 'Passwords do not match.');
+                return res.render('register.html');
+            }
+
+            // Check if email already registered
+            const existing = await User.findOne({ email });
+            if (existing) {
+                req.flash('danger', 'Email already registered. Please log in.');
+                return res.render('register.html');
+            }
+
+            // Generate and send OTP
+            const otp = generate_otp(email);
+            if (otp === null) {
+                const cooldown = get_otp_remaining_cooldown(email);
+                req.flash('warning', `Please wait ${cooldown} seconds before requesting another OTP.`);
+                return res.render('register.html');
+            }
+
+            const password_hash = await bcrypt.hash(password, 10);
+            const expires_at = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+            const emailOtp = new EmailOtp({
+                email,
+                otp,
+                name,
+                password_hash,
+                expires_at
+            });
+            await emailOtp.save();
+
+            req.session.pending_registration = {
+                name,
+                email,
+                password_hash
+            };
+
+            // Send OTP email
+            const emailResult = await send_otp_email(email, name, otp);
+            if (!emailResult.success) {
+                if (process.env.NODE_ENV !== 'production') {
+                    console.log(`\n[DEV ONLY] Failed to send OTP email to ${email}. Check email configuration.\n`);
+                }
+            }
+
+            req.flash('info', 'A verification code has been sent to your email.');
+            return res.render('register.html', {
+                otp_sent: true,
+                otp_email: email,
+                otp_name: name
+            });
+        } catch (err) {
+            return next(err);
         }
-        if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
-            req.flash('danger', 'Invalid email address.');
-            return res.render('register.html');
-        }
-        if (password.length < 6) {
-            req.flash('danger', 'Password must be at least 6 characters.');
-            return res.render('register.html');
-        }
-        if (password !== confirm_password) {
-            req.flash('danger', 'Passwords do not match.');
-            return res.render('register.html');
+    }
+});
+
+router.post('/resend-otp', async (req, res, next) => {
+    try {
+        const reg_data = req.session.pending_registration;
+        if (!reg_data) {
+            req.flash('danger', 'Registration session not found.');
+            return res.redirect('/register');
         }
 
-        // Check if email already registered
-        const existing = await User.findOne({ email });
-        if (existing) {
-            req.flash('danger', 'Email already registered. Please log in.');
-            return res.render('register.html');
+        const { email, name, password_hash } = reg_data;
+        const cooldown = get_otp_remaining_cooldown(email);
+        if (cooldown > 0) {
+            req.flash('warning', `Please wait ${cooldown} seconds before requesting a new code.`);
+            return res.redirect('/register');
         }
 
-        // Generate and send OTP
         const otp = generate_otp(email);
         if (otp === null) {
-            const cooldown = get_otp_remaining_cooldown(email);
-            req.flash('warning', `Please wait ${cooldown} seconds before requesting another OTP.`);
-            return res.render('register.html');
+            req.flash('warning', 'Too many requests. Please wait a moment.');
+            return res.redirect('/register');
         }
 
-        const password_hash = await bcrypt.hash(password, 10);
-        const expires_at = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
+        const expires_at = new Date(Date.now() + 10 * 60 * 1000);
         const emailOtp = new EmailOtp({
             email,
             otp,
@@ -320,65 +388,15 @@ router.post('/register', async (req, res) => {
         });
         await emailOtp.save();
 
-        req.session.pending_registration = {
-            name,
-            email,
-            password_hash
-        };
-
-        // Send OTP email
         const emailResult = await send_otp_email(email, name, otp);
         if (!emailResult.success) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.log(`\n[DEV ONLY] Failed to send OTP email to ${email}. Check email configuration.\n`);
-            }
+            console.error(`[DEV] OTP email delivery failed for ${email}`);
         }
-
-        req.flash('info', 'A verification code has been sent to your email.');
-        return res.render('register.html', {
-            otp_sent: true,
-            otp_email: email,
-            otp_name: name
-        });
-    }
-});
-
-router.post('/resend-otp', async (req, res) => {
-    const reg_data = req.session.pending_registration;
-    if (!reg_data) {
-        req.flash('danger', 'Registration session not found.');
+        req.flash('info', 'A new verification code has been sent.');
         return res.redirect('/register');
+    } catch (err) {
+        return next(err);
     }
-
-    const { email, name, password_hash } = reg_data;
-    const cooldown = get_otp_remaining_cooldown(email);
-    if (cooldown > 0) {
-        req.flash('warning', `Please wait ${cooldown} seconds before requesting a new code.`);
-        return res.redirect('/register');
-    }
-
-    const otp = generate_otp(email);
-    if (otp === null) {
-        req.flash('warning', 'Too many requests. Please wait a moment.');
-        return res.redirect('/register');
-    }
-
-    const expires_at = new Date(Date.now() + 10 * 60 * 1000);
-    const emailOtp = new EmailOtp({
-        email,
-        otp,
-        name,
-        password_hash,
-        expires_at
-    });
-    await emailOtp.save();
-
-    const emailResult = await send_otp_email(email, name, otp);
-    if (!emailResult.success) {
-        console.error(`[DEV] OTP email delivery failed for ${email}`);
-    }
-    req.flash('info', 'A new verification code has been sent.');
-    return res.redirect('/register');
 });
 
 // ------------------------------------------------------------------ //
@@ -391,43 +409,47 @@ router.get('/login', (req, res) => {
     res.render('login.html');
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
     if (req.session.user_id) {
         return res.redirect('/dashboard');
     }
 
-    const email = (req.body.email || '').trim().toLowerCase();
-    const password = req.body.password || '';
+    try {
+        const email = (req.body.email || '').trim().toLowerCase();
+        const password = req.body.password || '';
 
-    if (!email || !password) {
-        req.flash('danger', 'Email and password are required.');
+        if (!email || !password) {
+            req.flash('danger', 'Email and password are required.');
+            return res.render('login.html');
+        }
+
+        const ip = req.ip || 'unknown';
+        if (is_rate_limited(ip)) {
+            req.flash('danger', 'Too many login attempts. Please try again in 15 minutes.');
+            return res.status(429).render('login.html');
+        }
+
+        const user = await User.findOne({ email });
+        if (user && user.password_hash && await bcrypt.compare(password, user.password_hash)) {
+            req.session.user_id = user._id.toString();
+            req.session.user_name = user.name;
+
+            const now_str = formatCurrentTime();
+            const ip_addr = req.ip || 'Unknown';
+            send_signin_confirmation(email, user.name, now_str, ip_addr, 'email').catch(err => {
+                console.error('Sign-in confirmation email failed:', err.message);
+            });
+
+            req.flash('success', `Welcome back, ${user.name}!`);
+            return res.redirect('/dashboard');
+        }
+
+        record_login_attempt(ip);
+        req.flash('danger', 'Invalid credentials.');
         return res.render('login.html');
+    } catch (err) {
+        return next(err);
     }
-
-    const ip = req.ip || 'unknown';
-    if (is_rate_limited(ip)) {
-        req.flash('danger', 'Too many login attempts. Please try again in 15 minutes.');
-        return res.status(429).render('login.html');
-    }
-
-    const user = await User.findOne({ email });
-    if (user && user.password_hash && await bcrypt.compare(password, user.password_hash)) {
-        req.session.user_id = null;
-        req.session.user_name = null;
-        req.session.user_id = user._id.toString();
-        req.session.user_name = user.name;
-
-        const now_str = formatCurrentTime();
-        const ip_addr = req.ip || 'Unknown';
-        await send_signin_confirmation(email, user.name, now_str, ip_addr, 'email');
-
-        req.flash('success', `Welcome back, ${user.name}!`);
-        return res.redirect('/dashboard');
-    }
-
-    record_login_attempt(ip);
-    req.flash('danger', 'Invalid credentials.');
-    return res.render('login.html');
 });
 
 router.get('/logout', (req, res) => {
@@ -443,16 +465,20 @@ router.get('/forgot-password', (req, res) => {
     res.render('forgot_password.html');
 });
 
-router.post('/forgot-password', async (req, res) => {
-    const email = (req.body.email || '').trim().toLowerCase();
-    const user = await User.findOne({ email });
-    if (user) {
-        const token = generate_reset_token(email);
-        const reset_url = `${req.protocol}://${req.get('host')}/reset-password/${token}`;
-        await send_password_reset_email(email, reset_url);
+router.post('/forgot-password', async (req, res, next) => {
+    try {
+        const email = (req.body.email || '').trim().toLowerCase();
+        const user = await User.findOne({ email });
+        if (user) {
+            const token = generate_reset_token(email);
+            const reset_url = `${req.protocol}://${req.get('host')}/reset-password/${token}`;
+            await send_password_reset_email(email, reset_url);
+        }
+        req.flash('info', 'If that email is registered, a password reset link has been sent.');
+        return res.redirect('/login');
+    } catch (err) {
+        return next(err);
     }
-    req.flash('info', 'If that email is registered, a password reset link has been sent.');
-    return res.redirect('/login');
 });
 
 router.get('/reset-password/:token', (req, res) => {
@@ -466,35 +492,39 @@ router.get('/reset-password/:token', (req, res) => {
     res.redirect(`${frontendUrl}/reset-password/${token}`);
 });
 
-router.post('/reset-password/:token', async (req, res) => {
-    const token = req.params.token;
-    const email = verify_reset_token(token);
-    if (!email) {
-        req.flash('danger', 'Invalid or expired reset link. Please request a new one.');
-        return res.redirect('/forgot-password');
-    }
+router.post('/reset-password/:token', async (req, res, next) => {
+    try {
+        const token = req.params.token;
+        const email = verify_reset_token(token);
+        if (!email) {
+            req.flash('danger', 'Invalid or expired reset link. Please request a new one.');
+            return res.redirect('/forgot-password');
+        }
 
-    const password = req.body.password || '';
-    const confirm = req.body.confirm_password || '';
+        const password = req.body.password || '';
+        const confirm = req.body.confirm_password || '';
 
-    if (!password || password.length < 6) {
-        req.flash('danger', 'Password must be at least 6 characters.');
-        return res.render('reset_password.html', { token });
-    }
-    if (password !== confirm) {
-        req.flash('danger', 'Passwords do not match.');
-        return res.render('reset_password.html', { token });
-    }
+        if (!password || password.length < 6) {
+            req.flash('danger', 'Password must be at least 6 characters.');
+            return res.render('reset_password.html', { token });
+        }
+        if (password !== confirm) {
+            req.flash('danger', 'Passwords do not match.');
+            return res.render('reset_password.html', { token });
+        }
 
-    const user = await User.findOne({ email });
-    if (user) {
-        user.password_hash = await bcrypt.hash(password, 10);
-        await user.save();
-    }
+        const user = await User.findOne({ email });
+        if (user) {
+            user.password_hash = await bcrypt.hash(password, 10);
+            await user.save();
+        }
 
-    consume_reset_token(token);
-    req.flash('success', 'Password reset successfully! Please log in.');
-    return res.redirect('/login');
+        consume_reset_token(token);
+        req.flash('success', 'Password reset successfully! Please log in.');
+        return res.redirect('/login');
+    } catch (err) {
+        return next(err);
+    }
 });
 
 // ------------------------------------------------------------------ //
@@ -542,7 +572,9 @@ router.post('/api/auth/login', async (req, res) => {
 
             const now_str = formatCurrentTime();
             const ip_addr = req.ip || 'Unknown';
-            await send_signin_confirmation(email, user.name, now_str, ip_addr, 'email');
+            send_signin_confirmation(email, user.name, now_str, ip_addr, 'email').catch(err => {
+                console.error('Sign-in confirmation email failed:', err.message);
+            });
 
             return res.json({
                 success: true,

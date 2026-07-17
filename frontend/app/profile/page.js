@@ -45,7 +45,9 @@ function ProfileSettings() {
       formData.append('email', email);
       formData.append('phone', phone);
       formData.append('preferred_currency', currency);
-      await api.post('/profile', formData);
+      await api.post('/api/profile', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       setMessageType('success');
       setMessage('Profile updated successfully!');
     } catch (err) {

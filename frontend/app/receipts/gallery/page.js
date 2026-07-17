@@ -35,7 +35,7 @@ function ReceiptGallery() {
   useEffect(() => { if (!user) return; fetchReceipts(); }, [user, fetchReceipts]);
 
   const handleDelete = async (id) => {
-    try { await api.post(`/receipts/${id}/delete`); fetchReceipts(page); }
+    try { await api.delete(`/api/receipts/${id}`); fetchReceipts(page); }
     catch (err) { setError('Failed to delete receipt'); }
   };
 

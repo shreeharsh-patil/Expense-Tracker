@@ -168,10 +168,111 @@ router.get('/api/categories', async (req, res) => {
         const cats = await CustomCategory.find({ user_id: req.session.user_id }).sort({ name: 1 }).lean();
         res.json(cats.map(c => ({
             id: c._id.toString(),
-            name: c.name
+            name: c.name,
+            icon: c.icon || 'category',
+            color: c.color || '#6366f1'
         })));
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/api/categories', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const name = (req.body.name || '').trim();
+    const icon = (req.body.icon || 'category').trim();
+    const color = (req.body.color || '#6366f1').trim();
+
+    if (!name || name.length < 2) {
+        return res.status(400).json({ error: 'Category name must be at least 2 characters.' });
+    }
+    if (!is_valid_hex_color(color)) {
+        return res.status(400).json({ error: 'Invalid category color.' });
+    }
+
+    try {
+        const newCat = new CustomCategory({ user_id, name, icon, color });
+        await newCat.save();
+        return res.json({ success: true, id: newCat._id.toString() });
+    } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({ error: `Category "${name}" already exists.` });
+        }
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.put('/api/categories/:id', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const cat_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(cat_id)) {
+        return res.status(404).json({ error: 'Category not found.' });
+    }
+
+    const name = (req.body.name || '').trim();
+    const icon = (req.body.icon || 'category').trim();
+    const color = (req.body.color || '#6366f1').trim();
+
+    if (!name || name.length < 2) {
+        return res.status(400).json({ error: 'Category name must be at least 2 characters.' });
+    }
+    if (!is_valid_hex_color(color)) {
+        return res.status(400).json({ error: 'Invalid category color.' });
+    }
+
+    try {
+        const oldCat = await CustomCategory.findOne({ _id: cat_id, user_id });
+        if (!oldCat) {
+            return res.status(404).json({ error: 'Category not found.' });
+        }
+        await Expense.updateMany(
+            { user_id: new mongoose.Types.ObjectId(user_id), category: oldCat.name },
+            { category: name }
+        );
+        oldCat.name = name;
+        oldCat.icon = icon;
+        oldCat.color = color;
+        await oldCat.save();
+        return res.json({ success: true });
+    } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({ error: `Category "${name}" already exists.` });
+        }
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.delete('/api/categories/:id', async (req, res) => {
+    if (!req.session.user_id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const user_id = req.session.user_id;
+    const cat_id = req.params.id;
+
+    if (!mongoose.isValidObjectId(cat_id)) {
+        return res.status(404).json({ error: 'Category not found.' });
+    }
+
+    try {
+        const cat = await CustomCategory.findOne({ _id: cat_id, user_id });
+        if (!cat) {
+            return res.status(404).json({ error: 'Category not found.' });
+        }
+        await Expense.updateMany(
+            { user_id: new mongoose.Types.ObjectId(user_id), category: cat.name },
+            { category: 'Other' }
+        );
+        await CustomCategory.deleteOne({ _id: cat_id, user_id: new mongoose.Types.ObjectId(user_id) });
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
     }
 });
 

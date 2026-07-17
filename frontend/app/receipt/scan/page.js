@@ -16,6 +16,8 @@ function ScanReceiptForm() {
   const [ocrResult, setOcrResult] = useState(null);
   const [error, setError] = useState('');
   const [dragActive, setDragActive] = useState(false);
+  const [editAmount, setEditAmount] = useState('');
+  const [editCategory, setEditCategory] = useState('');
   const fileInputRef = useRef(null);
   const dropZoneRef = useRef(null);
 
@@ -81,6 +83,8 @@ function ScanReceiptForm() {
 
       if (response.data) {
         setOcrResult(response.data);
+        setEditAmount(String(response.data.amount || ''));
+        setEditCategory(response.data.category || 'Food');
       }
     } catch (err) {
       setError(err.response?.data?.error || 'OCR processing failed. Please try again.');
@@ -96,12 +100,14 @@ function ScanReceiptForm() {
     setLoading(true);
     try {
       await api.post('/api/expenses/add-expense', {
-        amount: ocrResult.amount,
-        category: ocrResult.category,
+        amount: parseFloat(editAmount) || ocrResult.amount,
+        category: editCategory || ocrResult.category,
         description: ocrResult.raw_text?.substring(0, 200) || '',
         source: 'receipt_scan'
       });
       setOcrResult(null);
+      setEditAmount('');
+      setEditCategory('');
       setFile(null);
       setPreview(null);
       setFileName('');
@@ -258,7 +264,8 @@ function ScanReceiptForm() {
                       type="number"
                       step="0.01"
                       name="amount"
-                      defaultValue={ocrResult.amount || ''}
+                      value={editAmount}
+                      onChange={(e) => setEditAmount(e.target.value)}
                       className="w-full bg-transparent border-b border-foreground/10 py-2.5 pl-7 outline-none focus:border-foreground/40 transition-all text-sm font-mono text-foreground"
                       placeholder="Enter amount"
                       required
@@ -275,7 +282,8 @@ function ScanReceiptForm() {
                     <Tags className="absolute left-0 text-muted-foreground w-[18px] h-[18px]" />
                     <select
                       name="category"
-                      defaultValue={ocrResult.category || ''}
+                      value={editCategory}
+                      onChange={(e) => setEditCategory(e.target.value)}
                       className="w-full bg-transparent border-b border-foreground/10 py-2.5 pl-7 outline-none focus:border-foreground/40 transition-all text-sm text-foreground appearance-none cursor-pointer"
                     >
                       <option value="Food">Food & Dining</option>

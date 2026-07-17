@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // Configure Axios defaults
 axios.defaults.withCredentials = true;
@@ -90,6 +90,7 @@ export function AuthProvider({ children }) {
     } catch (err) {
       // Logout API failed — clear local state anyway
     }
+    responseCache.clear();
     setUser(null);
   };
 

@@ -46,7 +46,7 @@ function RulesManager() {
     }
     setError('');
     try {
-      await api.post('/rules/add', {
+      await api.post('/api/rules', {
         name: newName.trim(),
         pattern: newPattern.trim(),
         category: newCategory,
@@ -64,7 +64,7 @@ function RulesManager() {
 
   const handleToggle = async (id) => {
     try {
-      await api.post(`/rules/${id}/toggle`);
+      await api.post(`/api/rules/${id}/toggle`);
       loadData();
     } catch (err) {
       setError('Failed to toggle rule');
@@ -73,7 +73,7 @@ function RulesManager() {
 
   const handleDelete = async (id) => {
     try {
-      await api.post(`/rules/${id}/delete`);
+      await api.delete(`/api/rules/${id}`);
       loadData();
     } catch (err) {
       setError('Failed to delete rule');
