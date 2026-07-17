@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -48,6 +49,7 @@ api.interceptors.response.use(
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const checkAuth = useCallback(async () => {
     try {
@@ -92,6 +94,7 @@ export function AuthProvider({ children }) {
     }
     responseCache.clear();
     setUser(null);
+    router.push('/');
   };
 
   return (
