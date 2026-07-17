@@ -543,7 +543,9 @@ router.get('/api/auth/me', async (req, res) => {
             user: {
                 id: user._id.toString(),
                 name: user.name,
-                email: user.email
+                email: user.email,
+                avatar_url: user.avatar_url || '',
+                oauth_provider: user.oauth_provider || ''
             }
         });
     } catch (err) {
@@ -581,7 +583,9 @@ router.post('/api/auth/login', async (req, res) => {
                 user: {
                     id: user._id.toString(),
                     name: user.name,
-                    email: user.email
+                    email: user.email,
+                    avatar_url: user.avatar_url || '',
+                    oauth_provider: user.oauth_provider || ''
                 }
             });
         }
