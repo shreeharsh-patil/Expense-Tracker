@@ -580,7 +580,8 @@ router.get('/api/dashboard', async (req, res) => {
     }
     const user_id = req.session.user_id;
     const now = new Date();
-    const [cYear, cMonth] = [`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`].join('').split('-').map(Number);
+    const cYear = now.getFullYear();
+    const cMonth = now.getMonth() + 1;
     const nextMonthVal = cMonth === 12 ? 1 : cMonth + 1;
     const nextYearVal = cMonth === 12 ? cYear + 1 : cYear;
     const start_date = `${cYear}-${String(cMonth).padStart(2, '0')}-01`;

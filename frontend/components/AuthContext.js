@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
 // Configure Axios defaults
 axios.defaults.withCredentials = true;

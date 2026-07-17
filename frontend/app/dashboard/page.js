@@ -300,7 +300,7 @@ function DashboardContent() {
                 </div>
               </div>
 
-              <div className="border border-foreground/20 bg-foreground/[0.04] hover:bg-foreground/[0.06] p-6 flex items-center justify-between group cursor-pointer transition-all duration-300 active:scale-[0.98]" onClick={() => window.location = '/reports'}>
+              <Link href="/reports" className="border border-foreground/20 bg-foreground/[0.04] hover:bg-foreground/[0.06] p-6 flex items-center justify-between group cursor-pointer transition-all duration-300 active:scale-[0.98]">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -311,7 +311,7 @@ function DashboardContent() {
                 <div className="w-10 h-10 border border-foreground/10 flex items-center justify-center transition-all group-hover:-translate-y-0.5 shrink-0">
                   <ArrowUpRight className="w-5 h-5 text-muted-foreground" />
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
