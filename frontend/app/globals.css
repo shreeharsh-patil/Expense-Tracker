@@ -5,43 +5,6 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.985 0.002 260);
-  --foreground: oklch(0.145 0.01 260);
-  --card: oklch(0.97 0.002 260);
-  --card-foreground: oklch(0.145 0.01 260);
-  --popover: oklch(0.985 0.002 260);
-  --popover-foreground: oklch(0.145 0.01 260);
-  --primary: oklch(0.145 0.01 260);
-  --primary-foreground: oklch(0.985 0.002 260);
-  --secondary: oklch(0.92 0.004 260);
-  --secondary-foreground: oklch(0.145 0.01 260);
-  --muted: oklch(0.95 0.003 260);
-  --muted-foreground: oklch(0.55 0.01 260);
-  --accent: oklch(0.92 0.004 260);
-  --accent-foreground: oklch(0.145 0.01 260);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0.002 260);
-  --border: oklch(0.88 0.005 260);
-  --input: oklch(0.75 0.01 260);
-  --ring: oklch(0.145 0.01 260);
-  --chart-1: oklch(0.6 0.1 260);
-  --chart-2: oklch(0.5 0.08 200);
-  --chart-3: oklch(0.5 0.07 30);
-  --chart-4: oklch(0.6 0.09 100);
-  --chart-5: oklch(0.5 0.06 330);
-  --radius: 0.25rem;
-  --sidebar: oklch(0.97 0.002 260);
-  --sidebar-foreground: oklch(0.145 0.01 260);
-  --sidebar-primary: oklch(0.145 0.01 260);
-  --sidebar-primary-foreground: oklch(0.985 0.002 260);
-  --sidebar-accent: oklch(0.92 0.004 260);
-  --sidebar-accent-foreground: oklch(0.145 0.01 260);
-  --sidebar-border: oklch(0.88 0.005 260);
-  --sidebar-ring: oklch(0.55 0.01 260);
-}
-
-/* Dark mode overrides - applied when `.dark` class is present on <html> */
-html.dark {
   --background: oklch(0.06 0.008 260);
   --foreground: oklch(0.94 0.005 90);
   --card: oklch(0.09 0.008 260);
@@ -66,6 +29,7 @@ html.dark {
   --chart-3: oklch(0.52 0.015 90);
   --chart-4: oklch(0.35 0.01 90);
   --chart-5: oklch(0.20 0.008 90);
+  --radius: 0.25rem;
   --sidebar: oklch(0.06 0.008 260);
   --sidebar-foreground: oklch(0.94 0.005 90);
   --sidebar-primary: oklch(0.94 0.005 90);
