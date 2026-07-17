@@ -6,11 +6,22 @@ import { useAuth } from '../AuthContext';
 import { Button } from '@/components/ui/button';
 import { Menu, X, LogOut, User } from 'lucide-react';
 
-const navLinks = [
+const landingNavLinks = [
   { name: 'Features',     href: '#features'      },
   { name: 'How it works', href: '#how-it-works'  },
   { name: 'Testimonials', href: '#testimonials'  },
   { name: 'Pricing',      href: '#pricing'       },
+];
+
+const appNavLinks = [
+  { name: 'Dashboard',  href: '/dashboard'        },
+  { name: 'Reports',    href: '/reports'          },
+  { name: 'Receipts',   href: '/receipts/gallery' },
+  { name: 'Recurring',  href: '/recurring'        },
+  { name: 'Accounts',   href: '/accounts'         },
+  { name: 'Tags',       href: '/tags'             },
+  { name: 'Categories', href: '/categories'       },
+  { name: 'Rules',      href: '/rules'            },
 ];
 
 export function Navigation() {
@@ -54,15 +65,15 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-12">
-            {navLinks.map((link) => (
-              <a
+            {(user ? appNavLinks : landingNavLinks).map((link) => (
+              <Link
                 key={link.name}
                 href={link.href}
                 className={`text-sm transition-colors duration-300 relative group ${isScrolled ? 'text-foreground/70 hover:text-foreground' : 'text-white/70 hover:text-white'}`}
               >
                 {link.name}
                 <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${isScrolled ? 'bg-foreground' : 'bg-white'}`} />
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -70,21 +81,19 @@ export function Navigation() {
           <div className="hidden md:flex items-center gap-4">
             {user ? (
               <>
-                <Link href="/dashboard" className={`transition-all duration-500 ${isScrolled ? 'text-xs text-foreground/70 hover:text-foreground' : 'text-sm text-white/70 hover:text-white'}`}>
-                  Dashboard
-                </Link>
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full border border-foreground/20 flex items-center justify-center text-[10px] font-medium bg-foreground/5">
+                <Link href="/profile" className={`flex items-center gap-2 transition-all duration-500 group ${isScrolled ? 'text-xs text-foreground/70 hover:text-foreground' : 'text-sm text-white/70 hover:text-white'}`}>
+                  <div className="w-7 h-7 rounded-full border border-foreground/20 flex items-center justify-center text-[10px] font-medium bg-foreground/5 group-hover:border-foreground/40 transition-colors">
                     {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : <User className="w-3.5 h-3.5" />}
                   </div>
-                  <button
-                    onClick={logout}
-                    className={`transition-all duration-500 cursor-pointer ${isScrolled ? 'text-foreground/50 hover:text-foreground' : 'text-white/50 hover:text-white'}`}
-                    title="Sign out"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
+                  <span className="hidden lg:inline">{user.name}</span>
+                </Link>
+                <button
+                  onClick={logout}
+                  className={`transition-all duration-500 cursor-pointer ${isScrolled ? 'text-foreground/50 hover:text-foreground' : 'text-white/50 hover:text-white'}`}
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               </>
             ) : (
               <>
@@ -129,20 +138,20 @@ export function Navigation() {
       >
         <div className="flex flex-col h-full px-8 pt-28 pb-8">
           <div className="flex-1 flex flex-col justify-center gap-8">
-            {navLinks.map((link, i) => (
-              <a
+            {(user ? appNavLinks : landingNavLinks).map((link, i) => (
+              <Link
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`text-5xl font-display text-foreground hover:text-muted-foreground transition-all duration-500 ${
-                  isMobileMenuOpen 
-                    ? 'opacity-100 translate-y-0' 
+                  isMobileMenuOpen
+                    ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-4'
                 }`}
                 style={{ transitionDelay: isMobileMenuOpen ? `${i * 75}ms` : '0ms' }}
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </div>
           
@@ -156,11 +165,11 @@ export function Navigation() {
             {user ? (
               <>
                 <Link
-                  href="/dashboard"
+                  href="/profile"
                   className="flex-1 rounded-full h-14 text-base border border-foreground/20 flex items-center justify-center text-sm font-medium hover:bg-foreground/5 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Dashboard
+                  Profile
                 </Link>
                 <button
                   onClick={() => { setIsMobileMenuOpen(false); logout(); }}
